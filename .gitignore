@@ -1,0 +1,15 @@
+# dependencies & build output
+node_modules/
+dist/
+
+# local tooling
+.vercel/
+*.local
+
+# OS cruft
+Thumbs.db
+.DS_Store
+
+# source report — internal document, excluded from the public repo by default.
+# Remove this line if you want the report versioned alongside the app.
+LLM Tokenomics - Detailed Report.docx
