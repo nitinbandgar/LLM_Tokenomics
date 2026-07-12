@@ -267,7 +267,7 @@ export default function TokenPipeline() {
   return (
     <Section
       id="tokens"
-      kicker="Module 01 · How LLMs work"
+      kicker="Module 01 · The unit of account"
       title="Every bill starts with a token"
       lede={
         <>
@@ -313,7 +313,7 @@ export default function TokenPipeline() {
             <strong style={{ color: 'var(--text)' }}>KV cache.</strong> GPU memory holding attention
             state for every token of every active sequence. It grows linearly with context length ×
             concurrency and competes with model weights for scarce HBM — the physical reason long
-            context costs more. (Module 04 lets you play with this.)
+            context costs more. (Module 05 lets you play with this.)
           </p>
           <p>
             <strong style={{ color: 'var(--text)' }}>Parameters &amp; precision.</strong> The weights

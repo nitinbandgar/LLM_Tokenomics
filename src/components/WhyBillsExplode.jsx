@@ -155,7 +155,7 @@ export default function WhyBillsExplode() {
   return (
     <Section
       id="bills"
-      kicker="Module 05 · The demand side"
+      kicker="Module 06 · The demand side"
       title="Why enterprise bills explode"
       lede={
         <>

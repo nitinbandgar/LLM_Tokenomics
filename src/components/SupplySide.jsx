@@ -202,7 +202,7 @@ export default function SupplySide() {
   return (
     <Section
       id="supply"
-      kicker="Module 04 · Supply-side economics"
+      kicker="Module 05 · Supply-side economics"
       title="What a token actually costs to produce"
       lede={
         <>

@@ -82,8 +82,8 @@ export default function Hero() {
         Two things are simultaneously true about LLM economics in 2026: the price of a unit of
         intelligence is <strong>collapsing ~10× per year</strong>, and enterprise LLM bills are{' '}
         <strong>exploding</strong> — global API spend passed $8.4B in 2025 and is doubling in 2026.
-        This is not a contradiction. Scroll through eight interactive modules to understand why —
-        and what to do about it.
+        This is not a contradiction. Step through the nine interactive modules — from the sidebar or
+        the Next button below — to understand why, and what to do about it.
       </p>
       <ParadoxChart />
       <div className="stat-grid">

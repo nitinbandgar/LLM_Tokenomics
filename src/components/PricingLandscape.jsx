@@ -136,7 +136,7 @@ export default function PricingLandscape() {
   return (
     <Section
       id="pricing"
-      kicker="Module 02 · The pricing landscape"
+      kicker="Module 03 · The pricing landscape"
       title="Five meters, three discounts, one collapsing price curve"
       lede={
         <>

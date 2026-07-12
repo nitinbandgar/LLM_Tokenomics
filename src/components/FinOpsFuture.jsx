@@ -86,7 +86,7 @@ export default function FinOpsFuture() {
   return (
     <Section
       id="finops"
-      kicker="Module 07 · Governance & the future"
+      kicker="Module 08 · Governance & the future"
       title="Token FinOps — and the road to 2030"
       lede={
         <>
