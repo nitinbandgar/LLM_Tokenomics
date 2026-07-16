@@ -1,29 +1,11 @@
-import React, { Suspense, useEffect, useMemo, useRef, useState } from 'react'
+import React, { Suspense, useEffect, useMemo, useState } from 'react'
 import { Section, Block, Slider, ResultStrip, Callout } from './ui.jsx'
 import { fmtUSD } from '../data.js'
-import { loadEncoder, encodeToTokens, pseudoTokenize, noise } from '../tokenizer.js'
+import { EXAMPLES, noise, applyTemp } from '../examples.js'
 
 const Transformer3D = React.lazy(() => import('./Transformer3D.jsx'))
 
 const CHIP_COLORS = ['#38d1e0', '#8b7cf7', '#f472b6', '#4ade80', '#fb923c', '#facc15']
-const DEFAULT_TEXT = 'The robot picked up the ball because it was heavy.'
-
-/* ------------------------------------------------------------------ */
-/* Tokenization: real BPE once the vocabulary arrives                  */
-/* ------------------------------------------------------------------ */
-function useTokens(text) {
-  const [enc, setEnc] = useState(null)
-  useEffect(() => {
-    let alive = true
-    loadEncoder().then((e) => alive && setEnc(e)).catch(() => {})
-    return () => { alive = false }
-  }, [])
-  return useMemo(() => {
-    if (!text.trim()) return { real: !!enc, tokens: [] }
-    if (!enc) return { real: false, tokens: pseudoTokenize(text) }
-    return { real: true, tokens: encodeToTokens(enc, text) }
-  }, [enc, text])
-}
 
 function TokChip({ text, i, dim, big }) {
   const c = CHIP_COLORS[i % CHIP_COLORS.length]
@@ -47,31 +29,30 @@ function TokChip({ text, i, dim, big }) {
 /* ------------------------------------------------------------------ */
 const STAGES = [
   { key: 'context', label: 'Context in', title: '1 · Everything starts with the context',
-    desc: 'The model never sees just your message. The system prompt, conversation history, retrieved documents and tool outputs are concatenated with it into one long sequence — the context window. This whole sequence is the input, every single turn, and every part of it is billed.' },
-  { key: 'tokenize', label: 'Tokenize', title: '2 · Your text becomes token IDs',
+    desc: 'The model never sees just the latest message. The system prompt, conversation history, retrieved documents and tool outputs are concatenated with it into one long sequence — the context window. This whole sequence is the input, every single turn, and every part of it is billed.' },
+  { key: 'tokenize', label: 'Tokenize', title: '2 · The text becomes token IDs',
     desc: 'A tokenizer splits the text into subword units and maps each to an integer ID from a fixed vocabulary (~100K entries here). Common words are one token; rare words split into pieces. From here on, the model only ever sees numbers — and this is exactly the unit on your invoice.' },
   { key: 'embed', label: 'Embed', title: '3 · Token IDs become vectors',
     desc: 'Each ID looks up a learned embedding — a vector of thousands of numbers (e.g. 8,192 dimensions) encoding the token’s meaning as geometry: "cat" and "kitten" end up near each other. Position information is mixed in so the model knows word order. These vectors are what actually flow through the network.' },
   { key: 'layers', label: 'Layers · 3D', title: '4 · Through the transformer stack — in 3D',
-    desc: 'Your tokens now rise together through a deep stack of identical layers (~80 in a 70B-class model; 10 shown). In each layer, attention lets the tokens exchange information (pink flashes), then a feed-forward network transforms each one. At the top, a prediction (green) emerges — and loops straight back to the bottom as the next input token. Drag to orbit.' },
+    desc: 'The tokens now rise together through a deep stack of identical layers (~80 in a 70B-class model; 10 shown). In each layer, attention lets the tokens exchange information (pink flashes), then a feed-forward network transforms each one. At the top, a prediction (green) emerges — and loops straight back to the bottom as the next input token. Drag to orbit.' },
   { key: 'attention', label: 'Attention', title: '5 · Attention: every token looks back',
-    desc: 'Inside each layer, every token computes a query and compares it against the keys of all previous tokens. The match scores become weights, and the token pulls in a weighted blend of their values — meaning flows between positions. Click any of your tokens to make it the query.' },
+    desc: 'Inside each layer, every token computes a query and compares it against the keys of all previous tokens. The match scores become weights, and the token pulls in a weighted blend of their values — meaning flows between positions. Click any token to make it the query.' },
   { key: 'predict', label: 'Predict', title: '6 · One probability for every token in the vocabulary',
     desc: 'After the final layer, the last token’s vector is projected onto the whole vocabulary and squashed into a probability distribution (softmax). The model doesn’t "know" the next word — it scores every candidate, and a sampler picks one.' },
   { key: 'loop', label: 'Loop & stream', title: '7 · The chosen token is fed straight back in',
-    desc: 'The sampled token is appended to your sequence and the entire process repeats — one full pass through all the layers, reading all the weights, per token. This autoregressive loop is what you see as a stream of tokens in a chat window, and it is why output tokens cost more than input tokens (Module 02).' },
+    desc: 'The sampled token is appended to the sequence and the entire process repeats — one full pass through all the layers, reading all the weights, per token. This autoregressive loop is what you see as a stream of tokens in a chat window, and it is why output tokens cost more than input tokens (Module 02).' },
 ]
 
-/* Stage 1 — context assembly, with the user's real text */
+/* Stage 1 — context assembly around the chosen sentence */
 function StageContext({ text, nTok }) {
   const [merged, setMerged] = useState(false)
   useEffect(() => { const t = setTimeout(() => setMerged(true), 600); return () => clearTimeout(t) }, [])
-  const preview = text.length > 60 ? text.slice(0, 57) + '…' : text
   const parts = [
     { name: 'System prompt', ex: '“You are a helpful assistant…”', color: 'var(--accent-violet)', tok: '~1,200 tokens' },
     { name: 'Conversation history', ex: 'every earlier turn', color: 'var(--accent-cyan)', tok: '~2,400 tokens' },
     { name: 'Retrieved docs / tool output', ex: 'RAG passages, file contents', color: 'var(--accent-orange)', tok: '~3,000 tokens' },
-    { name: 'Your message', ex: `“${preview}”`, color: 'var(--accent-pink)', tok: `${nTok} token${nTok === 1 ? '' : 's'}` },
+    { name: 'The new message', ex: `“${text}…”`, color: 'var(--accent-pink)', tok: `${nTok} tokens` },
   ]
   return (
     <div>
@@ -99,7 +80,7 @@ function StageContext({ text, nTok }) {
         <div style={{ width: '4%', background: 'rgba(244,114,182,0.6)' }} />
       </div>
       <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 8 }}>
-        The context window — ~6,600 tokens here. Your actual message is the thin pink sliver: in
+        The context window — ~6,600 tokens here. The actual message is the thin pink sliver: in
         enterprise workloads most billed input is scaffolding, which is why context engineering
         (Module 07) is such a big lever.
       </div>
@@ -107,52 +88,40 @@ function StageContext({ text, nTok }) {
   )
 }
 
-/* Stage 2 — real BPE split of the user's text */
-function StageTokenize({ tokens, real, text }) {
+/* Stage 2 — the sentence as real BPE tokens */
+function StageTokenize({ tokens, text }) {
   const chars = text.length
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0
-  const MAX_CHIPS = 48
-  const MAX_IDS = 12
-  const shown = tokens.slice(0, MAX_CHIPS)
+  const words = text.trim().split(/\s+/).length
   return (
     <div>
       <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'flex-start' }}>
-        {shown.map((t, i) => (
-          <div key={i} style={{ textAlign: 'center', animation: `tokenIn 0.3s ${Math.min(i * 0.05, 1.5)}s both` }}>
-            <TokChip text={t.text} i={i} big={tokens.length <= 16} />
-            {i < MAX_IDS && (
-              <>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'var(--accent-cyan)', marginTop: 5 }}>{t.id}</div>
-                <div style={{ fontSize: 9.5, color: 'var(--text-faint)' }}>token ID</div>
-              </>
-            )}
+        {tokens.map((t, i) => (
+          <div key={i} style={{ textAlign: 'center', animation: `tokenIn 0.3s ${i * 0.08}s both` }}>
+            <TokChip text={t.text} i={i} big />
+            <div style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'var(--accent-cyan)', marginTop: 5 }}>{t.id}</div>
+            <div style={{ fontSize: 9.5, color: 'var(--text-faint)' }}>token ID</div>
           </div>
         ))}
-        {tokens.length > MAX_CHIPS && (
-          <span style={{ fontSize: 12, color: 'var(--text-faint)', alignSelf: 'center' }}>
-            +{tokens.length - MAX_CHIPS} more tokens
-          </span>
-        )}
       </div>
       <ResultStrip items={[
         { label: 'Tokens', value: tokens.length },
-        { label: 'Characters', value: chars, note: `${(chars / Math.max(1, tokens.length)).toFixed(1)} chars / token` },
-        { label: 'Words', value: words, note: `${(tokens.length / Math.max(1, words)).toFixed(2)} tokens / word` },
+        { label: 'Characters', value: chars, note: `${(chars / tokens.length).toFixed(1)} chars / token` },
+        { label: 'Words', value: words, note: `${(tokens.length / words).toFixed(2)} tokens / word` },
         { label: 'As input @ $3/M', value: fmtUSD((tokens.length / 1e6) * 3, 6), note: 'one request — pennies; billions add up' },
       ]} />
       <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 12 }}>
-        {real
-          ? <>These are <strong style={{ color: 'var(--text)' }}>real BPE tokens</strong> (the cl100k_base vocabulary used by GPT-4-class models), computed live in your browser — real IDs, real boundaries.</>
-          : <>Loading the real BPE vocabulary (~1.6MB)… showing an approximate split meanwhile.</>}{' '}
-        Rule of thumb: 1 token ≈ 4 characters ≈ ¾ of an English word. Vocabulary design matters
-        commercially — the same sentence can be ~20% more tokens in one model family than another,
-        silently changing the bill. Try pasting numbers, code or another language above.
+        These are <strong style={{ color: 'var(--text)' }}>real BPE token IDs</strong> from the
+        cl100k_base vocabulary used by GPT-4-class models. Common words are single tokens; rarer
+        ones split — pick “The tokenomics one” above and notice “LLM” becoming two tokens
+        (“ L” + “LM”). Rule of thumb: 1 token ≈ 4 characters ≈ ¾ of an English word. Vocabulary
+        design matters commercially — the same sentence can be ~20% more tokens in one model family
+        than another, silently changing the bill.
       </div>
     </div>
   )
 }
 
-/* Stage 3 — embeddings for the user's first tokens */
+/* Stage 3 — embeddings */
 const heat = (v) => (v < 0.5
   ? `rgba(56, 209, 224, ${0.15 + (0.5 - v) * 1.5})`
   : `rgba(244, 114, 182, ${0.15 + (v - 0.5) * 1.5})`)
@@ -182,10 +151,10 @@ function StageEmbed({ tokens }) {
           <div style={{ alignSelf: 'center', fontSize: 12, color: 'var(--text-faint)' }}>+{tokens.length - 8} more</div>
         )}
         <div style={{ flex: '1 1 220px', fontSize: 12.5, color: 'var(--text-dim)', alignSelf: 'center', minWidth: 200 }}>
-          Each column is one of your tokens as a vector — thousands of numbers, learned during
-          training, that place the token in a geometric “meaning space”. Everything the model does
-          from here is matrix arithmetic on these columns. (Cell colours are illustrative,
-          deterministically derived from each real token ID.)
+          Each column is one token as a vector — thousands of numbers, learned during training, that
+          place the token in a geometric “meaning space”. Everything the model does from here is
+          matrix arithmetic on these columns. (Cell colours are illustrative, deterministically
+          derived from each real token ID.)
           <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--text-faint)' }}>
             + a positional signal, so “cat sat on mat” ≠ “mat sat on cat”.
           </div>
@@ -197,8 +166,8 @@ function StageEmbed({ tokens }) {
 
 /* Stage 4 — the 3D transformer stack */
 const STATUS_TEXT = {
-  embed: 'Your token vectors enter at the bottom of the stack…',
-  layers: 'Rising through the layers — attention (pink flashes) mixes information between your tokens, then feed-forward networks transform each one.',
+  embed: 'The token vectors enter at the bottom of the stack…',
+  layers: 'Rising through the layers — attention (pink flashes) mixes information between the tokens, then feed-forward networks transform each one.',
   predict: 'Top of the stack: the next-token prediction (green) emerges — and is fed back to the bottom to start the next pass.',
 }
 
@@ -218,7 +187,7 @@ function StageLayers({ tokens }) {
           <div style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--text-dim)', borderTop: '1px solid var(--border)', minHeight: 56 }}>
             {STATUS_TEXT[status]}
             <span style={{ display: 'block', fontSize: 11, color: 'var(--text-faint)', marginTop: 3 }}>
-              🖱 drag to orbit · {Math.min(10, Math.max(2, tokens.length))} of your tokens shown as spheres
+              🖱 drag to orbit · the sentence’s {Math.min(10, tokens.length)} tokens shown as spheres
             </span>
           </div>
         </div>
@@ -250,52 +219,28 @@ function StageLayers({ tokens }) {
   )
 }
 
-/* Stage 5 — attention over the user's own tokens */
-const STOPWORDS = new Set(['the', 'a', 'an', 'is', 'was', 'are', 'were', 'on', 'in', 'of', 'and', 'or',
-  'to', 'up', 'at', 'it', 'its', 'because', 'that', 'this', 'with', 'from', 'have', 'has', 'be', 'as', 'by'])
-
-function attnWeights(tokens, sel) {
-  const w = new Array(tokens.length).fill(0)
-  if (sel <= 0) return w
-  const qText = tokens[sel].text.trim().toLowerCase()
-  // pronouns attend strongly to the nearest earlier content word (coreference-style)
-  let corefTarget = -1
-  if (qText === 'it' || qText === 'they' || qText === 'he' || qText === 'she' || qText === 'this') {
-    for (let j = sel - 1; j >= 0; j--) {
-      const t = tokens[j].text.trim().toLowerCase()
-      if (t.length >= 4 && !STOPWORDS.has(t) && /^[a-z]/.test(t)) { corefTarget = j; break }
-    }
-  }
-  let sum = 0
-  for (let j = 0; j < sel; j++) {
-    const jText = tokens[j].text.trim().toLowerCase()
-    let v = Math.exp(-(sel - j) * 0.32) * (0.5 + 1.5 * noise(tokens[sel].id, tokens[j].id))
-    if (jText === qText && jText) v *= 3 // repeated word
-    if (j === corefTarget) v *= 5
-    if (STOPWORDS.has(jText)) v *= 0.55
-    w[j] = v
-    sum += v
-  }
-  for (let j = 0; j < sel; j++) w[j] /= sum
+/* Stage 5 — attention with curated weights per example */
+function attnWeights(example, q) {
+  const n = example.tokens.length
+  const w = new Array(n).fill(0)
+  if (q <= 0) return w
+  const cur = example.attn[q] || {}
+  let used = 0
+  for (const [j, v] of Object.entries(cur)) { w[j] = v; used += v }
+  // distribute the remainder over the other earlier tokens with recency decay
+  const rest = []
+  for (let j = 0; j < q; j++) if (!(j in cur)) rest.push(j)
+  let denom = 0
+  for (const j of rest) denom += Math.exp(-(q - j) * 0.45)
+  for (const j of rest) w[j] = ((1 - used) * Math.exp(-(q - j) * 0.45)) / denom
   return w
 }
 
-function StageAttention({ tokens }) {
-  const view = tokens.slice(0, 12)
+function StageAttention({ example }) {
+  const view = example.tokens
   const [sel, setSel] = useState(-1)
-  // default query: "it" if present (the classic coreference case), else the last word
-  const auto = useMemo(() => {
-    const it = view.findIndex((t, i) => i > 0 && t.text.trim().toLowerCase() === 'it')
-    if (it > 0) return it
-    for (let i = view.length - 1; i > 0; i--) if (/\w/.test(view[i].text)) return i
-    return view.length - 1
-  }, [view])
-  const q = sel >= 0 && sel < view.length ? sel : auto
-  const w = useMemo(() => attnWeights(view, q), [view, q])
-
-  if (view.length < 3) {
-    return <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>Type at least a few words above to explore attention between your tokens.</div>
-  }
+  const q = sel >= 0 && sel < view.length ? sel : example.defaultQuery
+  const w = useMemo(() => attnWeights(example, q), [example, q])
 
   const W = 700, H = 210
   const xs = view.map((_, i) => 45 + i * ((W - 90) / Math.max(1, view.length - 1)))
@@ -304,8 +249,6 @@ function StageAttention({ tokens }) {
     const s = t.text.trim() || '␣'
     return s.length > 7 ? s.slice(0, 6) + '…' : s
   }
-  const qText = view[q].text.trim().toLowerCase()
-  const top = w.indexOf(Math.max(...w.slice(0, q).concat([0])))
 
   return (
     <div>
@@ -340,60 +283,35 @@ function StageAttention({ tokens }) {
         ))}
       </svg>
       <div style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 4 }}>
-        Query: <strong style={{ color: 'var(--accent-pink)' }}>“{view[q].text.trim() || '␣'}”</strong>
-        {qText === 'it' && top >= 0
-          ? <> — and attention resolves the pronoun: its strongest link is to{' '}
-            <strong style={{ color: 'var(--accent-violet)' }}>“{view[top].text.trim()}”</strong>. In a real model no rule
-            is programmed for this; the weights learn it from data.</>
-          : <> — attention can only look backwards (earlier tokens), which is what makes the model causal.
-            {view.some((t) => t.text.trim().toLowerCase() === 'it') ? ' Click “it” for the classic pronoun-resolution case.' : ' Try a sentence with “it” referring to something earlier.'}</>}
+        {q === example.defaultQuery
+          ? <><strong style={{ color: 'var(--accent-pink)' }}>“{view[q].text.trim()}”</strong> is the query — {example.attnNote}</>
+          : <>Query: <strong style={{ color: 'var(--accent-pink)' }}>“{view[q].text.trim() || '␣'}”</strong> — attention can only look
+            backwards (earlier tokens), which is what makes the model causal. Click{' '}
+            <strong style={{ color: 'var(--accent-violet)' }}>“{view[example.defaultQuery].text.trim()}”</strong> for this sentence’s
+            most interesting case.</>}
       </div>
       <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
-        {tokens.length > 12 ? `Showing your first 12 tokens. ` : ''}This is one attention head — a 70B-class
-        model runs ~64 heads × 80 layers = 5,120 of these pattern-matchers in parallel per token.
-        Weights here are illustrative, derived from your real token IDs.
+        This is one attention head — a 70B-class model runs ~64 heads × 80 layers = 5,120 of these
+        pattern-matchers in parallel per token: some track syntax, some coreference, some facts.
+        Weights curated for this sentence, for clarity.
       </div>
     </div>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* Stages 6 & 7 — prediction + autoregressive loop (shared grammar)    */
-/* ------------------------------------------------------------------ */
-const GRAMMAR = {
-  start: { opts: [['the', 32], ['a', 18], ['it', 18], ['this', 15], ['every', 17]], next: (w) => (w === 'it' ? 'verb' : 'subj') },
-  subj: { opts: [['model', 24], ['network', 16], ['sampler', 15], ['sequence', 15], ['pattern', 15], ['token', 15]], next: () => 'verb' },
-  verb: { opts: [['predicts', 22], ['generates', 21], ['samples', 20], ['learns', 19], ['streams', 18]], next: () => 'objdet' },
-  objdet: { opts: [['the', 42], ['a', 26], ['one', 16], ['its', 16]], next: () => 'obj' },
-  obj: { opts: [['next', 30], ['distribution', 22], ['context', 26], ['output', 22]], next: (w) => (w === 'next' ? 'obj2' : 'end') },
-  obj2: { opts: [['token', 64], ['word', 36]], next: () => 'end' },
-  end: { opts: [['.', 50], [',', 28], ['and', 22]], next: (w) => (w === '.' ? 'stop' : w === ',' ? 'conj' : 'verb') },
-  conj: { opts: [['then', 38], ['and', 36], ['so', 26]], next: () => 'pron' },
-  pron: { opts: [['it', 58], ['the', 42]], next: (w) => (w === 'it' ? 'verb' : 'subj') },
-}
-
-function distribution(state, seed, temp) {
-  const { opts } = GRAMMAR[state]
-  const jittered = opts.map(([t, p], i) => [t, p * (0.6 + 0.8 * noise(seed, i))])
-  const powed = jittered.map(([t, p]) => [t, Math.pow(p, 1 / temp)])
-  const sum = powed.reduce((a, [, p]) => a + p, 0)
-  return powed.map(([t, p]) => [t, p / sum]).sort((a, b) => b[1] - a[1])
-}
-
-function StagePredict({ tokens }) {
+/* Stage 6 — the next-token distribution (= the loop's first step) */
+function StagePredict({ example }) {
   const [picked, setPicked] = useState(false)
-  useEffect(() => { const t = setTimeout(() => setPicked(true), 1600); return () => clearTimeout(t) }, [])
-  const seed = tokens.length ? tokens[tokens.length - 1].id : 1
-  const dist = useMemo(() => distribution('start', seed, 1), [seed])
-  const tail = tokens.slice(-6)
+  useEffect(() => { setPicked(false); const t = setTimeout(() => setPicked(true), 1600); return () => clearTimeout(t) }, [example])
+  const dist = useMemo(() => applyTemp(example.tree._start, 1), [example])
   return (
     <div style={{ maxWidth: 640 }}>
       <div style={{ fontFamily: 'var(--mono)', fontSize: 13.5, color: 'var(--text-dim)', marginBottom: 14 }}>
-        “…{tail.map((t) => t.text).join('')}<span style={{ color: 'var(--accent-pink)' }}> ▁?</span>”
+        “{example.text} <span style={{ color: 'var(--accent-pink)' }}>▁?</span>”
       </div>
       {dist.map(([t, p], i) => (
         <div className="bar-row" key={t}>
-          <div className="bar-label" style={{ width: 120, fontFamily: 'var(--mono)' }}>{t.trim()}</div>
+          <div className="bar-label" style={{ width: 120, fontFamily: 'var(--mono)' }}>{t}</div>
           <div className="bar-track">
             <div className="bar-fill" style={{
               width: `${p * 160}%`,
@@ -411,26 +329,26 @@ function StagePredict({ tokens }) {
           <div className="bar-fill" style={{ width: '3%', background: 'var(--border-bright)' }} />
         </div>
       </div>
-      <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 10 }}>
-        One probability per vocabulary entry, recomputed for every token. (Candidates here are
-        scripted for illustration — no model runs in your browser — but they are seeded from your
-        real last token ID.) Reasoning models make this step deliberate: thousands of hidden
-        “thinking” tokens before the visible answer, all billed at the output rate.
+      <div style={{ fontSize: 12.5, color: 'var(--text-dim)', marginTop: 10 }}>{example.predictNote}</div>
+      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
+        One probability per vocabulary entry, recomputed for every token. Reasoning models make this
+        step deliberate — thousands of hidden “thinking” tokens before the visible answer, all
+        billed at the output rate. (Probabilities curated for this sentence.)
       </div>
     </div>
   )
 }
 
-function StageLoop({ tokens }) {
+/* Stage 7 — the autoregressive loop, streaming the curated continuation */
+function StageLoop({ example }) {
   const [temp, setTemp] = useState(0.8)
-  const [gen, setGen] = useState([]) // [{word, state}]
+  const [gen, setGen] = useState([])
   const [auto, setAuto] = useState(false)
   const [flash, setFlash] = useState(-1)
 
-  const state = gen.length === 0 ? 'start' : gen[gen.length - 1].nextState
-  const done = state === 'stop' || gen.length >= 14
-  const seed = (tokens.length ? tokens[tokens.length - 1].id : 1) + gen.length * 131
-  const dist = useMemo(() => distribution(done ? 'start' : state, seed, temp), [state, seed, temp, done])
+  const key = gen.length === 0 ? '_start' : gen[gen.length - 1]
+  const done = key === '.' || gen.length >= 14
+  const dist = useMemo(() => applyTemp(example.tree[key] || [['.', 100]], temp), [example, key, temp])
 
   const step = (mode) => {
     if (done) return
@@ -441,7 +359,7 @@ function StageLoop({ tokens }) {
       choice = dist[dist.length - 1][0]
       for (const [t, p] of dist) { acc += p; if (r <= acc) { choice = t; break } }
     }
-    setGen((g) => [...g, { word: choice, nextState: GRAMMAR[done ? 'start' : state].next(choice) }])
+    setGen((g) => [...g, choice])
     setFlash(gen.length)
     setTimeout(() => setFlash(-1), 500)
   }
@@ -452,23 +370,20 @@ function StageLoop({ tokens }) {
     return () => clearTimeout(t)
   }, [auto, gen, done]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const userTail = tokens.slice(-10)
-
   return (
     <div>
       <div className="grid grid-2" style={{ gap: 28 }}>
         <div>
           <div style={{ fontSize: 11.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
-            Your sequence, streaming
+            The sequence, streaming
           </div>
           <div style={{ lineHeight: 2.2, minHeight: 90 }}>
-            {tokens.length > 10 && <span style={{ color: 'var(--text-faint)', fontSize: 12 }}>… </span>}
-            {userTail.map((t, i) => <TokChip key={i} text={t.text} i={i} dim />)}
+            {example.tokens.map((t, i) => <TokChip key={i} text={t.text} i={i} dim />)}
             {gen.map((g, i) => (
               <span key={i} className="token-chip" style={{
                 background: i === flash ? 'rgba(74,222,128,0.45)' : 'rgba(74,222,128,0.2)',
                 border: '1px solid rgba(74,222,128,0.6)', fontWeight: 600, transition: 'background 0.4s',
-              }}>{/^[.,]/.test(g.word) ? g.word : ' ' + g.word}</span>
+              }}>{/^[.,]/.test(g) ? g : ' ' + g}</span>
             ))}
             {!done && <span style={{ color: 'var(--accent-cyan)' }}>▊</span>}
             {done && <span style={{ color: 'var(--accent-green)', fontSize: 11, marginLeft: 10 }}>■ stop — generation ends</span>}
@@ -492,12 +407,12 @@ function StageLoop({ tokens }) {
           {done ? (
             <div style={{ fontSize: 13, color: 'var(--text-dim)', padding: '20px 0' }}>
               Generation complete: <strong style={{ color: 'var(--text)' }}>{gen.length} output tokens = {gen.length} full
-              forward passes</strong>, each reading ~140 GB of weights. Your whole input was one parallel pass.
+              forward passes</strong>, each reading ~140 GB of weights. The whole input was one parallel pass.
               Hit Reset and try a different temperature — low repeats itself, high surprises.
             </div>
           ) : dist.map(([t, p], i) => (
             <div className="bar-row" key={t}>
-              <div className="bar-label" style={{ width: 110, fontFamily: 'var(--mono)' }}>{t.trim()}</div>
+              <div className="bar-label" style={{ width: 110, fontFamily: 'var(--mono)' }}>{t}</div>
               <div className="bar-track">
                 <div className="bar-fill" style={{ width: `${p * 100}%`, background: i === 0 ? 'var(--accent-cyan)' : 'var(--accent-violet)' }}>
                   <span className="bar-value">{(p * 100).toFixed(0)}%</span>
@@ -513,7 +428,8 @@ function StageLoop({ tokens }) {
           )}
           <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 10 }}>
             Temperature reshapes the same underlying scores: T→0 concentrates all probability on the
-            top token; high T flattens the field. Scripted toy distributions for illustration.
+            top token; high T flattens the field. The continuation is curated for this sentence —
+            the mechanics (score → temperature → sample → append → repeat) are exactly real.
           </div>
         </div>
       </div>
@@ -524,7 +440,7 @@ function StageLoop({ tokens }) {
 /* ------------------------------------------------------------------ */
 /* The walkthrough shell                                               */
 /* ------------------------------------------------------------------ */
-function Walkthrough({ text, tokens, real }) {
+function Walkthrough({ example }) {
   const [stage, setStage] = useState(0)
   const [playing, setPlaying] = useState(false)
 
@@ -565,21 +481,13 @@ function Walkthrough({ text, tokens, real }) {
         <div style={{ fontWeight: 700, fontSize: 16.5, marginBottom: 6 }}>{s.title}</div>
         <div style={{ fontSize: 13.5, color: 'var(--text-dim)', maxWidth: 780, marginBottom: 22 }}>{s.desc}</div>
 
-        {tokens.length === 0 ? (
-          <div style={{ fontSize: 13.5, color: 'var(--text-dim)', padding: '30px 0' }}>
-            Type something in the box above to begin — your text drives every stage.
-          </div>
-        ) : (
-          <>
-            {s.key === 'context' && <StageContext text={text} nTok={tokens.length} />}
-            {s.key === 'tokenize' && <StageTokenize tokens={tokens} real={real} text={text} />}
-            {s.key === 'embed' && <StageEmbed tokens={tokens} />}
-            {s.key === 'layers' && <StageLayers tokens={tokens} />}
-            {s.key === 'attention' && <StageAttention tokens={tokens} />}
-            {s.key === 'predict' && <StagePredict tokens={tokens} />}
-            {s.key === 'loop' && <StageLoop tokens={tokens} />}
-          </>
-        )}
+        {s.key === 'context' && <StageContext text={example.text} nTok={example.tokens.length} />}
+        {s.key === 'tokenize' && <StageTokenize tokens={example.tokens} text={example.text} />}
+        {s.key === 'embed' && <StageEmbed tokens={example.tokens} />}
+        {s.key === 'layers' && <StageLayers tokens={example.tokens} />}
+        {s.key === 'attention' && <StageAttention key={example.id} example={example} />}
+        {s.key === 'predict' && <StagePredict example={example} />}
+        {s.key === 'loop' && <StageLoop key={example.id} example={example} />}
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 20, alignItems: 'center', flexWrap: 'wrap' }}>
@@ -598,47 +506,53 @@ function Walkthrough({ text, tokens, real }) {
 
 /* ------------------------------------------------------------------ */
 export default function InsideLLM() {
-  const [text, setText] = useState(DEFAULT_TEXT)
-  const { tokens, real } = useTokens(text)
+  const [exampleId, setExampleId] = useState(EXAMPLES[1].id)
+  const example = EXAMPLES.find((e) => e.id === exampleId)
 
   return (
     <Section
       id="llm"
       kicker="Module 01 · Inside the model"
-      title="How an LLM works — with your own words"
+      title="How an LLM works — follow a sentence through the machine"
       lede={
         <>
           An LLM does exactly one thing: given a sequence of tokens, it predicts a probability for{' '}
           <strong>every possible next token</strong> — then the chosen one is fed back in and it does
-          it again. Type anything below, then walk your own text through all seven stages of that
-          loop: tokens → embeddings → the 3D transformer stack → attention → prediction → the stream.
+          it again. Pick a sentence below, then follow it through all seven stages of that loop:
+          tokens → embeddings → the 3D transformer stack → attention → prediction → the stream.
         </>
       }
     >
-      <Block title="Start here: type anything" sub="Your text drives every stage below — tokenized live with a real BPE vocabulary.">
+      <Block title="Start here: pick a sentence" sub="Every stage below — token IDs, attention scores, predictions, the streamed continuation — is precomputed for these sentences, so all the numbers line up and make sense.">
         <div className="panel" style={{ paddingBottom: 16 }}>
-          <textarea
-            value={text}
-            onChange={(e) => setText(e.target.value.slice(0, 2000))}
-            rows={2}
-            style={{
-              width: '100%', background: 'var(--bg)', color: 'var(--text)',
-              border: '1px solid var(--border-bright)', borderRadius: 10, padding: 14,
-              fontFamily: 'var(--sans)', fontSize: 14.5, resize: 'vertical', outline: 'none',
-            }}
-            placeholder="Type anything — a question, code, another language…"
-          />
-          <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 8 }}>
-            {tokens.length > 0
-              ? <><strong style={{ color: 'var(--accent-cyan)', fontFamily: 'var(--mono)' }}>{tokens.length}</strong> tokens
-                {real ? ' · real cl100k BPE, computed in your browser' : ' · loading real tokenizer, approximate split shown'} · try “The robot picked up the ball because it was heavy.” for the attention demo</>
-              : 'Waiting for input…'}
+          <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+            {EXAMPLES.map((e) => (
+              <button
+                key={e.id}
+                onClick={() => setExampleId(e.id)}
+                className="card"
+                style={{
+                  flex: '1 1 220px', textAlign: 'left', cursor: 'pointer', padding: 14,
+                  borderColor: e.id === exampleId ? 'var(--accent-cyan)' : undefined,
+                  background: e.id === exampleId ? 'rgba(56,209,224,0.07)' : undefined,
+                  font: 'inherit', color: 'inherit',
+                }}
+              >
+                <div style={{ fontSize: 11.5, fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.08em', color: e.id === exampleId ? 'var(--accent-cyan)' : 'var(--text-faint)', marginBottom: 6 }}>
+                  {e.label}
+                </div>
+                <div style={{ fontSize: 14, color: 'var(--text)' }}>“{e.text}…”</div>
+                <div style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--text-faint)', marginTop: 6 }}>
+                  {e.tokens.length} tokens
+                </div>
+              </button>
+            ))}
           </div>
         </div>
       </Block>
 
-      <Block title="The token factory — step through the machine" sub="Seven stages from your keystrokes to a streaming answer. Use Next, or Auto-play all.">
-        <Walkthrough text={text} tokens={tokens} real={real} />
+      <Block title="The token factory — step through the machine" sub="Seven stages from text to a streaming answer. Use Next, or Auto-play all.">
+        <Walkthrough example={example} />
       </Block>
 
       <Callout tone="pink" title="Why this machine shapes every price in this guide">
