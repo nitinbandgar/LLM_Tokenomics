@@ -19,8 +19,8 @@ mobile), or step through with the Next/Back buttons at the bottom of each sectio
 | # | Module | Core interactive |
 |---|--------|------------------|
 | 00 | The paradox | Animated diverging price-vs-spend chart, six headline numbers |
-| 01 | How tokens are made | Live tokenizer demo, animated tokenize→prefill→decode→stream pipeline, input/output asymmetry explorer |
-| 02 | How LLMs work | Seven-stage animated walkthrough (context → tokenize → embed → layers → attention → predict → loop), clickable attention explorer, be-the-sampler generation playground with temperature |
+| 01 | How an LLM works | Type-anything walkthrough driven by a real BPE tokenizer (cl100k, lazy-loaded): your text → real tokens with IDs → embeddings → an orbitable 3D transformer stack (Three.js) → clickable attention on your own tokens → next-token prediction → be-the-sampler streaming loop with temperature |
+| 02 | Prefill vs decode | Animated tokenize→prefill→decode→stream pipeline, wall-clock "time race" explorer, input/output cost asymmetry meter, output÷input price-ratio chart across the market |
 | 03 | The pricing landscape | Log/linear price-ladder explorer, five pricing meters, discount lanes, LLMflation chart |
 | 04 | Open vs proprietary | Repricing-cascade timeline (drag through a capability tier's half-life), DeepSeek shock numbers |
 | 05 | What a token costs | First-principles cost-floor calculator (model size × precision × batch × GPU rate), KV-cache/context visualizer, provider cost stack |
@@ -34,4 +34,6 @@ stated next to each interactive.
 
 ## Stack
 
-React 18 + Vite 5, no other runtime dependencies. All charts are hand-rolled SVG.
+React 18 + Vite 5. Three.js (via @react-three/fiber) renders the 3D transformer in
+Module 01, and js-tiktoken provides real cl100k BPE tokenization — both lazy-loaded so
+they never block initial page load. All 2D charts are hand-rolled SVG.

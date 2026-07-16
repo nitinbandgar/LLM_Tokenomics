@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import Hero from './components/Hero.jsx'
-import TokenPipeline from './components/TokenPipeline.jsx'
-import HowLLMsWork from './components/HowLLMsWork.jsx'
+import InsideLLM from './components/InsideLLM.jsx'
+import PrefillDecode from './components/PrefillDecode.jsx'
 import PricingLandscape from './components/PricingLandscape.jsx'
 import OpenVsProprietary from './components/OpenVsProprietary.jsx'
 import SupplySide from './components/SupplySide.jsx'
@@ -11,8 +11,8 @@ import FinOpsFuture from './components/FinOpsFuture.jsx'
 
 const NAV = [
   { id: 'hero', num: '00', label: 'The paradox', comp: Hero },
-  { id: 'tokens', num: '01', label: 'How tokens are made', comp: TokenPipeline },
-  { id: 'llm', num: '02', label: 'How LLMs work', comp: HowLLMsWork },
+  { id: 'llm', num: '01', label: 'How an LLM works', comp: InsideLLM },
+  { id: 'prefill', num: '02', label: 'Prefill vs decode', comp: PrefillDecode },
   { id: 'pricing', num: '03', label: 'The pricing landscape', comp: PricingLandscape },
   { id: 'open', num: '04', label: 'Open vs proprietary', comp: OpenVsProprietary },
   { id: 'supply', num: '05', label: 'What a token costs', comp: SupplySide },
@@ -23,6 +23,7 @@ const NAV = [
 
 const fromHash = () => {
   const h = window.location.hash.replace('#', '')
+  if (h === 'tokens') return 'llm' // legacy anchor from the old module split
   return NAV.some((n) => n.id === h) ? h : 'hero'
 }
 

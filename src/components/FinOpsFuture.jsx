@@ -15,7 +15,7 @@ function OperatingLoop() {
   const [step, setStep] = useState(0)
   const DESC = [
     'Instrument everything: per-team keys, per-feature token counts, cache-hit rates, routing mix. You cannot optimise what you do not meter.',
-    'Apply the lever stack of Module 06 — caching, routing, batching, context engineering — against measured baselines.',
+    'Apply the lever stack of Module 07 — caching, routing, batching, context engineering — against measured baselines.',
     'Enforce budgets, review quarterly against a repricing market, and hold teams accountable for spend against allocation.',
     'Reinvest the savings in scale. The strategic risk has inverted: under-consuming AI is now the bigger danger than overspending on it.',
   ]
