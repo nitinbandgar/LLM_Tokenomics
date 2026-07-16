@@ -6,9 +6,14 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 extend({ OrbitControls })
 
 const LAYERS = 10
-const STACK_BOTTOM = -2.1
-const STACK_TOP = 2.1
-const CYCLE = 8 // seconds for one full forward pass + feedback loop
+const LEFT = -3.1 // x of the first slab region
+const RIGHT = 3.1 // x of the last slab region
+const ENTRY = -4.3 // where tokens enter from
+const EXIT = 3.7 // where the prediction pops out
+const CYCLE = 8 // seconds for one forward pass + feedback loop
+
+const HIGHLIGHT = 4 // the slab dissected in the panel below (cyan)
+const FINAL = LAYERS - 1 // the last layer feeding the prediction head (pink)
 
 const TOKEN_COLORS = ['#38d1e0', '#8b7cf7', '#f472b6', '#4ade80', '#fb923c', '#facc15']
 
@@ -22,45 +27,47 @@ function Controls() {
       args={[camera, gl.domElement]}
       enableZoom={false}
       enablePan={false}
-      autoRotate
-      autoRotateSpeed={0.7}
-      minPolarAngle={Math.PI * 0.18}
-      maxPolarAngle={Math.PI * 0.58}
+      minAzimuthAngle={-0.85}
+      maxAzimuthAngle={0.85}
+      minPolarAngle={Math.PI * 0.28}
+      maxPolarAngle={Math.PI * 0.62}
     />
   )
 }
 
-const layerY = (i) => STACK_BOTTOM + ((i + 0.5) / LAYERS) * (STACK_TOP - STACK_BOTTOM)
+const layerX = (i) => LEFT + ((i + 0.5) / LAYERS) * (RIGHT - LEFT)
+const slabColor = (i) => (i === HIGHLIGHT ? '#38d1e0' : i === FINAL ? '#f472b6' : '#8b7cf7')
 
-// One translucent slab per transformer layer; pulses as the tokens pass through.
-function LayerStack({ groupYRef }) {
+// One upright slab per transformer layer, arranged left → right;
+// each pulses as the tokens pass through it.
+function LayerStack({ progressRef }) {
   const mats = useRef([])
-  const edges = useMemo(() => new THREE.EdgesGeometry(new THREE.BoxGeometry(5.4, 0.16, 3.0)), [])
+  const edges = useMemo(() => new THREE.EdgesGeometry(new THREE.BoxGeometry(0.16, 2.7, 1.8)), [])
 
   useFrame(() => {
-    const gy = groupYRef.current
+    const gx = progressRef.current
     mats.current.forEach((m, i) => {
       if (!m) return
-      const d = Math.abs(gy - layerY(i))
+      const d = Math.abs(gx - layerX(i))
       const pulse = Math.max(0, 1 - d * 2.2)
       m.emissiveIntensity = 0.25 + pulse * 2.2
-      m.opacity = 0.14 + pulse * 0.3
+      m.opacity = 0.16 + pulse * 0.3
     })
   })
 
   return (
     <group>
       {Array.from({ length: LAYERS }).map((_, i) => (
-        <group key={i} position={[0, layerY(i), 0]}>
+        <group key={i} position={[layerX(i), 0, 0]}>
           <mesh>
-            <boxGeometry args={[5.4, 0.16, 3.0]} />
+            <boxGeometry args={[0.16, 2.7, 1.8]} />
             <meshStandardMaterial
               ref={(m) => (mats.current[i] = m)}
-              color="#8b7cf7"
-              emissive="#8b7cf7"
+              color={slabColor(i)}
+              emissive={slabColor(i)}
               emissiveIntensity={0.25}
               transparent
-              opacity={0.14}
+              opacity={0.16}
               depthWrite={false}
             />
           </mesh>
@@ -73,61 +80,62 @@ function LayerStack({ groupYRef }) {
   )
 }
 
-// The user's tokens as glowing spheres rising through the stack, with
-// attention lines flashing between them inside each layer. At the top a
-// prediction (green) is emitted and loops back down to join the sequence.
-function TokenFlow({ n, groupYRef }) {
+// The sentence's tokens as a vertical column of glowing spheres travelling
+// left → right through the stack, attention lines flashing between them
+// inside each layer. From the final layer a prediction (green) pops out on
+// the right and loops back to the entrance as the next input token.
+function TokenFlow({ n, progressRef }) {
   const group = useRef()
   const pred = useRef()
   const predMat = useRef()
   const lineMat = useRef()
-  const lineGeo = useRef()
 
-  const xs = useMemo(() => {
+  const ys = useMemo(() => {
     const count = Math.max(2, n)
-    return Array.from({ length: count }, (_, i) => -2.2 + (i / (count - 1)) * 4.4)
+    const span = Math.min(2.4, count * 0.34)
+    return Array.from({ length: count }, (_, i) => -span / 2 + (i / (count - 1)) * span)
   }, [n])
 
   // attention line pairs: every token connects to a few earlier ones
   const linePositions = useMemo(() => {
     const pts = []
-    for (let i = 1; i < xs.length; i++) {
+    for (let i = 1; i < ys.length; i++) {
       for (let j = Math.max(0, i - 3); j < i; j++) {
-        pts.push(xs[i], 0, 0, xs[j], 0, 0)
+        pts.push(0, ys[i], 0, 0, ys[j], 0)
       }
     }
     return new Float32Array(pts)
-  }, [xs])
+  }, [ys])
 
   useFrame(({ clock }) => {
     const phase = (clock.getElapsedTime() % CYCLE) / CYCLE
-    let gy
+    let gx
     if (phase < 0.72) {
-      // rise through the stack
-      gy = -3 + (phase / 0.72) * (STACK_TOP + 0.9 - -3)
+      // travel left → right through the stack
+      gx = ENTRY + (phase / 0.72) * (EXIT - ENTRY)
       if (pred.current) pred.current.visible = false
     } else {
-      // prediction emitted: green sphere arcs down the outside, back to the input row
-      gy = STACK_TOP + 0.9
+      // prediction emitted: green sphere arcs over the stack, back to the entrance
+      gx = EXIT
       const q = (phase - 0.72) / 0.28
       if (pred.current) {
         pred.current.visible = true
         pred.current.position.set(
-          2.6 + Math.sin(q * Math.PI) * 1.6,
-          STACK_TOP + 0.9 - q * (STACK_TOP + 0.9 - -3),
+          EXIT - q * (EXIT - ENTRY),
+          1.9 * Math.sin(q * Math.PI) + 0.2,
           0,
         )
         if (predMat.current) predMat.current.emissiveIntensity = 1.6 + Math.sin(q * Math.PI * 6) * 0.5
       }
     }
-    groupYRef.current = gy
-    if (group.current) group.current.position.y = Math.min(gy, STACK_TOP + 0.9)
+    progressRef.current = gx
+    if (group.current) group.current.position.x = Math.min(gx, EXIT)
 
     // attention lines glow while inside the stack
     if (lineMat.current) {
-      const inside = gy > STACK_BOTTOM && gy < STACK_TOP
+      const inside = gx > LEFT && gx < RIGHT
       let near = 0
-      for (let i = 0; i < LAYERS; i++) near = Math.max(near, 1 - Math.abs(gy - layerY(i)) * 2.2)
+      for (let i = 0; i < LAYERS; i++) near = Math.max(near, 1 - Math.abs(gx - layerX(i)) * 2.2)
       lineMat.current.opacity = inside ? 0.08 + near * 0.5 : 0
     }
   })
@@ -135,9 +143,9 @@ function TokenFlow({ n, groupYRef }) {
   return (
     <>
       <group ref={group}>
-        {xs.map((x, i) => (
-          <mesh key={i} position={[x, 0, 0]}>
-            <sphereGeometry args={[0.15, 20, 20]} />
+        {ys.map((y, i) => (
+          <mesh key={i} position={[0, y, 0]}>
+            <sphereGeometry args={[0.14, 20, 20]} />
             <meshStandardMaterial
               color={TOKEN_COLORS[i % TOKEN_COLORS.length]}
               emissive={TOKEN_COLORS[i % TOKEN_COLORS.length]}
@@ -146,27 +154,27 @@ function TokenFlow({ n, groupYRef }) {
           </mesh>
         ))}
         <lineSegments>
-          <bufferGeometry ref={lineGeo}>
+          <bufferGeometry>
             <bufferAttribute attach="attributes-position" array={linePositions} count={linePositions.length / 3} itemSize={3} />
           </bufferGeometry>
           <lineBasicMaterial ref={lineMat} color="#f472b6" transparent opacity={0} />
         </lineSegments>
       </group>
       <mesh ref={pred} visible={false}>
-        <sphereGeometry args={[0.19, 20, 20]} />
+        <sphereGeometry args={[0.18, 20, 20]} />
         <meshStandardMaterial ref={predMat} color="#4ade80" emissive="#4ade80" emissiveIntensity={1.6} />
       </mesh>
     </>
   )
 }
 
-function StatusLabel({ groupYRef, onStatus }) {
+function StatusLabel({ progressRef, onStatus }) {
   const last = useRef('')
   useFrame(() => {
-    const gy = groupYRef.current
+    const gx = progressRef.current
     let s
-    if (gy < STACK_BOTTOM) s = 'embed'
-    else if (gy <= STACK_TOP) s = 'layers'
+    if (gx < LEFT) s = 'embed'
+    else if (gx <= RIGHT) s = 'layers'
     else s = 'predict'
     if (s !== last.current) {
       last.current = s
@@ -177,7 +185,7 @@ function StatusLabel({ groupYRef, onStatus }) {
 }
 
 export default function Transformer3D({ tokenCount = 6, onStatus = () => {} }) {
-  const groupYRef = useRef(-3)
+  const progressRef = useRef(ENTRY)
   const n = Math.max(2, Math.min(10, tokenCount))
 
   // r3f's initial ResizeObserver measurement can miss when mounted through
@@ -189,17 +197,17 @@ export default function Transformer3D({ tokenCount = 6, onStatus = () => {} }) {
 
   return (
     <Canvas
-      camera={{ position: [6.2, 2.4, 6.8], fov: 42 }}
+      camera={{ position: [0, 1.3, 7.6], fov: 44 }}
       dpr={[1, 2]}
       gl={{ alpha: true, antialias: true }}
-      style={{ width: '100%', height: 420, background: 'transparent', borderRadius: 12, touchAction: 'pan-y' }}
+      style={{ width: '100%', height: 380, background: 'transparent', borderRadius: 12, touchAction: 'pan-y' }}
     >
       <ambientLight intensity={0.55} />
-      <pointLight position={[8, 8, 8]} intensity={120} color="#ffffff" />
+      <pointLight position={[6, 8, 8]} intensity={120} color="#ffffff" />
       <pointLight position={[-8, -4, -6]} intensity={50} color="#8b7cf7" />
-      <LayerStack groupYRef={groupYRef} />
-      <TokenFlow n={n} groupYRef={groupYRef} />
-      <StatusLabel groupYRef={groupYRef} onStatus={onStatus} />
+      <LayerStack progressRef={progressRef} />
+      <TokenFlow n={n} progressRef={progressRef} />
+      <StatusLabel progressRef={progressRef} onStatus={onStatus} />
       <Controls />
     </Canvas>
   )

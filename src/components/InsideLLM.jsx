@@ -35,7 +35,7 @@ const STAGES = [
   { key: 'embed', label: 'Embed', title: '3 · Token IDs become vectors',
     desc: 'Each ID looks up a learned embedding — a vector of thousands of numbers (e.g. 8,192 dimensions) encoding the token’s meaning as geometry: "cat" and "kitten" end up near each other. Position information is mixed in so the model knows word order. These vectors are what actually flow through the network.' },
   { key: 'layers', label: 'Layers · 3D', title: '4 · Through the transformer stack — in 3D',
-    desc: 'The tokens now rise together through a deep stack of identical layers (~80 in a 70B-class model; 10 shown). In each layer, attention lets the tokens exchange information (pink flashes), then a feed-forward network transforms each one. At the top, a prediction (green) emerges — and loops straight back to the bottom as the next input token. Drag to orbit.' },
+    desc: 'The tokens now flow left → right through a deep stack of identical layers (~80 in a 70B-class model; 10 shown). In each layer, attention lets the tokens exchange information (pink flashes), then a feed-forward network transforms each one. From the final layer (pink) a prediction (green) emerges — and loops straight back to the entrance as the next input token. Drag to orbit, then dissect the machinery in the three panels below.' },
   { key: 'attention', label: 'Attention', title: '5 · Attention: every token looks back',
     desc: 'Inside each layer, every token computes a query and compares it against the keys of all previous tokens. The match scores become weights, and the token pulls in a weighted blend of their values — meaning flows between positions. Click any token to make it the query.' },
   { key: 'predict', label: 'Predict', title: '6 · One probability for every token in the vocabulary',
@@ -164,56 +164,160 @@ function StageEmbed({ tokens }) {
   )
 }
 
-/* Stage 4 — the 3D transformer stack */
+/* Stage 4 — the 3D transformer stack + dissection panels */
 const STATUS_TEXT = {
-  embed: 'The token vectors enter at the bottom of the stack…',
-  layers: 'Rising through the layers — attention (pink flashes) mixes information between the tokens, then feed-forward networks transform each one.',
-  predict: 'Top of the stack: the next-token prediction (green) emerges — and is fed back to the bottom to start the next pass.',
+  embed: 'The token vectors enter the stack from the left…',
+  layers: 'Flowing left → right: in each layer, attention (pink flashes) mixes information between the tokens, then a feed-forward network transforms each one.',
+  predict: 'Out of the final layer: the next-token prediction (green) emerges on the right — and is fed back to the entrance for the next pass.',
+}
+
+// A small labelled step box used inside the dissection cards
+function FlowStep({ color, title, children }) {
+  return (
+    <div style={{
+      border: `1px solid ${color}55`, background: `${color}0d`, borderRadius: 8,
+      padding: '8px 10px', fontSize: 12,
+    }}>
+      <div style={{ fontWeight: 700, fontSize: 11.5, color, marginBottom: 2 }}>{title}</div>
+      <div style={{ color: 'var(--text-dim)', lineHeight: 1.45 }}>{children}</div>
+    </div>
+  )
+}
+const FlowArrow = () => (
+  <div style={{ textAlign: 'center', color: 'var(--text-faint)', fontSize: 11, lineHeight: '14px' }}>↓</div>
+)
+
+function LayerAnatomyCard() {
+  return (
+    <div className="card" style={{ padding: 16, borderColor: 'rgba(56,209,224,0.45)' }}>
+      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-cyan)', marginBottom: 10, fontWeight: 700 }}>
+        🔍 Inside one layer — the cyan slab
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <FlowStep color="#9aa5bd" title="Token vectors arrive">
+          One vector of 8,192 numbers per token — the output of the previous layer.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#8b7cf7" title="Attention — tokens talk to each other">
+          Every token compares its <em>query</em> against all earlier tokens’ <em>keys</em> and
+          pulls in a weighted blend of their <em>values</em>. This is the only place information
+          moves <strong style={{ color: 'var(--text)' }}>between</strong> positions.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#9aa5bd" title="Add & normalise">
+          The blend is added on top of what each token already carried (a residual connection),
+          so nothing learned earlier is lost.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#38d1e0" title="Feed-forward — each token thinks alone">
+          Each vector is expanded 8,192 → 28,672 numbers, passed through a non-linearity, and
+          projected back. No mixing between positions — pure per-token processing.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#9aa5bd" title="Handed to the next layer">
+          Same shape out as in — which is why the identical block can repeat ×80.
+        </FlowStep>
+      </div>
+    </div>
+  )
+}
+
+function FinalLayerCard() {
+  return (
+    <div className="card" style={{ padding: 16, borderColor: 'rgba(244,114,182,0.45)' }}>
+      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-pink)', marginBottom: 10, fontWeight: 700 }}>
+        🎯 After the last layer — where the token is born
+      </div>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+        <FlowStep color="#f472b6" title="Take the last token's vector only">
+          After 80 layers, the final position’s 8,192 numbers summarise the entire sentence —
+          everything needed to guess what comes next.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#f472b6" title="Project onto the whole vocabulary">
+          Multiply by the output matrix (8,192 × ~128K): one raw score for{' '}
+          <strong style={{ color: 'var(--text)' }}>every token the model knows</strong>.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#f472b6" title="Softmax → probabilities">
+          The scores become the probability bars you’ll see in Stage 6.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#4ade80" title="Sample one token">
+          The sampler picks (greedy or with temperature) — this is the green sphere.
+        </FlowStep>
+        <FlowArrow />
+        <FlowStep color="#4ade80" title="↺ Feed it back in">
+          The new token joins the input on the left, and the whole stack runs again —
+          Stage 7 is exactly this loop.
+        </FlowStep>
+      </div>
+    </div>
+  )
+}
+
+function ParamMathCard() {
+  const rows = [
+    { label: 'Attention (Q, K, V, O matrices)', math: '≈ 0.15B per layer × 80 layers', value: '≈ 12B', color: 'var(--accent-violet)' },
+    { label: 'Feed-forward (3 big matrices)', math: '≈ 0.70B per layer × 80 layers', value: '≈ 56B', color: 'var(--accent-cyan)' },
+    { label: 'Token embeddings (way in)', math: '~128K vocab × 8,192 dims', value: '≈ 1B', color: 'var(--accent-yellow)' },
+    { label: 'Output projection (way out)', math: '8,192 dims × ~128K vocab', value: '≈ 1B', color: 'var(--accent-pink)' },
+  ]
+  return (
+    <div className="card" style={{ padding: 16, borderColor: 'rgba(139,124,247,0.45)' }}>
+      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-violet)', marginBottom: 10, fontWeight: 700 }}>
+        🧮 Where “70B parameters” comes from
+      </div>
+      {rows.map((r) => (
+        <div key={r.label} style={{ padding: '7px 0', borderBottom: '1px solid var(--border)' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12.5 }}>
+            <span style={{ color: 'var(--text-dim)' }}>{r.label}</span>
+            <span style={{ fontFamily: 'var(--mono)', color: r.color, flexShrink: 0, fontWeight: 600 }}>{r.value}</span>
+          </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 10.5, color: 'var(--text-faint)', marginTop: 2 }}>{r.math}</div>
+        </div>
+      ))}
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 13, padding: '9px 0 2px', fontWeight: 700 }}>
+        <span style={{ color: 'var(--text)' }}>Total</span>
+        <span style={{ fontFamily: 'var(--mono)', color: 'var(--accent-green)' }}>12 + 56 + 1 + 1 ≈ 70B</span>
+      </div>
+      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
+        Every one of these 70 billion numbers is a learned weight — ~140 GB at 16-bit — and{' '}
+        <strong style={{ color: 'var(--text)' }}>all of them are read from GPU memory for every
+        single generated token</strong>. That is the physical root of the economics in Modules 02
+        and 05.
+      </div>
+    </div>
+  )
 }
 
 function StageLayers({ tokens }) {
   const [status, setStatus] = useState('embed')
   return (
     <div>
-      <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
-        <div style={{ flex: '1 1 420px', minWidth: 300, border: '1px solid var(--border)', borderRadius: 12, background: 'radial-gradient(ellipse at 50% 40%, rgba(139,124,247,0.07), transparent 70%)' }}>
-          <Suspense fallback={
-            <div style={{ height: 420, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-faint)', fontSize: 13 }}>
-              Loading the 3D transformer…
-            </div>
-          }>
-            <Transformer3D tokenCount={Math.min(10, Math.max(2, tokens.length))} onStatus={setStatus} />
-          </Suspense>
-          <div style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--text-dim)', borderTop: '1px solid var(--border)', minHeight: 56 }}>
-            {STATUS_TEXT[status]}
-            <span style={{ display: 'block', fontSize: 11, color: 'var(--text-faint)', marginTop: 3 }}>
-              🖱 drag to orbit · the sentence’s {Math.min(10, tokens.length)} tokens shown as spheres
-            </span>
+      <div style={{ border: '1px solid var(--border)', borderRadius: 12, background: 'radial-gradient(ellipse at 50% 40%, rgba(139,124,247,0.07), transparent 70%)' }}>
+        <Suspense fallback={
+          <div style={{ height: 380, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-faint)', fontSize: 13 }}>
+            Loading the 3D transformer…
           </div>
+        }>
+          <Transformer3D tokenCount={Math.min(10, Math.max(2, tokens.length))} onStatus={setStatus} />
+        </Suspense>
+        <div style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--text-dim)', borderTop: '1px solid var(--border)', minHeight: 56 }}>
+          {STATUS_TEXT[status]}
+          <span style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 11, color: 'var(--text-faint)', marginTop: 5 }}>
+            <span>🖱 drag to orbit · tokens flow left → right</span>
+            <span><span style={{ color: 'var(--accent-violet)' }}>■</span> one of ~80 layers</span>
+            <span><span style={{ color: 'var(--accent-cyan)' }}>■</span> the layer dissected below</span>
+            <span><span style={{ color: 'var(--accent-pink)' }}>■</span> final layer → prediction</span>
+            <span><span style={{ color: 'var(--accent-green)' }}>●</span> the new token, looping back</span>
+          </span>
         </div>
-        <div style={{ flex: '1 1 240px', minWidth: 240 }}>
-          <div className="card" style={{ padding: 16 }}>
-            <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-faint)', marginBottom: 10 }}>
-              Where 70B parameters live
-            </div>
-            {[
-              ['Embedding matrix', '~1B', 'var(--accent-yellow)'],
-              ['Attention weights (Q, K, V, O) × 80 layers', '~22B', 'var(--accent-violet)'],
-              ['Feed-forward weights × 80 layers', '~45B', 'var(--accent-cyan)'],
-              ['Output projection', '~1B', 'var(--accent-pink)'],
-            ].map(([name, n, c]) => (
-              <div key={name} style={{ display: 'flex', justifyContent: 'space-between', gap: 10, fontSize: 12.5, padding: '6px 0', borderBottom: '1px solid var(--border)' }}>
-                <span style={{ color: 'var(--text-dim)' }}>{name}</span>
-                <span style={{ fontFamily: 'var(--mono)', color: c, flexShrink: 0 }}>{n}</span>
-              </div>
-            ))}
-            <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 10 }}>
-              All ~140 GB of these numbers (at 16-bit) are read from GPU memory{' '}
-              <strong style={{ color: 'var(--text)' }}>for every single token generated</strong> —
-              the physical root of the economics in Modules 02 and 05.
-            </div>
-          </div>
-        </div>
+      </div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginTop: 16 }}>
+        <LayerAnatomyCard />
+        <FinalLayerCard />
+        <ParamMathCard />
       </div>
     </div>
   )
