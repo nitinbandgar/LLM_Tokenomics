@@ -69,7 +69,7 @@ export default function OpenVsProprietary() {
   return (
     <Section
       id="open"
-      kicker="Module 04 · Two different businesses"
+      kicker="Module 05 · Two different businesses"
       title="Proprietary APIs vs open weights: not two prices for the same product"
       lede={
         <>

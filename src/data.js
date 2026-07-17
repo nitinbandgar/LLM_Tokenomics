@@ -118,6 +118,47 @@ export const GLOSSARY = [
   { term: 'LLMflation', meaning: '~10×/year price decline for constant capability', why: 'Why model choices must be revisited quarterly' },
 ]
 
+// §1.1 — the same sentence, tokenized (real cl100k counts, precomputed)
+export const LANG_TOKENS = [
+  { lang: 'English', text: 'Artificial intelligence is transforming enterprise economics.', tokens: 8 },
+  { lang: 'Python code', text: 'cost = tokens * price / 1_000_000', tokens: 12 },
+  { lang: 'German', text: 'Künstliche Intelligenz verändert die Unternehmensökonomie.', tokens: 18 },
+  { lang: 'French', text: 'L’intelligence artificielle transforme l’économie de l’entreprise.', tokens: 18 },
+  { lang: 'Japanese', text: '人工知能は企業経済を変革しています。', tokens: 20 },
+  { lang: 'Hindi', text: 'कृत्रिम बुद्धिमत्ता उद्यम अर्थशास्त्र को बदल रही है।', tokens: 55 },
+]
+
+// Table 18 — the token-FinOps tool stack
+export const TOOL_STACK = [
+  { layer: 'AI gateway', role: 'Single choke point: metering, routing, caching, budgets, guardrails, audit', tools: 'LiteLLM · Portkey · Kong AI Gateway · Cloudflare AI Gateway · TrueFoundry', note: 'The non-negotiable layer — every other lever becomes enforceable here', color: 'var(--accent-cyan)' },
+  { layer: 'Model router / aggregator', role: 'One API key across hundreds of models; cheapest-capable selection', tools: 'OpenRouter · Not Diamond · Martian', note: 'Captures LLMflation automatically — no hard-coded vendor', color: 'var(--accent-violet)' },
+  { layer: 'Observability & evaluation', role: 'Per-request cost attribution, tracing, prompt versioning, quality evals', tools: 'Helicone · Langfuse · Braintrust', note: 'You cannot optimise what you do not meter', color: 'var(--accent-orange)' },
+  { layer: 'Caching & optimisation', role: 'Semantic caching, context compression, agent-side traffic reduction', tools: 'GPTCache · provider prompt caches · gateway-native caches', note: 'Attaches to the gateway; ~31% hit rates on FAQ-like traffic', color: 'var(--accent-green)' },
+]
+
+// Table 19 — who owns what
+export const OPERATING_MODEL = [
+  { who: 'Platform engineering', owns: 'Gateway, routing policy, caching, model onboarding and exit', cadence: 'Continuous' },
+  { who: 'Product teams', owns: 'Cost per resolved task, output/input ratio, agent budgets for their features', cadence: 'Per release' },
+  { who: 'Finance / FinOps', owns: 'Budgets, showback by team and feature, anomaly alerts', cadence: 'Monthly' },
+  { who: 'Architecture review board', owns: 'Model portfolio refresh, self-host vs API decisions, negotiation strategy', cadence: 'Quarterly' },
+]
+
+// §8.1 / 8.2 — the forces repricing the market to 2030
+export const FUTURE_SUPPLY = [
+  { name: 'Next-gen silicon', fact: 'Rubin-class GPUs claim ~10× lower cost per generated token; $0.02/M already demonstrated on open 120B models', so: 'The hardware floor under every price keeps falling' },
+  { name: 'Inference ASICs', fact: 'Purpose-built inference chips: ~15% of the market in 2024 → ~40% by 2026; wafer-scale and LPU designs prove the latency frontier', so: 'Cheap-and-slow vs expensive-and-instant become separately priced lanes' },
+  { name: 'The memory wall', fact: 'Decode is memory-bound, so HBM is the real roadmap. HBM4: >2.8 TB/s per stack — but two vendors control ~90% of supply and prices rose ~20%', so: 'Token-price declines gated as much by memory supply as by GPU launches' },
+  { name: 'Energy as a moat', fact: 'Nuclear PPAs (Three Mile Island 835 MW, Susquehanna 1.92 GW) and SMR orders anchor supplier cost structures into the 2030s', so: 'Power contracts become strategic assets — and a floor under long-run prices' },
+  { name: 'Small, specialised models', fact: 'Task-specific small models expected at 3× the adoption rate of general LLMs by 2027; a 7B model serves routine agent steps 10–30× cheaper', so: 'Token volume shifts to small and cheap; frontier reserved for the hard tail' },
+]
+export const FUTURE_DEMAND = [
+  { name: 'Machine-dominated consumption', fact: 'The 120× token-growth projection to 2030 is agents calling agents — no human reads most intermediate output', so: 'Cost per task replaces cost per token; latency-tolerant volume shifts to batch lanes' },
+  { name: 'Sovereignty becomes procurement', fact: 'EU AI Act high-risk obligations fully applicable Aug 2026 (fines to 7% of turnover); European sovereign-cloud spend $7B → $12B+', so: 'Sovereign deployment costs a premium — and open weights are its natural substrate' },
+  { name: 'Buyers professionalise', fact: 'Committed-use discounts, multi-vendor portfolios behind routing layers, open-weight price anchors in every negotiation', so: 'The buy side organises exactly as the sell side commoditises' },
+  { name: 'Geopolitics stays priced in', fact: 'Export controls partition silicon; Chinese open-weight labs keep a global price anchor under every tier', so: 'Regionally divergent prices — an arbitrage portfolios capture and single-vendor stacks cannot' },
+]
+
 export const fmtUSD = (n, digits) => {
   if (n >= 1e6) return '$' + (n / 1e6).toFixed(2) + 'M'
   if (n >= 1000) return '$' + (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'K'

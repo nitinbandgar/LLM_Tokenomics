@@ -198,11 +198,83 @@ function CostStack() {
   )
 }
 
+const PPA_CARDS = [
+  { who: 'Microsoft', what: 'restarting Three Mile Island Unit 1', num: '835 MW', note: '~20-year nuclear power purchase agreement' },
+  { who: 'AWS', what: 'Susquehanna nuclear plant contract', num: '1.92 GW', note: 'direct plant-adjacent capacity' },
+  { who: 'Google', what: 'fleet of small modular reactors', num: '2030s', note: 'ordered for the next decade of AI load' },
+  { who: 'US grid queues', what: 'projects waiting for interconnection', num: '2,600 GW', note: '~half of planned AI datacentres face delays' },
+]
+
+function EnergyCalculator() {
+  const [gpus, setGpus] = useState(1000)
+  const [price, setPrice] = useState(0.12) // $/kWh
+  const [pue, setPue] = useState(1.3)
+
+  const serverKWPerGpu = 1.25 // ~10 kW per 8-GPU server, incl. CPU/memory/network
+  const itMW = (gpus * serverKWPerGpu) / 1000
+  const totalMW = itMW * pue
+  const monthlyKWh = totalMW * 1000 * 730
+  const monthlyBill = monthlyKWh * price
+  const homes = Math.round((totalMW * 1000) / 1.2) // ~1.2 kW average home draw
+
+  const chain = [
+    { name: '1 GPU', val: '~700 W', sub: 'under load', color: 'var(--accent-cyan)' },
+    { name: '8-GPU server', val: '~10 kW', sub: '+CPUs, memory, network', color: 'var(--accent-violet)' },
+    { name: `${gpus.toLocaleString()}-GPU cluster`, val: `${itMW.toFixed(2)} MW`, sub: 'IT load', color: 'var(--accent-orange)' },
+    { name: 'With cooling (PUE)', val: `${totalMW.toFixed(2)} MW`, sub: `× ${pue.toFixed(2)} facility overhead`, color: 'var(--accent-pink)' },
+  ]
+
+  return (
+    <div className="panel">
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'stretch', marginBottom: 18 }}>
+        {chain.map((c, i) => (
+          <React.Fragment key={c.name}>
+            <div className="card" style={{ flex: '1 1 130px', padding: 12, borderColor: c.color + '66', textAlign: 'center' }}>
+              <div style={{ fontSize: 11, color: 'var(--text-faint)' }}>{c.name}</div>
+              <div style={{ fontFamily: 'var(--mono)', fontSize: 18, fontWeight: 600, color: c.color, margin: '3px 0' }}>{c.val}</div>
+              <div style={{ fontSize: 10.5, color: 'var(--text-faint)' }}>{c.sub}</div>
+            </div>
+            {i < chain.length - 1 && <div style={{ alignSelf: 'center', color: 'var(--text-faint)' }}>→</div>}
+          </React.Fragment>
+        ))}
+      </div>
+      <div className="grid grid-2" style={{ gap: 30 }}>
+        <div>
+          <Slider label="GPUs in the cluster" value={gpus} min={8} max={5000} step={8}
+            display={gpus.toLocaleString()} onChange={setGpus} />
+          <Slider label="Electricity price" value={price} min={0.05} max={0.25} step={0.01}
+            display={`$${price.toFixed(2)}/kWh`} onChange={setPrice} />
+          <Slider label="PUE — cooling & facility overhead" value={pue} min={1.1} max={1.5} step={0.05}
+            display={`×${pue.toFixed(2)}`} onChange={setPue} />
+        </div>
+        <div>
+          <ResultStrip items={[
+            { label: 'Continuous draw', value: `${totalMW.toFixed(2)} MW`, note: `≈ ${homes.toLocaleString()} homes, day and night`, color: 'var(--accent-orange)' },
+            { label: 'Electricity bill', value: fmtUSD(monthlyBill) + '/mo', color: 'var(--accent-pink)', note: 'before a single salary or lease' },
+          ]} />
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', margin: '14px 0 6px' }}>
+            But per token, energy is small
+          </div>
+          <div style={{ display: 'flex', height: 30, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border-bright)' }}>
+            <div style={{ width: '15%', background: 'var(--accent-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 700, color: '#0b0e17' }}>energy</div>
+            <div style={{ width: '85%', background: 'var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 700, color: '#0b0e17' }}>GPU depreciation & everything else</div>
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
+            Electricity is only ~10–20% of serving cost — but an idle GPU burns depreciation whether
+            or not it serves tokens, which is why <strong style={{ color: 'var(--text)' }}>utilisation,
+            not wattage, is the number operators obsess over</strong>.
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function SupplySide() {
   return (
     <Section
       id="supply"
-      kicker="Module 05 · Supply-side economics"
+      kicker="Module 04 · Supply-side economics"
       title="What a token actually costs to produce"
       lede={
         <>
@@ -233,6 +305,25 @@ export default function SupplySide() {
         sub="Model weights and the KV cache compete for the same scarce GPU memory. Slide the context length and watch the feasible batch collapse."
       >
         <KVCacheViz />
+      </Block>
+
+      <Block
+        title="Every token is converted electricity"
+        sub="Size a GPU cluster and watch the power bill assemble — one GPU at a time, up to the grid connection."
+      >
+        <EnergyCalculator />
+      </Block>
+
+      <Block title="Power is now the binding constraint" sub="When suppliers sign decade-long nuclear deals to serve tokens, energy stops being an operating detail and becomes a strategic moat — and a floor under long-run prices.">
+        <div className="grid grid-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
+          {PPA_CARDS.map((p) => (
+            <div className="card" key={p.who}>
+              <div className="big-num" style={{ color: 'var(--accent-orange)', fontSize: 26 }}>{p.num}</div>
+              <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>{p.who} — {p.what}</div>
+              <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{p.note}</div>
+            </div>
+          ))}
+        </div>
       </Block>
 
       <Block title="The full stack a provider must recover">

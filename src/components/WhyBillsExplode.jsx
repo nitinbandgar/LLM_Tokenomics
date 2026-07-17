@@ -151,6 +151,96 @@ function WorkloadCalculator() {
   )
 }
 
+const EFFORTS = [
+  { value: 0, label: 'Standard model' },
+  { value: 1000, label: 'Reasoning · low' },
+  { value: 4000, label: 'Reasoning · medium' },
+  { value: 10000, label: 'Reasoning · high' },
+]
+
+function ReasoningTax() {
+  const [hidden, setHidden] = useState(4000)
+  const [visible, setVisible] = useState(200)
+  const [batch, setBatch] = useState(false)
+
+  const RATE = 30 // $/M output tokens, reasoning tier
+  const disc = batch ? 0.5 : 1
+  const visCost = (visible / 1e6) * RATE * disc
+  const hidCost = (hidden / 1e6) * RATE * disc
+  const total = visCost + hidCost
+  const mult = total / Math.max(visCost, 1e-9)
+
+  // iceberg heights (px), sqrt-compressed so the visible tip stays visible
+  const h = (tok) => Math.max(tok > 0 ? 26 : 0, Math.sqrt(tok) * 2.2)
+
+  return (
+    <div className="panel">
+      <div className="grid grid-2" style={{ gap: 30 }}>
+        <div>
+          <div className="control-row">
+            <div className="control-label"><span>Model tier & thinking effort</span>
+              <span className="control-value">{hidden.toLocaleString()} hidden tokens</span></div>
+            <Seg options={EFFORTS.map((e) => ({ value: e.value, label: e.label }))} value={hidden} onChange={setHidden} />
+          </div>
+          <Slider label="Visible answer length" value={visible} min={50} max={1000} step={50}
+            display={`${visible} tokens`} onChange={setVisible} />
+          <div className={'toggle-row' + (batch ? ' on' : '')} onClick={() => setBatch(!batch)} style={{ marginTop: 4 }}>
+            <div className="switch" />
+            <div>
+              <div style={{ fontSize: 13.5, fontWeight: 600 }}>Send it through the batch lane</div>
+              <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>50% off applies to hidden reasoning tokens too</div>
+            </div>
+          </div>
+          <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 10 }}>
+            Priced at $30/M output tokens (reasoning tier). Hidden chain-of-thought is billed at the
+            full output rate — but never appears in the response.
+          </div>
+        </div>
+        <div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
+            The iceberg: what you see vs what you pay
+          </div>
+          <div style={{ maxWidth: 340 }}>
+            <div style={{
+              height: h(visible), background: 'rgba(74,222,128,0.35)', border: '1px solid var(--accent-green)',
+              borderRadius: '8px 8px 0 0', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11.5, fontWeight: 700, color: 'var(--accent-green)', transition: 'height 0.3s',
+            }}>
+              visible answer · {visible} tokens · {fmtUSD(visCost, 4)}
+            </div>
+            <div style={{ borderTop: '2px dashed var(--accent-cyan)', position: 'relative', margin: '0' }}>
+              <span style={{ position: 'absolute', right: -4, top: -9, fontSize: 9.5, color: 'var(--accent-cyan)', background: 'var(--bg-soft)', padding: '0 4px' }}>
+                what the user sees
+              </span>
+            </div>
+            <div style={{
+              height: h(hidden), background: 'rgba(244,114,182,0.25)', border: '1px solid var(--accent-pink)',
+              borderTop: 'none', borderRadius: '0 0 8px 8px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              fontSize: 11.5, fontWeight: 700, color: 'var(--accent-pink)', transition: 'height 0.3s',
+            }}>
+              {hidden > 0 ? <>hidden thinking · {hidden.toLocaleString()} tokens · {fmtUSD(hidCost, 3)}</> : null}
+            </div>
+          </div>
+          <ResultStrip items={[
+            { label: 'Cost per query', value: fmtUSD(total, 3), color: 'var(--accent-pink)' },
+            { label: 'vs the visible answer alone', value: `${mult.toFixed(0)}×`, note: hidden > 0 ? 'invisible spend wrapped around it' : 'no hidden tokens' },
+            { label: '× 10K queries / month', value: fmtUSD(total * 10000), color: 'var(--accent-pink)' },
+          ]} />
+        </div>
+      </div>
+      <Callout title="Pay for thinking only where thinking pays">
+        Reasoning tiers inflate effective output cost <strong>3–10×</strong> versus the apparent
+        per-token price, and providers ship ~10× price gaps between standard and pro reasoning
+        tiers plus effort knobs. The discipline: route only genuinely hard steps — planning,
+        verification, novel synthesis — to reasoning models, at the lowest effort that passes
+        evaluation. Its cousin, the <strong>long-context habit</strong> (stuffing whole repositories
+        into million-token windows), compounds the bill the same way — the cheapest token remains
+        the one never sent.
+      </Callout>
+    </div>
+  )
+}
+
 export default function WhyBillsExplode() {
   return (
     <Section
@@ -178,6 +268,13 @@ export default function WhyBillsExplode() {
         sub="Straight token arithmetic at list prices. Shape your workload and compare tiers."
       >
         <WorkloadCalculator />
+      </Block>
+
+      <Block
+        title="The reasoning tax — pay for thinking you never see"
+        sub="Reasoning models generate an internal chain of thought before the visible answer. Those tokens are billed at the full output rate."
+      >
+        <ReasoningTax />
       </Block>
 
       <Block

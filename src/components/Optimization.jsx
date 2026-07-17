@@ -197,6 +197,61 @@ function BreakEven() {
   )
 }
 
+function DistillationCalc() {
+  const [spend, setSpend] = useState(20) // $K/mo frontier spend on one narrow workload
+  const PROJECT = 40 // $K one-time: data curation, tuning runs, evaluation
+  const SERVE_FRACTION = 0.1 // distilled small model serves at ~1/10th the cost
+  const after = spend * SERVE_FRACTION
+  const saving = spend - after
+  const payback = PROJECT / saving
+  const net12 = saving * 12 - PROJECT
+
+  return (
+    <div className="panel">
+      <div className="grid grid-2" style={{ gap: 30 }}>
+        <div>
+          <Slider label="Monthly frontier-API spend on one narrow, high-volume task" value={spend} min={2} max={100} step={1}
+            display={`$${spend}K/mo`} onChange={setSpend} />
+          <div style={{ fontSize: 12.5, color: 'var(--text-faint)' }}>
+            Assumptions: distilling the task into a small open model costs ~${PROJECT}K once
+            (data curation, tuning runs, evaluation) and serves at ~10% of the frontier cost —
+            the report’s “up to 10× cheaper on that workload”. QLoRA-era tuning fits on one
+            workstation GPU: thousands of dollars, not millions.
+          </div>
+        </div>
+        <div>
+          <div className="bar-row">
+            <div className="bar-label">Before — frontier API</div>
+            <div className="bar-track" style={{ height: 26 }}>
+              <div className="bar-fill" style={{ width: '100%', background: 'var(--accent-pink)' }}>
+                <span className="bar-value">${spend}K/mo</span>
+              </div>
+            </div>
+          </div>
+          <div className="bar-row">
+            <div className="bar-label">After — distilled model</div>
+            <div className="bar-track" style={{ height: 26 }}>
+              <div className="bar-fill" style={{ width: `${SERVE_FRACTION * 100}%`, background: 'var(--accent-green)' }}>
+                <span className="bar-value">${after.toFixed(1)}K</span>
+              </div>
+            </div>
+          </div>
+          <ResultStrip items={[
+            { label: 'Monthly saving', value: `$${saving.toFixed(1)}K`, color: 'var(--accent-green)' },
+            { label: 'Project pays back in', value: payback > 24 ? '>24 mo' : `${payback.toFixed(1)} mo`, color: payback <= 6 ? 'var(--accent-green)' : payback <= 12 ? 'var(--accent-yellow)' : 'var(--accent-pink)', note: `$${PROJECT}K one-time project` },
+            { label: '12-month net', value: `${net12 >= 0 ? '+' : '−'}$${Math.abs(net12).toFixed(0)}K`, color: net12 >= 0 ? 'var(--accent-green)' : 'var(--accent-pink)' },
+          ]} />
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
+            {payback <= 4 && 'Clear yes — high-volume routine tasks are the end-game for distillation.'}
+            {payback > 4 && payback <= 12 && 'Worth scoping — the economics work if the task stays stable for a year.'}
+            {payback > 12 && 'Not yet — below this volume, routing and caching (above) capture most of the saving with no project risk.'}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Optimization() {
   return (
     <Section
@@ -224,6 +279,13 @@ export default function Optimization() {
         can wait — batch + caching together reach ~25% of on-demand list price before any deeper
         engineering.
       </Callout>
+
+      <Block
+        title="Distillation: the 80%+ tier"
+        sub="Compress a frontier model's behaviour on one narrow task into a small open model. When does the project pay for itself?"
+      >
+        <DistillationCalc />
+      </Block>
 
       <Block
         title="The self-hosting break-even"

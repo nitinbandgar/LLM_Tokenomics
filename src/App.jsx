@@ -3,6 +3,7 @@ import Hero from './components/Hero.jsx'
 import InsideLLM from './components/InsideLLM.jsx'
 import PrefillDecode from './components/PrefillDecode.jsx'
 import PricingLandscape from './components/PricingLandscape.jsx'
+import Future from './components/Future.jsx'
 import OpenVsProprietary from './components/OpenVsProprietary.jsx'
 import SupplySide from './components/SupplySide.jsx'
 import WhyBillsExplode from './components/WhyBillsExplode.jsx'
@@ -14,11 +15,12 @@ const NAV = [
   { id: 'llm', num: '01', label: 'How an LLM works', comp: InsideLLM },
   { id: 'prefill', num: '02', label: 'Prefill vs decode', comp: PrefillDecode },
   { id: 'pricing', num: '03', label: 'The pricing landscape', comp: PricingLandscape },
-  { id: 'open', num: '04', label: 'Open vs proprietary', comp: OpenVsProprietary },
-  { id: 'supply', num: '05', label: 'What a token costs', comp: SupplySide },
+  { id: 'supply', num: '04', label: 'What a token costs', comp: SupplySide },
+  { id: 'open', num: '05', label: 'Open vs proprietary', comp: OpenVsProprietary },
   { id: 'bills', num: '06', label: 'Why bills explode', comp: WhyBillsExplode },
   { id: 'optimize', num: '07', label: 'Optimization playground', comp: Optimization },
-  { id: 'finops', num: '08', label: 'FinOps & the road to 2030', comp: FinOpsFuture },
+  { id: 'finops', num: '08', label: 'Token FinOps', comp: FinOpsFuture },
+  { id: 'future', num: '09', label: 'The road to 2030', comp: Future },
 ]
 
 const fromHash = () => {

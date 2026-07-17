@@ -316,7 +316,7 @@ export default function PrefillDecode() {
         provider can keep that cache in GPU memory and <strong>skip prefill entirely</strong> on the
         next call: that is why cached input is ~90% off and still profitable. And because decode
         cost is dominated by weight-reads that can be shared, <strong>batching</strong> many
-        customers’ decode steps together is why batch APIs run at 50% off. Module 05 builds the full
+        customers’ decode steps together is why batch APIs run at 50% off. Module 04 builds the full
         cost model on these foundations.
       </Callout>
 
@@ -333,7 +333,7 @@ export default function PrefillDecode() {
             <strong style={{ color: 'var(--text)' }}>KV cache.</strong> GPU memory holding attention
             state for every token of every active sequence. It grows linearly with context length ×
             concurrency and competes with model weights for scarce HBM — the physical reason long
-            context costs more. (Module 05 lets you play with this.)
+            context costs more. (Module 04 lets you play with this.)
           </p>
           <p>
             <strong style={{ color: 'var(--text)' }}>Parameters &amp; precision.</strong> The weights

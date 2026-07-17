@@ -11,22 +11,24 @@ npm run dev      # dev server at http://localhost:5173
 npm run build    # production build → dist/
 ```
 
-## The nine modules
+## The ten modules
 
-Navigation is section-based: pick a module from the sidebar (or the horizontal bar on
-mobile), or step through with the Next/Back buttons at the bottom of each section.
+One chapter per topic, mirroring the "LLM Tokenomics" report's structure. Navigation is
+section-based: pick a module from the sidebar (or the horizontal bar on mobile), or step
+through with the Next/Back buttons at the bottom of each section.
 
 | # | Module | Core interactive |
 |---|--------|------------------|
 | 00 | The paradox | Animated diverging price-vs-spend chart, six headline numbers |
-| 01 | How an LLM works | Pick one of three curated sentences and follow it through seven stages: real BPE token IDs → embeddings → an orbitable 3D transformer stack (Three.js) → clickable attention with curated per-sentence weights → a next-token distribution that makes linguistic sense → be-the-sampler streaming loop whose continuation reads coherently, with temperature |
+| 01 | How an LLM works | Pick one of three curated sentences and follow it through seven stages: real BPE token IDs → embeddings → a horizontal orbitable 3D transformer (Three.js) with layer dissection + parameter arithmetic → clickable attention → next-token prediction → be-the-sampler streaming loop with temperature. Plus three silent pricing variables: the vocabulary tax across languages, Dense vs MoE, and precision |
 | 02 | Prefill vs decode | Animated tokenize→prefill→decode→stream pipeline, wall-clock "time race" explorer, input/output cost asymmetry meter, output÷input price-ratio chart across the market |
 | 03 | The pricing landscape | Log/linear price-ladder explorer, five pricing meters, discount lanes, LLMflation chart |
-| 04 | Open vs proprietary | Repricing-cascade timeline (drag through a capability tier's half-life), DeepSeek shock numbers |
-| 05 | What a token costs | First-principles cost-floor calculator (model size × precision × batch × GPU rate), KV-cache/context visualizer, provider cost stack |
-| 06 | Why bills explode | Agent-loop cost visualizer (super-linear token growth), workload cost calculator with RAG slider, waste anatomy |
-| 07 | Optimization playground | Six-lever savings simulator with waterfall, self-hosting break-even tool |
-| 08 | FinOps & 2030 | Operating-loop walkthrough, governance moves, dashboard metrics, 2030 timeline, searchable glossary |
+| 04 | What a token costs | First-principles cost-floor calculator (model size × precision × batch × GPU rate), KV-cache/context visualizer, cluster power-bill calculator (GPUs × PUE × $/kWh), nuclear-PPA cards, provider cost stack |
+| 05 | Open vs proprietary | Repricing-cascade timeline (drag through a capability tier's half-life), DeepSeek shock numbers |
+| 06 | Why bills explode | Agent-loop cost visualizer (super-linear token growth), workload cost calculator with RAG slider, reasoning-tax iceberg (hidden thinking tokens with batch-lane toggle), waste anatomy |
+| 07 | Optimization playground | Six-lever savings simulator with waterfall, distillation payback calculator, self-hosting break-even tool |
+| 08 | Token FinOps | Operating-loop walkthrough, governance moves, clickable four-layer tool stack, dashboard metrics, who-owns-what operating model |
+| 09 | The road to 2030 | Spend projector (price deflation vs consumption growth race), supply/demand force cards, 2030 timeline with confidence, supplier vs consumer implications, searchable glossary |
 
 All figures are indicative list prices as of mid-2026 — orders of magnitude, not quotes.
 The calculators use simplified first-principles models described inline; assumptions are

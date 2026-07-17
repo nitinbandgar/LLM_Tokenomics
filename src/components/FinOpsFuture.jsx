@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Section, Block, Callout, DataTable } from './ui.jsx'
-import { FINOPS_METRICS, TIMELINE_2030, GLOSSARY } from '../data.js'
+import { FINOPS_METRICS, TOOL_STACK, OPERATING_MODEL } from '../data.js'
 
 const MOVES = [
   { n: '1', title: 'One gateway', desc: 'Centralise API access behind a single gateway that does metering, routing, caching and budget enforcement in one place. This single move eliminates shadow usage and makes every other lever enforceable.' },
@@ -45,49 +45,55 @@ function OperatingLoop() {
   )
 }
 
-function Glossary() {
-  const [q, setQ] = useState('')
-  const items = GLOSSARY.filter(
-    (g) => !q || (g.term + g.meaning + g.why).toLowerCase().includes(q.toLowerCase()),
-  )
+function ToolStackViz() {
+  const [sel, setSel] = useState(0)
+  const cur = TOOL_STACK[sel]
   return (
-    <div>
-      <input
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-        placeholder="Filter terms… (try “cache”)"
-        style={{
-          width: '100%', maxWidth: 340, background: 'var(--bg-soft)', color: 'var(--text)',
-          border: '1px solid var(--border-bright)', borderRadius: 10, padding: '10px 14px',
-          fontFamily: 'var(--sans)', fontSize: 13.5, outline: 'none', marginBottom: 16,
-        }}
-      />
-      <div className="grid grid-3" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))' }}>
-        {items.map((g) => (
-          <div className="card" key={g.term} style={{ padding: 16 }}>
-            <div style={{ fontFamily: 'var(--mono)', fontSize: 13.5, fontWeight: 600, color: 'var(--accent-cyan)' }}>{g.term}</div>
-            <div style={{ fontSize: 12.5, color: 'var(--text-dim)', margin: '6px 0' }}>{g.meaning}</div>
-            <div style={{ fontSize: 11.5, color: 'var(--text-faint)' }}>💡 {g.why}</div>
+    <div className="panel">
+      <div className="grid grid-2" style={{ gap: 26 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {TOOL_STACK.map((t, i) => (
+            <button
+              key={t.layer}
+              onClick={() => setSel(i)}
+              className="card"
+              style={{
+                padding: '12px 16px', textAlign: 'left', cursor: 'pointer', font: 'inherit', color: 'inherit',
+                borderColor: i === sel ? t.color : undefined,
+                borderLeftWidth: 4, borderLeftColor: t.color,
+              }}
+            >
+              <div style={{ fontWeight: 700, fontSize: 13.5, color: i === sel ? t.color : 'var(--text)' }}>{t.layer}</div>
+              <div style={{ fontSize: 11.5, color: 'var(--text-faint)' }}>{t.role}</div>
+            </button>
+          ))}
+        </div>
+        <div className="card" style={{ padding: 18, borderColor: cur.color + '66' }}>
+          <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: cur.color, fontWeight: 700, marginBottom: 8 }}>
+            {cur.layer}
           </div>
-        ))}
+          <div style={{ fontSize: 13, color: 'var(--text-dim)', marginBottom: 12 }}>{cur.role}</div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 4 }}>
+            Representative tools (2026)
+          </div>
+          <div style={{ fontFamily: 'var(--mono)', fontSize: 12.5, color: 'var(--text)', marginBottom: 12 }}>{cur.tools}</div>
+          <div style={{ fontSize: 12.5, color: 'var(--text-dim)' }}>💡 {cur.note}</div>
+        </div>
+      </div>
+      <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 12 }}>
+        Build-vs-buy is mostly a buy (or adopt) question — most layers have credible open-source
+        options. The gateway is the non-negotiable layer; the rest attach to it.
       </div>
     </div>
   )
-}
-
-const CONF_COLOR = {
-  High: 'var(--accent-green)',
-  'Medium-high': 'var(--accent-cyan)',
-  Medium: 'var(--accent-yellow)',
-  Directional: 'var(--accent-orange)',
 }
 
 export default function FinOpsFuture() {
   return (
     <Section
       id="finops"
-      kicker="Module 08 · Governance & the future"
-      title="Token FinOps — and the road to 2030"
+      kicker="Module 08 · Governance"
+      title="Token FinOps — the operating discipline"
       lede={
         <>
           The FinOps Foundation ranks AI cost management as the top forward-looking priority for
@@ -115,6 +121,10 @@ export default function FinOpsFuture() {
         </div>
       </Block>
 
+      <Block title="The tool stack" sub="Four layers, click each — none of the governance moves require building infrastructure from scratch.">
+        <ToolStackViz />
+      </Block>
+
       <Block title="The minimum viable token-FinOps dashboard">
         <DataTable
           headers={['Metric', 'Definition', 'Why it matters']}
@@ -122,34 +132,23 @@ export default function FinOpsFuture() {
         />
       </Block>
 
-      <Block title="The trajectory to 2030" sub="Extrapolations from observable trends, not certainties — confidence indicated.">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-          {TIMELINE_2030.map((t) => (
-            <div className="card" key={t.horizon} style={{ display: 'flex', gap: 20, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-              <div style={{ fontFamily: 'var(--mono)', fontSize: 16, fontWeight: 600, color: 'var(--accent-cyan)', width: 90, flexShrink: 0 }}>
-                {t.horizon}
-              </div>
-              <div style={{ flex: 1, fontSize: 13.5, color: 'var(--text-dim)', minWidth: 240 }}>{t.dev}</div>
-              <span className="chip" style={{ color: CONF_COLOR[t.confidence], borderColor: CONF_COLOR[t.confidence] + '66' }}>
-                {t.confidence} confidence
-              </span>
-            </div>
-          ))}
-        </div>
+      <Block title="Who owns what" sub="The operating model matters more than the tools — and the clock speed is quarterly, not annual.">
+        <DataTable
+          headers={['Who', 'Owns', 'Cadence']}
+          rows={OPERATING_MODEL.map((o) => [
+            o.who,
+            o.owns,
+            <span style={{ fontFamily: 'var(--mono)', color: 'var(--accent-cyan)' }}>{o.cadence}</span>,
+          ])}
+        />
       </Block>
 
-      <Callout title="The closing thought">
-        Treat tokens as a managed resource: <strong>meter, route, cache and batch — then reinvest
-        the savings in scale.</strong> The winning enterprise architecture is hybrid and
-        policy-driven: small or open models for high-volume routine work; premium frontier models
-        for hard cases; batch lanes for offline jobs; cached prefixes for repeated corpora; and
-        private or regional deployment only where regulation justifies the uplift. Through 2025 the
-        risk was overspending on AI. From here, the greater risk is under-consuming it.
+      <Callout tone="green" title="Why the cadence is the whole game">
+        At ~10× annual price deflation and 6–12-month capability half-lives, an annual review
+        cadence guarantees systematic overpayment. A small platform team owns the gateway and the
+        model portfolio; product teams own their unit economics; finance owns budgets and showback —
+        the same pattern as cloud FinOps, run four times as fast.
       </Callout>
-
-      <Block title="Glossary — the working vocabulary of token economics">
-        <Glossary />
-      </Block>
     </Section>
   )
 }
