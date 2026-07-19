@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Seg, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Seg, DataTable, More } from './ui.jsx'
 import { MODEL_PRICES, TIER_COLORS, TIER_LABELS, PRICING_MODELS, DISCOUNT_LANES, LLMFLATION, fmtUSD } from '../data.js'
 
 function PriceExplorer() {
@@ -122,12 +122,14 @@ function LLMflationChart() {
         </text>
       </svg>
       <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 8 }}>
-        “LLMflation”: for constant capability, prices have fallen ~10×/year since 2022 — faster than
-        compute in the PC era or bandwidth in the dot-com era. The decline stacks four multiplicative
-        layers: hardware generations (4–15× each), model architecture (MoE, distillation,
-        quantisation), serving software (batching, paged KV caches, speculative decoding), and
-        open-weight competition.
+        ~10×/year for constant capability — faster than compute in the PC era or bandwidth in the
+        dot-com era.
       </div>
+      <More label="What drives the decline">
+        Four multiplicative layers stack: hardware generations (4–15× each), model architecture
+        (MoE, distillation, quantisation), serving software (batching, paged KV caches, speculative
+        decoding), and open-weight competition putting a ceiling on every matched tier.
+      </More>
     </div>
   )
 }
@@ -168,14 +170,25 @@ export default function PricingLandscape() {
         <PriceExplorer />
       </Block>
 
-      <Callout title="Structural reading">
-        Three features matter more than any single number. First, the frontier-to-commodity spread
-        is roughly <strong>100–500×</strong>. Second, every major provider offers the same three
-        discounts — ~90% off cached input, 50% off batch, steep mini tiers — and batch + caching
-        together take effective cost to <strong>~25% of on-demand rates</strong> before any
-        engineering effort. Third, the moment an open-weight model matches a capability tier, that
-        tier’s price collapses to hosting economics — in weeks, not years.
-      </Callout>
+      <Block title="Three features matter more than any single number">
+        <div className="grid grid-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
+          <div className="card">
+            <div className="big-num" style={{ color: 'var(--accent-pink)' }}>100–500×</div>
+            <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Frontier-to-commodity spread</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>The widest quality-adjusted price dispersion of any input an enterprise buys.</div>
+          </div>
+          <div className="card">
+            <div className="big-num" style={{ color: 'var(--accent-green)' }}>~25%</div>
+            <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Of list price, before any engineering</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Batch (50% off) + caching (~90% off input) — the same discounts, from every provider.</div>
+          </div>
+          <div className="card">
+            <div className="big-num" style={{ color: 'var(--accent-cyan)' }}>Weeks</div>
+            <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Not years</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>How fast a tier’s price collapses to hosting economics once an open model matches it.</div>
+          </div>
+        </div>
+      </Block>
 
       <Block title="The discount lanes every provider offers">
         <DataTable

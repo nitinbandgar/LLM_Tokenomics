@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout } from './ui.jsx'
+import { Section, Block, Slider, Seg, ResultStrip, Callout, More } from './ui.jsx'
 import { fmtUSD, LANG_TOKENS } from '../data.js'
 import { EXAMPLES, noise, applyTemp } from '../examples.js'
 
@@ -29,19 +29,26 @@ function TokChip({ text, i, dim, big }) {
 /* ------------------------------------------------------------------ */
 const STAGES = [
   { key: 'context', label: 'Context in', title: '1 · Everything starts with the context',
-    desc: 'The model never sees just the latest message. The system prompt, conversation history, retrieved documents and tool outputs are concatenated with it into one long sequence — the context window. This whole sequence is the input, every single turn, and every part of it is billed.' },
+    desc: 'The model never sees just the latest message — everything below is concatenated into one long sequence, and all of it is billed.',
+    more: 'System prompt, conversation history, retrieved documents and tool outputs are joined with the new message into the context window. This whole sequence is the input, every single turn — which is why most billed input is scaffolding, not your question.' },
   { key: 'tokenize', label: 'Tokenize', title: '2 · The text becomes token IDs',
-    desc: 'A tokenizer splits the text into subword units and maps each to an integer ID from a fixed vocabulary (~100K entries here). Common words are one token; rare words split into pieces. From here on, the model only ever sees numbers — and this is exactly the unit on your invoice.' },
+    desc: 'A tokenizer splits the text into subword pieces, each mapped to a number — the unit on your invoice.',
+    more: 'The vocabulary is fixed (~100K entries here): common words are one token, rare words split into pieces. From here on the model only ever sees numbers.' },
   { key: 'embed', label: 'Embed', title: '3 · Token IDs become vectors',
-    desc: 'Each ID looks up a learned embedding — a vector of thousands of numbers (e.g. 8,192 dimensions) encoding the token’s meaning as geometry: "cat" and "kitten" end up near each other. Position information is mixed in so the model knows word order. These vectors are what actually flow through the network.' },
+    desc: 'Each ID looks up a learned vector of thousands of numbers — the token’s meaning as geometry.',
+    more: '“cat” and “kitten” end up near each other in this space; a positional signal is mixed in so the model knows word order. These vectors are what actually flow through the network — everything after this is matrix arithmetic.' },
   { key: 'layers', label: 'Layers · 3D', title: '4 · Through the transformer stack — in 3D',
-    desc: 'The tokens now flow left → right through a deep stack of identical layers (~80 in a 70B-class model; 10 shown). In each layer, attention lets the tokens exchange information (pink flashes), then a feed-forward network transforms each one. From the final layer (pink) a prediction (green) emerges — and loops straight back to the entrance as the next input token. Drag to orbit, then dissect the machinery in the three panels below.' },
+    desc: 'The tokens flow left → right through ~80 identical layers (10 shown). Drag to orbit; dissect the machinery in the panels below.',
+    more: 'In each layer, attention lets the tokens exchange information (pink flashes), then a feed-forward network transforms each one. From the final layer (pink) a prediction (green) emerges — and loops straight back to the entrance as the next input token.' },
   { key: 'attention', label: 'Attention', title: '5 · Attention: every token looks back',
-    desc: 'Inside each layer, every token computes a query and compares it against the keys of all previous tokens. The match scores become weights, and the token pulls in a weighted blend of their values — meaning flows between positions. Click any token to make it the query.' },
+    desc: 'Every token looks back at all earlier tokens and pulls in what matters. Click any token to make it the query.',
+    more: 'Each token computes a query and compares it against the keys of all previous tokens; the match scores become weights, and the token blends in their values. This is the only place information moves between positions — and it is how pronouns find what they refer to.' },
   { key: 'predict', label: 'Predict', title: '6 · One probability for every token in the vocabulary',
-    desc: 'After the final layer, the last token’s vector is projected onto the whole vocabulary and squashed into a probability distribution (softmax). The model doesn’t "know" the next word — it scores every candidate, and a sampler picks one.' },
+    desc: 'The model doesn’t "know" the next word — it scores every candidate, and a sampler picks one.',
+    more: 'After the final layer, the last token’s vector is projected onto the whole vocabulary and squashed into a probability distribution (softmax). This happens afresh for every single token generated.' },
   { key: 'loop', label: 'Loop & stream', title: '7 · The chosen token is fed straight back in',
-    desc: 'The sampled token is appended to the sequence and the entire process repeats — one full pass through all the layers, reading all the weights, per token. This autoregressive loop is what you see as a stream of tokens in a chat window, and it is why output tokens cost more than input tokens (Module 02).' },
+    desc: 'Append the token, run the whole stack again — that loop is the stream you see in a chat window.',
+    more: 'Every output token costs one full pass through all the layers, reading all the weights. That is why generation is sequential — and why output tokens cost more than input tokens (Module 02).' },
 ]
 
 /* Stage 1 — context assembly around the chosen sentence */
@@ -80,9 +87,8 @@ function StageContext({ text, nTok }) {
         <div style={{ width: '4%', background: 'rgba(244,114,182,0.6)' }} />
       </div>
       <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 8 }}>
-        The context window — ~6,600 tokens here. The actual message is the thin pink sliver: in
-        enterprise workloads most billed input is scaffolding, which is why context engineering
-        (Module 07) is such a big lever.
+        ~6,600 tokens — and the actual message is the thin pink sliver. Trimming the scaffolding is
+        the Module 07 lever called context engineering.
       </div>
     </div>
   )
@@ -110,13 +116,14 @@ function StageTokenize({ tokens, text }) {
         { label: 'As input @ $3/M', value: fmtUSD((tokens.length / 1e6) * 3, 6), note: 'one request — pennies; billions add up' },
       ]} />
       <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 12 }}>
-        These are <strong style={{ color: 'var(--text)' }}>real BPE token IDs</strong> from the
-        cl100k_base vocabulary used by GPT-4-class models. Common words are single tokens; rarer
-        ones split — pick “The tokenomics one” above and notice “LLM” becoming two tokens
-        (“ L” + “LM”). Rule of thumb: 1 token ≈ 4 characters ≈ ¾ of an English word. Vocabulary
-        design matters commercially — the same sentence can be ~20% more tokens in one model family
-        than another, silently changing the bill.
+        Real BPE token IDs (cl100k vocabulary) · 1 token ≈ 4 characters ≈ ¾ of a word.
       </div>
+      <More>
+        Pick “The tokenomics one” above and notice “LLM” becoming two tokens (“ L” + “LM”) — the
+        vocabulary decides what counts as one billable unit. That design choice matters
+        commercially: the same sentence can be ~20% more tokens in one model family than another,
+        silently changing the bill. The vocabulary-tax card below shows the extreme version.
+      </More>
     </div>
   )
 }
@@ -151,13 +158,15 @@ function StageEmbed({ tokens }) {
           <div style={{ alignSelf: 'center', fontSize: 12, color: 'var(--text-faint)' }}>+{tokens.length - 8} more</div>
         )}
         <div style={{ flex: '1 1 220px', fontSize: 12.5, color: 'var(--text-dim)', alignSelf: 'center', minWidth: 200 }}>
-          Each column is one token as a vector — thousands of numbers, learned during training, that
-          place the token in a geometric “meaning space”. Everything the model does from here is
-          matrix arithmetic on these columns. (Cell colours are illustrative, deterministically
-          derived from each real token ID.)
+          One column = one token’s vector, learned during training.
           <div style={{ marginTop: 8, fontSize: 11.5, color: 'var(--text-faint)' }}>
             + a positional signal, so “cat sat on mat” ≠ “mat sat on cat”.
           </div>
+          <More>
+            The thousands of numbers place each token in a geometric “meaning space”; everything
+            the model does from here is matrix arithmetic on these columns. Cell colours here are
+            illustrative, derived deterministically from each real token ID.
+          </More>
         </div>
       </div>
     </div>
@@ -394,11 +403,11 @@ function StageAttention({ example }) {
             <strong style={{ color: 'var(--accent-violet)' }}>“{view[example.defaultQuery].text.trim()}”</strong> for this sentence’s
             most interesting case.</>}
       </div>
-      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
-        This is one attention head — a 70B-class model runs ~64 heads × 80 layers = 5,120 of these
-        pattern-matchers in parallel per token: some track syntax, some coreference, some facts.
-        Weights curated for this sentence, for clarity.
-      </div>
+      <More label="One head of 5,120">
+        This is a single attention head — a 70B-class model runs ~64 heads × 80 layers = 5,120 of
+        these pattern-matchers in parallel per token: some track syntax, some coreference, some
+        facts. Weights curated for this sentence, for clarity.
+      </More>
     </div>
   )
 }
@@ -434,11 +443,12 @@ function StagePredict({ example }) {
         </div>
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--text-dim)', marginTop: 10 }}>{example.predictNote}</div>
-      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
+      <More>
         One probability per vocabulary entry, recomputed for every token. Reasoning models make this
         step deliberate — thousands of hidden “thinking” tokens before the visible answer, all
-        billed at the output rate. (Probabilities curated for this sentence.)
-      </div>
+        billed at the output rate (Module 06 prices that habit). Probabilities curated for this
+        sentence.
+      </More>
     </div>
   )
 }
@@ -530,11 +540,11 @@ function StageLoop({ example }) {
               { label: 'Temperature', value: temp.toFixed(1) },
             ]} />
           )}
-          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 10 }}>
+          <More label="How temperature works">
             Temperature reshapes the same underlying scores: T→0 concentrates all probability on the
             top token; high T flattens the field. The continuation is curated for this sentence —
             the mechanics (score → temperature → sample → append → repeat) are exactly real.
-          </div>
+          </More>
         </div>
       </div>
     </div>
@@ -575,10 +585,13 @@ function VocabularyMini() {
         <span style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'var(--text)' }}>“{cur.text}”</span>
       </div>
       <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 6 }}>
-        Same meaning, {cur.lang === 'English' ? 'the baseline bill' : <strong style={{ color: 'var(--accent-yellow)' }}>{(cur.tokens / base).toFixed(1)}× the bill</strong>} —
-        vocabularies are trained mostly on English, so other languages split into more pieces.
-        Multilingual workloads cost more than their word count suggests.
+        Same meaning, {cur.lang === 'English' ? 'the baseline bill' : <strong style={{ color: 'var(--accent-yellow)' }}>{(cur.tokens / base).toFixed(1)}× the bill</strong>}.
       </div>
+      <More>
+        Vocabularies are trained mostly on English text, so other languages split into more, smaller
+        pieces — the same document costs more to process in Hindi than in English. Multilingual
+        workloads cost more than their word count suggests; budget by tokens, not words.
+      </More>
     </div>
   )
 }
@@ -622,11 +635,14 @@ function MoEMini() {
       ]} />
       <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
         {dense
-          ? 'A dense model reads every weight for every token — headline size = serving cost.'
-          : <>An MoE model routes each token through a few specialist “experts”. A trillion-parameter
-            model can be <strong style={{ color: 'var(--text)' }}>cheaper to serve than a dense 70B</strong> —
-            cost tracks <em>active</em> parameters, not the headline. A key driver of 2025–26 price falls.</>}
+          ? 'Every weight read for every token — headline size = serving cost.'
+          : <>Cost tracks <em>active</em> parameters, not the headline size.</>}
       </div>
+      <More>
+        An MoE model routes each token through a few specialist “experts”, so a trillion-parameter
+        model can be cheaper to serve than a dense 70B. This is one of the main reasons 2025–26
+        models got cheaper without getting worse.
+      </More>
     </div>
   )
 }
@@ -670,9 +686,13 @@ function PrecisionMini() {
         { label: 'Relative decode cost', value: `${Math.round((bytes / 2) * 100)}%`, color: 'var(--accent-cyan)', note: 'vs 16-bit' },
       ]} />
       <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
-        Every generated token re-reads the weights, so halving precision ≈ halving the marginal cost
-        of decoding — usually with little quality loss. Module 04 builds the full cost floor on this.
+        Halve the bytes ≈ halve the marginal cost of decoding.
       </div>
+      <More>
+        Every generated token re-reads all the weights from memory, so fewer bytes per weight means
+        proportionally cheaper tokens — usually with little quality loss. Module 04 builds the full
+        cost floor on this arithmetic.
+      </More>
     </div>
   )
 }
@@ -719,7 +739,8 @@ function Walkthrough({ example }) {
 
       <div style={{ minHeight: 340 }}>
         <div style={{ fontWeight: 700, fontSize: 16.5, marginBottom: 6 }}>{s.title}</div>
-        <div style={{ fontSize: 13.5, color: 'var(--text-dim)', maxWidth: 780, marginBottom: 22 }}>{s.desc}</div>
+        <div style={{ fontSize: 13.5, color: 'var(--text-dim)', maxWidth: 780 }}>{s.desc}</div>
+        <div style={{ maxWidth: 780, marginBottom: 18 }}>{s.more && <More>{s.more}</More>}</div>
 
         {s.key === 'context' && <StageContext text={example.text} nTok={example.tokens.length} />}
         {s.key === 'tokenize' && <StageTokenize tokens={example.tokens} text={example.text} />}
@@ -807,13 +828,16 @@ export default function InsideLLM() {
       </Block>
 
       <Callout tone="pink" title="Why this machine shapes every price in this guide">
-        Three consequences fall straight out of the architecture. <strong>Generation is
-        sequential</strong> — one full pass through all ~80 layers, reading every weight, per output
-        token. <strong>Attention needs every previous token’s state</strong> — kept in GPU memory as
-        the KV cache, which is why long context is surcharged and cached prefixes get ~90% off.
-        And <strong>parameters are read from memory each token</strong> — so model size × precision
-        sets a hard physical floor under every price. Module 02 turns these three facts into the
-        prefill/decode split on your invoice; Module 04 builds the full cost model.
+        Three facts fall straight out of the architecture: <strong>generation is sequential</strong>,{' '}
+        <strong>attention keeps every token’s state in GPU memory</strong>, and{' '}
+        <strong>every weight is re-read for every output token</strong>.
+        <More label="See how each becomes a line on the bill">
+          Sequential generation — one full pass through all ~80 layers per output token — is why
+          output costs 3–8× input (Module 02). Attention state lives in GPU memory as the KV cache,
+          which is why long context is surcharged and cached prefixes get ~90% off. And weight
+          re-reads mean model size × precision sets a hard physical floor under every price —
+          Module 04 builds the full cost model on exactly this.
+        </More>
       </Callout>
     </Section>
   )

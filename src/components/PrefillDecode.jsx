@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Section, Block, Slider, ResultStrip, Callout } from './ui.jsx'
+import { Section, Block, Slider, ResultStrip, Callout, More } from './ui.jsx'
 import { MODEL_PRICES, fmtUSD } from '../data.js'
 
 /* ------------------------------------------------------------------ */
@@ -131,10 +131,12 @@ function PhaseRace() {
           <Slider label="Output tokens (the response)" value={outTok} min={20} max={2000} step={20}
             display={outTok.toLocaleString()} onChange={setOutTok} />
           <div style={{ fontSize: 12.5, color: 'var(--text-faint)' }}>
-            Illustrative single-request rates: prefill ingests ~{PREFILL_RATE.toLocaleString()} tok/s,
-            decode emits ~{DECODE_RATE} tok/s. Real numbers vary by model and hardware; the ratio —
-            two to three orders of magnitude — does not.
+            Prefill ingests ~{PREFILL_RATE.toLocaleString()} tok/s; decode emits ~{DECODE_RATE} tok/s.
           </div>
+          <More>
+            Illustrative single-request rates — real numbers vary by model and hardware, but the
+            ratio between them (two to three orders of magnitude) does not.
+          </More>
         </div>
         <div>
           <div style={{ fontSize: 11.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 8 }}>
@@ -168,12 +170,14 @@ function PhaseRace() {
         </div>
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--text-dim)', marginTop: 14 }}>
-        Feel the shape of it: {inTok.toLocaleString()} input tokens are absorbed in {fmt(ttft)}, but{' '}
-        {outTok.toLocaleString()} output tokens take {fmt(gen)} — reading a book is parallel, writing
-        one is word by word. Batching lets providers share each decode pass across many customers,
-        which compresses the raw ~{Math.round(PREFILL_RATE / DECODE_RATE)}× effort gap down to the
-        3–8× you see on price lists.
+        {inTok.toLocaleString()} tokens absorbed in {fmt(ttft)}; {outTok.toLocaleString()} written
+        in {fmt(gen)} — reading is parallel, writing is word by word.
       </div>
+      <More label="Why the bill only shows 3–8×">
+        Batching lets providers share each decode pass across many customers, which compresses the
+        raw ~{Math.round(PREFILL_RATE / DECODE_RATE)}× per-token effort gap down to the 3–8× you
+        see on price lists.
+      </More>
     </div>
   )
 }
@@ -254,10 +258,12 @@ function RatioChart() {
         </div>
       ))}
       <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 10 }}>
-        Output ÷ input list price, per model (Module 03 prices). Virtually the whole market sits at
-        2–6× — the physics of decode shows through every vendor’s tariff. Where the ratio is 1×
-        (tiny open models), tokens are so cheap the meter barely matters.
+        Output ÷ input list price, per model — virtually the whole market sits at 2–6×.
       </div>
+      <More>
+        The physics of decode shows through every vendor’s tariff (prices from Module 03). Where
+        the ratio is 1× — tiny open models — tokens are so cheap the meter barely matters.
+      </More>
     </div>
   )
 }
@@ -293,14 +299,26 @@ export default function PrefillDecode() {
         <PhaseRace />
       </Block>
 
-      <Callout tone="pink" title="Why input and output are metered separately">
-        During prefill the GPU is <strong>compute-bound</strong>: all input tokens are processed
-        together in giant matrix multiplications, so each one is cheap. During decode the GPU is{' '}
-        <strong>memory-bandwidth-bound</strong>: producing each token requires streaming all ~140 GB
-        of weights (70B, FP16) from memory, and no parallelism across time is possible — token N+1
-        cannot start before token N exists. Two different physical regimes, two different unit
-        costs, two lines on the invoice. This is not marketing.
-      </Callout>
+      <Block title="Two physical regimes, two lines on the invoice">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 14 }}>
+          <div className="card" style={{ borderColor: 'rgba(56,209,224,0.5)' }}>
+            <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-cyan)', fontWeight: 700 }}>Prefill · input tokens</div>
+            <div className="big-num" style={{ color: 'var(--accent-cyan)', fontSize: 24, margin: '6px 0' }}>compute-bound</div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-dim)' }}>All tokens processed together in giant matrix multiplications — each one is cheap.</div>
+          </div>
+          <div className="card" style={{ borderColor: 'rgba(244,114,182,0.5)' }}>
+            <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-pink)', fontWeight: 700 }}>Decode · output tokens</div>
+            <div className="big-num" style={{ color: 'var(--accent-pink)', fontSize: 24, margin: '6px 0' }}>memory-bound</div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-dim)' }}>Each token streams all ~140 GB of weights from memory — and N+1 can’t start before N exists.</div>
+          </div>
+        </div>
+        <More label="Why this is not marketing">
+          The two phases run in genuinely different physical regimes on the same GPU: prefill
+          saturates the arithmetic units, decode starves them behind memory bandwidth. Different
+          bottlenecks mean different unit costs — which is why every provider meters input and
+          output separately.
+        </More>
+      </Block>
 
       <Block title="What the meter says" sub="The same asymmetry in dollars: shape a request and watch which side dominates.">
         <AsymmetryExplorer />
@@ -311,13 +329,15 @@ export default function PrefillDecode() {
       </Block>
 
       <Callout tone="green" title="The same physics makes the discounts honest">
-        Prefill’s job is to build the <strong>KV cache</strong> — the attention state for every
-        context token. If your prompt prefix is stable (system prompt, tool schemas, documents), the
-        provider can keep that cache in GPU memory and <strong>skip prefill entirely</strong> on the
-        next call: that is why cached input is ~90% off and still profitable. And because decode
-        cost is dominated by weight-reads that can be shared, <strong>batching</strong> many
-        customers’ decode steps together is why batch APIs run at 50% off. Module 04 builds the full
-        cost model on these foundations.
+        Stable prompt prefixes let providers <strong>skip prefill entirely</strong> (~90% off cached
+        input); shareable decode passes are why <strong>batch APIs run at 50% off</strong>.
+        <More label="The mechanics">
+          Prefill’s job is to build the KV cache — the attention state for every context token. If
+          your prefix is stable (system prompt, tool schemas, documents), that cache is kept warm in
+          GPU memory and reused. And because decode cost is dominated by weight-reads that can be
+          shared across customers, batching monetises idle capacity. Module 04 builds the full cost
+          model on these foundations.
+        </More>
       </Callout>
 
       <details className="expand">

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable, More } from './ui.jsx'
 import { FAILURE_MODES, fmtUSD, fmtNum } from '../data.js'
 
 const TIERS = [
@@ -84,11 +84,14 @@ function AgentLoopViz() {
       ]} />
 
       <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 14 }}>
-        Why super-linear? Each step re-sends the <em>entire accumulated context</em> — system
-        prompt, history, every previous tool output. By step 20 you have paid for the same system
-        prompt twenty times, and the context has grown with every step. Assumptions: 3K base
-        context, +900 tokens/step, 350 output tokens/step.
+        Each step re-sends the <em>entire accumulated context</em> — by step 20 you’ve paid for the
+        same system prompt twenty times.
       </div>
+      <More label="Why super-linear">
+        The context grows with every step (tool outputs, responses), and all of it is re-sent and
+        re-billed on each loop iteration — so cost per task grows faster than step count.
+        Assumptions here: 3K base context, +900 tokens/step, 350 output tokens/step.
+      </More>
     </div>
   )
 }
@@ -141,11 +144,13 @@ function WorkloadCalculator() {
         </div>
       </div>
       <Callout title="RAG bills you three times — and vector search is the small one">
-        Retrieved passages inflate prompt tokens; embedding/indexing is metered; and the vector
-        store charges for storage and queries. But the math is lopsided: querying a 50 GB vector
-        namespace 100K times costs ~$80–90, while adding 3,000 retrieved tokens to the same 100K
-        flagship requests adds <strong>~$750 (report figures) — optimise retrieval precision and
-        context compression before shaving vector-database pennies.</strong>
+        100K vector queries ≈ $85; the 3,000 extra context tokens they inject ≈ <strong>$750</strong> —
+        optimise retrieval precision before shaving vector-database pennies.
+        <More label="The three meters">
+          Retrieved passages inflate prompt tokens (the big one); embedding and indexing are
+          metered; and the vector store charges for storage and queries (the small one). In most
+          enterprise RAG systems the dominant cost is the extra model context, not the search.
+        </More>
       </Callout>
     </div>
   )
@@ -229,13 +234,15 @@ function ReasoningTax() {
         </div>
       </div>
       <Callout title="Pay for thinking only where thinking pays">
-        Reasoning tiers inflate effective output cost <strong>3–10×</strong> versus the apparent
-        per-token price, and providers ship ~10× price gaps between standard and pro reasoning
-        tiers plus effort knobs. The discipline: route only genuinely hard steps — planning,
-        verification, novel synthesis — to reasoning models, at the lowest effort that passes
-        evaluation. Its cousin, the <strong>long-context habit</strong> (stuffing whole repositories
-        into million-token windows), compounds the bill the same way — the cheapest token remains
-        the one never sent.
+        Reasoning tiers inflate effective output cost <strong>3–10×</strong> — route only genuinely
+        hard steps to them, at the lowest effort that passes evaluation.
+        <More label="The discipline in full">
+          Providers ship ~10× price gaps between standard and pro reasoning tiers, plus effort knobs
+          that change hidden token volume several-fold. Reserve reasoning for planning, verification
+          and novel synthesis. Its cousin, the long-context habit (stuffing whole repositories into
+          million-token windows), compounds the bill the same way — the cheapest token remains the
+          one never sent.
+        </More>
       </Callout>
     </div>
   )

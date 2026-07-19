@@ -1,12 +1,16 @@
 import React, { useState } from 'react'
-import { Section, Block, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Callout, DataTable, More } from './ui.jsx'
 import { FINOPS_METRICS, TOOL_STACK, OPERATING_MODEL } from '../data.js'
 
 const MOVES = [
-  { n: '1', title: 'One gateway', desc: 'Centralise API access behind a single gateway that does metering, routing, caching and budget enforcement in one place. This single move eliminates shadow usage and makes every other lever enforceable.' },
-  { n: '2', title: 'Unit economics', desc: 'Set cost targets per business outcome — cost per resolved ticket, per document processed, per code change — and make "cost per resolved task" a first-class product metric alongside latency and quality.' },
-  { n: '3', title: 'Quarterly model reviews', desc: 'At ~10× annual deflation, last year’s model choice is almost certainly mispriced today. Architectures that abstract the model behind a routing layer capture the deflation automatically; hard-coded integrations pay a "model inertia" tax.' },
-  { n: '4', title: 'Token budgets in design reviews', desc: 'Make token cost part of feature design review, exactly as cloud cost became part of architecture review a decade ago. Every agent ships with a per-task budget; every feature ships with a unit-cost estimate.' },
+  { n: '1', title: 'One gateway', desc: 'All API access through a single gateway: metering, routing, caching, budgets.',
+    deep: 'This single move eliminates shadow usage and makes every other lever enforceable — it is the non-negotiable first step.' },
+  { n: '2', title: 'Unit economics', desc: 'Make "cost per resolved task" a first-class product metric.',
+    deep: 'Set cost targets per business outcome — per resolved ticket, per document processed, per code change — alongside latency and quality. It is the only number that connects spend to value.' },
+  { n: '3', title: 'Quarterly model reviews', desc: 'At ~10× annual deflation, last year’s model choice is mispriced today.',
+    deep: 'Architectures that abstract the model behind a routing layer capture the deflation automatically; hard-coded single-vendor integrations pay a "model inertia" tax.' },
+  { n: '4', title: 'Token budgets in design reviews', desc: 'Every agent ships with a per-task budget; every feature with a unit-cost estimate.',
+    deep: 'Token cost joins feature design review exactly as cloud cost joined architecture review a decade ago — before launch, not after the bill arrives.' },
 ]
 
 const LOOP = ['Meter', 'Optimise', 'Govern', 'Expand']
@@ -116,6 +120,7 @@ export default function FinOpsFuture() {
                 <span style={{ fontWeight: 700, fontSize: 15 }}>{m.title}</span>
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-dim)', marginTop: 8 }}>{m.desc}</div>
+              <More>{m.deep}</More>
             </div>
           ))}
         </div>
@@ -144,10 +149,8 @@ export default function FinOpsFuture() {
       </Block>
 
       <Callout tone="green" title="Why the cadence is the whole game">
-        At ~10× annual price deflation and 6–12-month capability half-lives, an annual review
-        cadence guarantees systematic overpayment. A small platform team owns the gateway and the
-        model portfolio; product teams own their unit economics; finance owns budgets and showback —
-        the same pattern as cloud FinOps, run four times as fast.
+        At ~10× annual deflation, an annual review cadence guarantees systematic overpayment — this
+        is cloud FinOps, <strong>run four times as fast</strong>.
       </Callout>
     </Section>
   )

@@ -101,6 +101,16 @@ export function DataTable({ headers, rows }) {
   )
 }
 
+// Collapsed-by-default detail text: one click opens the deep dive.
+export function More({ label = 'Understand why', children }) {
+  return (
+    <details className="more">
+      <summary>{label}</summary>
+      <div className="more-body">{children}</div>
+    </details>
+  )
+}
+
 export function Callout({ tone, title, children }) {
   return (
     <div className={'callout' + (tone ? ' ' + tone : '')}>

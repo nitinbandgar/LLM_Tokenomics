@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable, More } from './ui.jsx'
 import { COST_STACK, fmtUSD } from '../data.js'
 
 // 8× H100 node reference specs
@@ -88,12 +88,14 @@ function CostFloorCalculator() {
         </div>
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 16 }}>
-        Simplified first-principles model: decoding reads every weight per forward pass, so
-        single-stream speed = memory bandwidth ÷ weight bytes; batching shares that read across
-        requests until arithmetic becomes the limit (~40% MFU assumed). The report’s worked example —
-        70B dense, FP16, batch ~32, $20/hr — lands at ≈$1/M output tokens. Blackwell-class silicon
-        pushes the floor toward $0.02/M on open 120B models.
+        The report’s worked example — 70B dense, FP16, batch ~32, $20/hr — lands at ≈$1/M output tokens.
       </div>
+      <More label="How the model works">
+        Simplified first principles: decoding reads every weight per forward pass, so single-stream
+        speed = memory bandwidth ÷ weight bytes; batching shares that read across requests until
+        arithmetic becomes the limit (~40% MFU assumed). Blackwell-class silicon pushes the floor
+        toward $0.02/M on open 120B models.
+      </More>
     </div>
   )
 }
@@ -151,10 +153,9 @@ function KVCacheViz() {
         </div>
       </div>
       <Callout tone="pink" title="Why long context is priced steeply">
-        Long contexts squeeze the KV cache and shrink the feasible batch size for everyone sharing
-        the GPU — fewer requests amortising the same hardware means a higher cost per token. That is
-        the physical reason providers surcharge long context, and why{' '}
-        <strong>“stuff everything into the context window” is the most expensive habit in enterprise usage.</strong>
+        Long contexts squeeze the KV cache and shrink everyone’s batch size — which is why{' '}
+        <strong>“stuff everything into the context window” is the most expensive habit in
+        enterprise usage.</strong>
       </Callout>
     </div>
   )
@@ -260,10 +261,13 @@ function EnergyCalculator() {
             <div style={{ width: '85%', background: 'var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10.5, fontWeight: 700, color: '#0b0e17' }}>GPU depreciation & everything else</div>
           </div>
           <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
-            Electricity is only ~10–20% of serving cost — but an idle GPU burns depreciation whether
-            or not it serves tokens, which is why <strong style={{ color: 'var(--text)' }}>utilisation,
-            not wattage, is the number operators obsess over</strong>.
+            Electricity is only ~10–20% of serving cost.
           </div>
+          <More label="Why utilisation matters more than watts">
+            An idle GPU burns depreciation whether or not it serves tokens — which is why
+            utilisation, not wattage, is the number operators obsess over. Per token, energy is
+            fractions of a cent; in aggregate, it decides where capacity can be built at all.
+          </More>
         </div>
       </div>
     </div>
@@ -293,11 +297,13 @@ export default function SupplySide() {
       </Block>
 
       <Callout tone="green" title="Batching changes everything">
-        If 32 requests are processed together, the weights are read once per forward pass and reused
-        across all 32 sequences — per-token cost drops ~85% for ~20% added latency. Continuous
-        batching (vLLM-style) pushes batch sizes to 64–512 and makes the GPU compute-saturated: the
-        regime where expensive hardware earns its price. <strong>Serving cost is overwhelmingly a
-        function of achieved batch size and utilisation.</strong>
+        Serve 32 requests together and per-token cost drops <strong>~85%</strong> for ~20% added
+        latency — <strong>serving cost is overwhelmingly a function of achieved batch size</strong>.
+        <More label="How providers push it further">
+          The weights are read once per forward pass and reused across all sequences in the batch.
+          Continuous batching (vLLM-style) pushes batch sizes to 64–512 and makes the GPU
+          compute-saturated — the regime where expensive hardware earns its price.
+        </More>
       </Callout>
 
       <Block

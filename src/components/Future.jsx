@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable, More } from './ui.jsx'
 import { TIMELINE_2030, GLOSSARY, FUTURE_SUPPLY, FUTURE_DEMAND } from '../data.js'
 
 /* ------------------------------------------------------------------ */
@@ -38,10 +38,13 @@ function SpendProjector() {
           <Slider label="Consumption growth — how fast agentic adoption multiplies tokens" value={growth} min={1.2} max={5} step={0.1}
             display={`×${growth.toFixed(1)} per year`} onChange={setGrowth} />
           <div style={{ fontSize: 12.5, color: 'var(--text-faint)' }}>
-            Reference points: the report expects prices to fall 3–5× annually through 2027, and
-            agentic adoption to multiply consumption up to 120× by 2030 (≈ ×3.3/year). Drag both and
-            watch which force wins the race.
+            Drag both — watch which force wins the race.
           </div>
+          <More label="Where the defaults come from">
+            The report expects prices to fall 3–5× annually through 2027 before tapering, and
+            agentic adoption to multiply token consumption up to 120× by 2030 (≈ ×3.3/year) — the
+            sliders start on exactly those trajectories.
+          </More>
           <ResultStrip items={[
             { label: '2030 unit price', value: fmtX(last.price), note: 'vs today, same capability', color: 'var(--accent-cyan)' },
             { label: '2030 consumption', value: fmtX(last.cons), note: 'tokens per year', color: 'var(--accent-violet)' },
@@ -197,11 +200,13 @@ export default function Future() {
 
       <Callout title="The closing thought">
         Treat tokens as a managed resource: <strong>meter, route, cache and batch — then reinvest
-        the savings in scale.</strong> The winning enterprise architecture is hybrid and
-        policy-driven: small or open models for high-volume routine work; premium frontier models
-        for hard cases; batch lanes for offline jobs; cached prefixes for repeated corpora; and
-        private or regional deployment only where regulation justifies the uplift. Through 2025 the
-        risk was overspending on AI. From here, the greater risk is under-consuming it.
+        the savings in scale.</strong> Through 2025 the risk was overspending on AI; from here, the
+        greater risk is under-consuming it.
+        <More label="The winning architecture">
+          Hybrid and policy-driven: small or open models for high-volume routine work; premium
+          frontier models for hard cases; batch lanes for offline jobs; cached prefixes for repeated
+          corpora; and private or regional deployment only where regulation justifies the uplift.
+        </More>
       </Callout>
 
       <Block title="Glossary — the working vocabulary of token economics">

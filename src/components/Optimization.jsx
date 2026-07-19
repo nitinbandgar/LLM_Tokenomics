@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, ResultStrip, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Slider, ResultStrip, DataTable, More } from './ui.jsx'
 import { fmtUSD } from '../data.js'
 
 // Baseline workload: 500K requests/mo on a flagship API, no optimisation.
@@ -188,11 +188,13 @@ function BreakEven() {
           : { label: 'Verdict', value: 'stay on APIs', color: 'var(--accent-pink)', note: 'overhead exceeds savings below the threshold' },
       ]} />
       <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 12 }}>
-        Report rule of thumb: self-hosting becomes rational at roughly <strong style={{ color: 'var(--text)' }}>$15–20K/month</strong> of
-        steady API spend on open-model-capable workloads. A pragmatic middle path — open weights on
-        commodity hosts — captures marginal-cost pricing without operating GPUs, and the portability
-        doubles as negotiating leverage.
+        Rule of thumb: self-hosting becomes rational at roughly{' '}
+        <strong style={{ color: 'var(--text)' }}>$15–20K/month</strong> of steady, open-model-capable spend.
       </div>
+      <More label="The pragmatic middle path">
+        Open weights on commodity hosts capture marginal-cost pricing without operating GPUs — and
+        the portability doubles as negotiating leverage with every other vendor.
+      </More>
     </div>
   )
 }
@@ -213,11 +215,13 @@ function DistillationCalc() {
           <Slider label="Monthly frontier-API spend on one narrow, high-volume task" value={spend} min={2} max={100} step={1}
             display={`$${spend}K/mo`} onChange={setSpend} />
           <div style={{ fontSize: 12.5, color: 'var(--text-faint)' }}>
-            Assumptions: distilling the task into a small open model costs ~${PROJECT}K once
-            (data curation, tuning runs, evaluation) and serves at ~10% of the frontier cost —
-            the report’s “up to 10× cheaper on that workload”. QLoRA-era tuning fits on one
-            workstation GPU: thousands of dollars, not millions.
+            One-time project ~${PROJECT}K; the distilled model then serves at ~10% of frontier cost.
           </div>
+          <More label="Behind the assumptions">
+            The project cost covers data curation, tuning runs and evaluation; “up to 10× cheaper
+            on that workload” is the report’s distillation figure. QLoRA-era tuning fits on one
+            workstation GPU — thousands of dollars, not millions.
+          </More>
         </div>
         <div>
           <div className="bar-row">
@@ -271,14 +275,25 @@ export default function Optimization() {
         <Playground />
       </Block>
 
-      <Callout tone="green" title="The big three, in practice">
-        <strong>Prompt caching</strong> is underused because teams optimise prompts for quality, not
-        repetition — treat cache-hit rate as a top-level FinOps metric. <strong>Model routing</strong>{' '}
-        is the highest-leverage single decision: moving 70% of a flagship workload to a capable mini
-        tier roughly halves the bill. <strong>Batch lanes</strong> are free money for anything that
-        can wait — batch + caching together reach ~25% of on-demand list price before any deeper
-        engineering.
-      </Callout>
+      <Block title="The big three, in practice">
+        <div className="grid grid-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
+          <div className="card">
+            <div className="big-num" style={{ color: 'var(--accent-cyan)' }}>~90% off</div>
+            <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Prompt caching</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Underused because teams optimise prompts for quality, not repetition — make cache-hit rate a top-level metric.</div>
+          </div>
+          <div className="card">
+            <div className="big-num" style={{ color: 'var(--accent-violet)' }}>½ the bill</div>
+            <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Model routing</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>The highest-leverage single decision: 70% of a flagship workload on a capable mini tier roughly halves the bill.</div>
+          </div>
+          <div className="card">
+            <div className="big-num" style={{ color: 'var(--accent-green)' }}>50% off</div>
+            <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Batch lanes</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Free money for anything that can wait — batch + caching together reach ~25% of list price.</div>
+          </div>
+        </div>
+      </Block>
 
       <Block
         title="Distillation: the 80%+ tier"

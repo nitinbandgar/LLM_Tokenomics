@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Section, Block, Callout, DataTable } from './ui.jsx'
+import { Section, Block, Callout, DataTable, More } from './ui.jsx'
 
 const DIMENSIONS = [
   { dim: 'What you pay for', prop: 'Capability + training amortisation + R&D + margin', open: 'Hosting efficiency only — the artifact is free' },
@@ -57,10 +57,13 @@ function HalfLifeViz() {
         <input type="range" min={0} max={24} value={months} onChange={(e) => setMonths(Number(e.target.value))} />
       </div>
       <div style={{ fontSize: 12.5, color: 'var(--text-faint)' }}>
-        Illustrative dynamics: a capability tier launches at a frontier premium; when an open-weight
-        model matches it (typically within 6–12 months), the price for that tier collapses toward
-        hosting economics within weeks. The frontier premium survives only by moving to the next tier.
+        Once an open model matches a tier (typically 6–12 months), its price collapses within weeks.
       </div>
+      <More>
+        Illustrative dynamics: a capability tier launches at a frontier premium; the moment an
+        open-weight model matches it, the price falls toward hosting economics. The frontier
+        premium survives only by moving to the next tier.
+      </More>
     </div>
   )
 }
@@ -107,10 +110,9 @@ export default function OpenVsProprietary() {
       </Block>
 
       <Callout tone="green" title="Bottom line">
-        Open weights stopped being the budget alternative in 2026 and became the{' '}
-        <strong>default substrate</strong> for a widening set of routine workloads. The frontier
-        premium survives — but its scope narrows to what open models cannot yet do: agentic
-        reliability, very long-horizon tasks, and integrated tooling.
+        Open weights became the <strong>default substrate</strong> for routine workloads in 2026 —
+        the frontier premium survives only where open models can’t yet follow: agentic reliability,
+        long-horizon tasks, integrated tooling.
       </Callout>
     </Section>
   )
