@@ -315,7 +315,7 @@ function StageLayers({ tokens }) {
         <div style={{ padding: '10px 14px', fontSize: 12.5, color: 'var(--text-dim)', borderTop: '1px solid var(--border)', minHeight: 56 }}>
           {STATUS_TEXT[status]}
           <span style={{ display: 'flex', gap: 16, flexWrap: 'wrap', fontSize: 11, color: 'var(--text-faint)', marginTop: 5 }}>
-            <span>🖱 drag to orbit · tokens flow left → right</span>
+            <span>🖱 drag to orbit (two fingers on touch) · tokens flow left → right</span>
             <span><span style={{ color: 'var(--accent-violet)' }}>■</span> one of ~80 layers</span>
             <span><span style={{ color: 'var(--accent-cyan)' }}>■</span> the layer dissected below</span>
             <span><span style={{ color: 'var(--accent-pink)' }}>■</span> final layer → prediction</span>

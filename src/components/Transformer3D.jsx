@@ -21,6 +21,15 @@ function Controls() {
   const { camera, gl } = useThree()
   const ref = useRef()
   useFrame(() => ref.current && ref.current.update())
+  useEffect(() => {
+    // touch devices: one finger scrolls the page, two fingers orbit
+    const c = ref.current
+    if (c) {
+      c.touches.ONE = -1
+      c.touches.TWO = THREE.TOUCH.DOLLY_ROTATE
+    }
+    gl.domElement.style.touchAction = 'pan-y'
+  }, [gl])
   return (
     <orbitControls
       ref={ref}
@@ -33,6 +42,20 @@ function Controls() {
       maxPolarAngle={Math.PI * 0.62}
     />
   )
+}
+
+// Pull the camera back on narrow (portrait) canvases so the whole
+// left-to-right stack stays in frame.
+function FitCamera() {
+  const { camera, size } = useThree()
+  useEffect(() => {
+    const aspect = size.width / Math.max(1, size.height)
+    const halfW = 4.6 // world half-width that must fit
+    const dist = halfW / (Math.tan((camera.fov * Math.PI) / 360) * aspect)
+    camera.position.set(0, 1.3, Math.max(7.6, dist))
+    camera.updateProjectionMatrix()
+  }, [camera, size])
+  return null
 }
 
 const layerX = (i) => LEFT + ((i + 0.5) / LAYERS) * (RIGHT - LEFT)
@@ -202,6 +225,7 @@ export default function Transformer3D({ tokenCount = 6, onStatus = () => {} }) {
       gl={{ alpha: true, antialias: true }}
       style={{ width: '100%', height: 380, background: 'transparent', borderRadius: 12, touchAction: 'pan-y' }}
     >
+      <FitCamera />
       <ambientLight intensity={0.55} />
       <pointLight position={[6, 8, 8]} intensity={120} color="#ffffff" />
       <pointLight position={[-8, -4, -6]} intensity={50} color="#8b7cf7" />
