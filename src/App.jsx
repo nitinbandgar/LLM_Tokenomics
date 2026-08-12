@@ -3,7 +3,8 @@ import Hero from './components/Hero.jsx'
 import InsideLLM from './components/InsideLLM.jsx'
 import PrefillDecode from './components/PrefillDecode.jsx'
 import PricingLandscape from './components/PricingLandscape.jsx'
-import Future from './components/Future.jsx'
+import ForceModel from './components/ForceModel.jsx'
+import BillIsAChoice from './components/BillIsAChoice.jsx'
 import OpenVsProprietary from './components/OpenVsProprietary.jsx'
 import SupplySide from './components/SupplySide.jsx'
 import WhyBillsExplode from './components/WhyBillsExplode.jsx'
@@ -20,12 +21,14 @@ const NAV = [
   { id: 'bills', num: '06', label: 'Why bills explode', comp: WhyBillsExplode },
   { id: 'optimize', num: '07', label: 'Optimization playground', comp: Optimization },
   { id: 'finops', num: '08', label: 'Token FinOps', comp: FinOpsFuture },
-  { id: 'future', num: '09', label: 'The road to 2030', comp: Future },
+  { id: 'forces', num: '09', label: 'The 2030 force model', comp: ForceModel },
+  { id: 'choice', num: '10', label: 'Your bill is a choice', comp: BillIsAChoice },
 ]
 
 const fromHash = () => {
   const h = window.location.hash.replace('#', '')
-  if (h === 'tokens') return 'llm' // legacy anchor from the old module split
+  if (h === 'tokens') return 'llm' // legacy anchors from earlier module splits
+  if (h === 'future') return 'forces'
   return NAV.some((n) => n.id === h) ? h : 'hero'
 }
 

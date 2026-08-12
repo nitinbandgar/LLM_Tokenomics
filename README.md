@@ -11,7 +11,7 @@ npm run dev      # dev server at http://localhost:5173
 npm run build    # production build → dist/
 ```
 
-## The ten modules
+## The eleven modules
 
 One chapter per topic, mirroring the "LLM Tokenomics" report's structure. Navigation is
 section-based: pick a module from the sidebar (or the horizontal bar on mobile), or step
@@ -28,7 +28,8 @@ through with the Next/Back buttons at the bottom of each section.
 | 06 | Why bills explode | Agent-loop cost visualizer (super-linear token growth), workload cost calculator with RAG slider, reasoning-tax iceberg (hidden thinking tokens with batch-lane toggle), waste anatomy |
 | 07 | Optimization playground | Six-lever savings simulator with waterfall, distillation payback calculator, self-hosting break-even tool |
 | 08 | Token FinOps | Operating-loop walkthrough, governance moves, clickable four-layer tool stack, dashboard metrics, who-owns-what operating model |
-| 09 | The road to 2030 | Spend projector (price deflation vs consumption growth race), supply/demand force cards, 2030 timeline with confidence, supplier vs consumer implications, searchable glossary |
+| 09 | The 2030 force model | Interactive decomposition of the supply (÷35×) and demand (×24) force models from the Excel workbook — drag any of the 13 forces and watch the total, the log-space contribution shares and the cumulative waterfall recompute live; low/base/high scenario presets; per-force evidence and confidence ratings |
+| 10 | Your bill is a choice | The 3×3 strategy matrix (capability strategy × demand scenario) with a live $10M-budget readout, the two-price-line trajectory chart, four horizons, and supplier/buyer implications, plus the searchable glossary |
 
 All figures are indicative list prices as of mid-2026 — orders of magnitude, not quotes.
 The calculators use simplified first-principles models described inline; assumptions are

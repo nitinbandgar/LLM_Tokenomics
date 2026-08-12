@@ -96,10 +96,10 @@ export const FINOPS_METRICS = [
 
 // Table 16 — trajectory to 2030
 export const TIMELINE_2030 = [
-  { horizon: '2026–27', dev: 'Per-capability prices fall 3–5× annually; the mid-market commoditises to near-zero margin as open weights match each tier', confidence: 'High' },
-  { horizon: '2027–28', dev: 'Pricing-model innovation spreads: outcome- and subscription-based hybrids, priority tiers, long-context flat rates as competitive weapons', confidence: 'Medium' },
+  { horizon: '2026–27', dev: 'Per-capability prices fall ~3× a year, tapering; the mid-market commoditises to near-zero margin as open weights match each tier', confidence: 'High' },
+  { horizon: '2027–28', dev: 'Pricing-model innovation spreads: outcome- and subscription-based hybrids, priority/provisioned tiers, long-context flat rates as competitive weapons', confidence: 'Medium' },
   { horizon: '2028–29', dev: 'Open weights become the default substrate for routine enterprise workloads; frontier APIs reserved for the hard tail', confidence: 'Medium-high' },
-  { horizon: '2030', dev: 'Trillion-parameter inference costs providers >90% less than in 2025 (Gartner); agentic adoption multiplies token consumption up to 120×', confidence: 'Directional' },
+  { horizon: '2030', dev: 'Trillion-parameter inference costs providers >90% less than in 2025 (Gartner); agentic adoption multiplies token consumption 24×, to ~120 quadrillion tokens/month (Goldman Sachs Research)', confidence: 'Directional' },
 ]
 
 // Appendix A — glossary
