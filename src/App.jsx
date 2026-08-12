@@ -58,7 +58,7 @@ export default function App() {
         <div className="sidebar-brand">
           LLM <span className="tok">Tokenomics</span>
         </div>
-        <div className="sidebar-sub">An interactive guide to the economics of tokens · July 2026</div>
+        <div className="sidebar-sub">An interactive guide to the economics of tokens</div>
         {NAV.map((n) => (
           <a
             key={n.id}

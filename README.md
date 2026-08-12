@@ -1,7 +1,7 @@
 # LLM Tokenomics — An Interactive Guide
 
 An interactive web app explaining the economics of LLM tokens, built from
-"LLM Tokenomics — Detailed Report" (Group Digital & Innovation, July 2026).
+"LLM Tokenomics — Detailed Report" (Group Digital & Innovation).
 
 ## Run it
 

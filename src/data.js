@@ -1,4 +1,4 @@
-// All figures sourced from "LLM Tokenomics — Detailed Report" (July 2026).
+// All figures sourced from the "LLM Tokenomics — Detailed Report".
 // Prices are indicative list prices, mid-2026 — orders of magnitude, not quotes.
 
 export const HEADLINE_NUMBERS = [

@@ -73,7 +73,7 @@ export default function Hero() {
     <header className="hero" id="hero">
       <div className="hero-glow" />
       <div className="hero-glow2" />
-      <div className="section-kicker">An interactive guide · July 2026</div>
+      <div className="section-kicker">An interactive guide</div>
       <h1>
         Tokens are getting <span className="grad">10× cheaper</span> every year. So why is your AI
         bill <span className="grad">doubling</span>?
