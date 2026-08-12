@@ -88,9 +88,12 @@ export default function App() {
           )}
         </div>
         <footer className="footer">
-          Built from “LLM Tokenomics — Detailed Report” (Group Digital &amp; Innovation, July 2026).
-          Prices and benchmarks are indicative as of mid-2026; this market reprices monthly — treat
-          all figures as orders of magnitude, not quotes. Not procurement guidance or financial advice.
+          Prices and benchmarks are indicative as of mid-2026; this market reprices monthly. Please
+          treat all figures as orders of magnitude, not quotes. Not procurement guidance or financial
+          advice. If any questions, please reach out to{' '}
+          <a href="mailto:nitin.bandgar@tata.com" style={{ color: 'var(--accent-cyan)' }}>
+            nitin.bandgar@tata.com
+          </a>
         </footer>
       </main>
     </div>
