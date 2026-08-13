@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Seg, DataTable, More } from './ui.jsx'
-import { MODEL_PRICES, TIER_COLORS, TIER_LABELS, PRICING_MODELS, DISCOUNT_LANES, LLMFLATION, fmtUSD } from '../data.js'
+import { Section, Block, Seg, Hint, More } from './ui.jsx'
+import { MODEL_PRICES, TIER_COLORS, TIER_LABELS, PRICING_MODELS, LLMFLATION, fmtUSD } from '../data.js'
 
 function PriceExplorer() {
   const [metric, setMetric] = useState('output')
@@ -32,10 +32,8 @@ function PriceExplorer() {
           value={scale}
           onChange={setScale}
         />
-        <span style={{ fontSize: 12.5, color: 'var(--text-faint)' }}>
-          Tip: flip to linear to feel how extreme the spread really is.
-        </span>
       </div>
+      <Hint>Switch between input and output pricing, then <strong>flip to linear scale</strong> — that is when the spread becomes visceral. Hover any bar for context.</Hint>
 
       {MODEL_PRICES.map((m) => (
         <div
@@ -190,17 +188,7 @@ export default function PricingLandscape() {
         </div>
       </Block>
 
-      <Block title="The discount lanes every provider offers">
-        <DataTable
-          headers={['Discount lane', 'Typical saving', 'How it works', 'The catch']}
-          rows={DISCOUNT_LANES.map((d) => [
-            d.name,
-            <span style={{ color: 'var(--accent-green)', fontFamily: 'var(--mono)', fontWeight: 600 }}>{d.saving}</span>,
-            d.how,
-            d.catch,
-          ])}
-        />
-      </Block>
+
 
       <Block
         title="LLMflation: the trend underneath it all"

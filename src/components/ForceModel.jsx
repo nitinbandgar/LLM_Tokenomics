@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Seg, ResultStrip, Callout, More } from './ui.jsx'
+import { Section, Block, Seg, ResultStrip, Callout, Hint, More } from './ui.jsx'
 import { SUPPLY_FORCES, DEMAND_FORCES, DRAG_FORCE, decompose } from '../forceModel.js'
-import { FUTURE_SUPPLY, FUTURE_DEMAND } from '../data.js'
 
 const CONF_COLOR = {
   High: 'var(--accent-green)',
@@ -57,12 +56,26 @@ function Waterfall({ walk, dir }) {
   )
 }
 
-function ForceRow({ f, value, onChange, dragMode }) {
-  const pct = ((value - f.low) / (f.high - f.low)) * 100
+function ForceRow({ f, value, onChange, dragMode, selected, onSelect }) {
   return (
-    <div style={{ marginBottom: 12 }}>
+    <div style={{
+      marginBottom: 10, padding: '8px 10px', borderRadius: 8,
+      border: `1px solid ${selected ? f.color : 'transparent'}`,
+      background: selected ? 'rgba(255,255,255,0.03)' : 'transparent',
+      transition: 'all 0.2s',
+    }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 8, fontSize: 12.5 }}>
-        <span style={{ color: 'var(--text-dim)' }}>{f.name}</span>
+        <button
+          onClick={() => onSelect(selected ? null : f.key)}
+          style={{
+            background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit',
+            color: selected ? f.color : 'var(--text-dim)', textAlign: 'left', textDecoration: 'underline',
+            textDecorationStyle: 'dotted', textUnderlineOffset: 3, textDecorationColor: 'var(--border-bright)',
+          }}
+          title="Click for the story behind this force"
+        >
+          {f.name} <span style={{ opacity: 0.65 }}>ⓘ</span>
+        </button>
         <span style={{ fontFamily: 'var(--mono)', color: f.color, fontWeight: 600, flexShrink: 0 }}>
           {dragMode ? '÷' : '×'}{value.toFixed(2)}
         </span>
@@ -81,9 +94,37 @@ function ForceRow({ f, value, onChange, dragMode }) {
   )
 }
 
+/* Inline detail panel — appears right beside the sliders, no scrolling */
+function ForceDetail({ f }) {
+  if (!f) {
+    return (
+      <div className="popcard" style={{ minHeight: 132 }}>
+        <div style={{ fontSize: 12.5, color: 'var(--text-dim)' }}>
+          👈 <strong>Click any force name</strong> to see why it matters and how good the evidence
+          is. Drag its slider to change the 2030 answer.
+        </div>
+      </div>
+    )
+  }
+  return (
+    <div className="popcard" style={{ minHeight: 132, borderColor: f.color + '77' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 8, alignItems: 'baseline', flexWrap: 'wrap' }}>
+        <span style={{ fontWeight: 700, fontSize: 13.5, color: f.color }}>{f.name}</span>
+        <span className="chip" style={{ fontSize: 10, color: CONF_COLOR[f.confidence], borderColor: CONF_COLOR[f.confidence] + '66' }}>
+          {f.confidence} confidence
+        </span>
+      </div>
+      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', margin: '4px 0 8px' }}>Measures: {f.what}</div>
+      <div style={{ fontSize: 12.5, color: 'var(--text-dim)', marginBottom: 8 }}>{f.story}</div>
+      <More label="The sourcing">{f.basis}</More>
+    </div>
+  )
+}
+
 function Decomposition({ side }) {
   const supply = side === 'supply'
   const forces = supply ? SUPPLY_FORCES : DEMAND_FORCES
+  const [selKey, setSelKey] = useState(null)
   const [values, setValues] = useState(() => {
     const v = {}
     forces.forEach((f) => (v[f.key] = f.base))
@@ -116,29 +157,36 @@ function Decomposition({ side }) {
   const arch = res.rows.find((r) => r.key === 'arch')?.share || 0
   const sw = res.rows.find((r) => r.key === 'software')?.share || 0
 
+  const allForces = supply ? forces : [...forces, DRAG_FORCE]
+  const selForce = allForces.find((f) => f.key === selKey) || null
+
   return (
     <div className="panel">
+      <Hint>Click a <strong>force name</strong> for the story behind it; drag its slider to change the 2030 answer. Or start from a preset.</Hint>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 18, alignItems: 'center' }}>
         <button className="btn" onClick={() => preset('low')}>{PRESET_LABELS.low}</button>
         <button className="btn primary" onClick={() => preset('base')}>{PRESET_LABELS.base}</button>
         <button className="btn" onClick={() => preset('high')}>{PRESET_LABELS.high}</button>
-        <span style={{ fontSize: 12, color: 'var(--text-faint)' }}>…or drag any force below.</span>
       </div>
 
       <div className="grid grid-2" style={{ gap: 30 }}>
         <div>
           {forces.map((f) => (
-            <ForceRow key={f.key} f={f} value={values[f.key]} onChange={(v) => setValues((s) => ({ ...s, [f.key]: v }))} />
+            <ForceRow key={f.key} f={f} value={values[f.key]} selected={selKey === f.key} onSelect={setSelKey}
+              onChange={(v) => setValues((s) => ({ ...s, [f.key]: v }))} />
           ))}
           {!supply && (
-            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, marginTop: 4 }}>
-              <ForceRow f={DRAG_FORCE} value={values[DRAG_FORCE.key]} dragMode
+            <div style={{ borderTop: '1px solid var(--border)', paddingTop: 10, marginTop: 4 }}>
+              <ForceRow f={DRAG_FORCE} value={values[DRAG_FORCE.key]} dragMode selected={selKey === DRAG_FORCE.key} onSelect={setSelKey}
                 onChange={(v) => setValues((s) => ({ ...s, [DRAG_FORCE.key]: v }))} />
-              <div style={{ fontSize: 11.5, color: 'var(--accent-green)' }}>
+              <div style={{ fontSize: 11.5, color: 'var(--accent-green)', paddingLeft: 10 }}>
                 ↑ The only force you control. Market average is 1.45×.
               </div>
             </div>
           )}
+          <div style={{ marginTop: 12 }}>
+            <ForceDetail f={selForce} />
+          </div>
         </div>
 
         <div>
@@ -200,19 +248,7 @@ function Decomposition({ side }) {
         </div>
       )}
 
-      <More label="What each force means, and how good the evidence is">
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {[...forces, ...(supply ? [] : [DRAG_FORCE])].map((f) => (
-            <div key={f.key}>
-              <span style={{ color: f.color, fontWeight: 700, fontSize: 12.5 }}>{f.name}</span>{' '}
-              <span className="chip" style={{ color: CONF_COLOR[f.confidence], borderColor: CONF_COLOR[f.confidence] + '66', fontSize: 10 }}>
-                {f.confidence}
-              </span>
-              <div style={{ fontSize: 12, marginTop: 2 }}>{f.what} — {f.basis}</div>
-            </div>
-          ))}
-        </div>
-      </More>
+
     </div>
   )
 }
@@ -246,20 +282,6 @@ export default function ForceModel() {
         <Decomposition key={side} side={side} />
       </Block>
 
-      <Block
-        title={side === 'supply' ? 'What is actually driving those numbers' : 'What is actually driving that volume'}
-        sub="The qualitative story behind each factor."
-      >
-        <div className="grid grid-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
-          {(side === 'supply' ? FUTURE_SUPPLY : FUTURE_DEMAND).map((t) => (
-            <div className="card" key={t.name}>
-              <div style={{ fontWeight: 700, fontSize: 13.5, marginBottom: 6, color: side === 'supply' ? 'var(--accent-cyan)' : 'var(--accent-pink)' }}>{t.name}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-faint)' }}>→ {t.so}</div>
-              <More label="The evidence">{t.fact}</More>
-            </div>
-          ))}
-        </div>
-      </Block>
 
       <Callout tone={side === 'supply' ? 'green' : 'pink'} title={side === 'supply' ? 'The headline finding' : 'The one number an enterprise controls'}>
         {side === 'supply' ? (

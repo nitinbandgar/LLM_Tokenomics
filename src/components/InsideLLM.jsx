@@ -580,6 +580,7 @@ function Walkthrough({ example }) {
 
   return (
     <div className="panel">
+      <Hint>Click a numbered stage, or press <strong>▶ Auto-play all</strong> to watch the whole journey once. Each stage has a “＋ understand why” link if you want the detail.</Hint>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 20 }}>
         {STAGES.map((st, i) => (
           <button

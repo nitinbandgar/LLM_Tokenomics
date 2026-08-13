@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, ResultStrip, DataTable, More } from './ui.jsx'
+import { Section, Block, Slider, ResultStrip, Hint, More } from './ui.jsx'
 import { fmtUSD } from '../data.js'
 
 // Baseline workload: 500K requests/mo on a flagship API, no optimisation.
@@ -74,6 +74,7 @@ function Playground() {
 
   return (
     <div className="panel">
+      <Hint>Start with a preset, then drag any lever. The bars on the right show which lever is actually earning the saving — the biggest one is usually routing.</Hint>
       <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 20 }}>
         <button className="btn" onClick={() => setLevers(PRESET_OFF)}>No optimisation</button>
         <button className="btn" onClick={() => setLevers(PRESET_TYPICAL)}>Typical production stack</button>
@@ -159,6 +160,7 @@ function BreakEven() {
 
   return (
     <div className="panel">
+      <Hint>Drag your monthly spend along the bottom. Where the green line drops below the pink one, running your own GPUs starts to win.</Hint>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
         {[0, 15, 30, 45, 60].map((g) => (
           <g key={g}>
@@ -210,6 +212,7 @@ function DistillationCalc() {
 
   return (
     <div className="panel">
+      <Hint>Drag your spend on <strong>one repetitive task</strong>. The payback figure tells you whether the one-off project is worth starting.</Hint>
       <div className="grid grid-2" style={{ gap: 30 }}>
         <div>
           <Slider label="Monthly frontier-API spend on one narrow, high-volume task" value={spend} min={2} max={100} step={1}
@@ -309,17 +312,84 @@ export default function Optimization() {
         <BreakEven />
       </Block>
 
-      <Block title="When each side wins">
-        <DataTable
-          headers={['Favours self-hosting', 'Favours staying on APIs']}
-          rows={[
-            ['High-volume, steady traffic (good batching economics)', 'Spiky, latency-sensitive traffic (poor utilisation)'],
-            ['Relaxed latency requirements', 'Capability needs that track the frontier'],
-            ['Data-residency or air-gap requirements add real value', 'Scarce GPU-operations talent'],
-            ['Narrow tasks a distilled model can absorb', 'Spend below the ~$15–20K/month threshold'],
-          ]}
-        />
+      <Block title="So which should you do?" sub="Answer four questions about one workload and get a straight recommendation.">
+        <SelfHostDecider />
       </Block>
     </Section>
+  )
+}
+
+/* Four yes/no questions → a plain recommendation, per workload. */
+const QUESTIONS = [
+  { key: 'volume', q: 'Is the traffic high-volume and steady?', yes: 'self', why: 'Steady traffic batches well; spiky traffic leaves your GPUs idle but still depreciating.' },
+  { key: 'latency', q: 'Can it tolerate relaxed latency?', yes: 'self', why: 'Latency SLAs force expensive headroom. Queue-tolerant work is exactly what cheap self-hosting is good at.' },
+  { key: 'frontier', q: 'Does it need frontier-level capability?', yes: 'api', why: 'If quality must track the frontier, an API buys you every upgrade automatically.' },
+  { key: 'residency', q: 'Do data-residency or air-gap rules apply?', yes: 'self', why: 'Weights you host are weights no foreign statute can recall — often the deciding factor on its own.' },
+]
+
+function SelfHostDecider() {
+  const [ans, setAns] = useState({})
+  const [spend, setSpend] = useState(20)
+
+  const answered = Object.keys(ans).length
+  let selfScore = 0, apiScore = 0
+  QUESTIONS.forEach((q) => {
+    if (ans[q.key] === undefined) return
+    const favours = ans[q.key] ? q.yes : q.yes === 'self' ? 'api' : 'self'
+    if (favours === 'self') selfScore++; else apiScore++
+  })
+  const belowThreshold = spend < 15
+  const verdict = answered < QUESTIONS.length
+    ? null
+    : belowThreshold
+      ? { t: 'Stay on APIs', c: 'var(--accent-pink)', d: `At $${spend}K/month you are below the ~$15–20K threshold — engineering and ops overhead would exceed the savings, whatever else is true.` }
+      : selfScore >= 3
+        ? { t: 'Self-hosting is worth a business case', c: 'var(--accent-green)', d: `${selfScore} of 4 factors favour it, and you are above the spend threshold. Start with open weights on a commodity host before buying GPUs.` }
+        : selfScore === 2
+          ? { t: 'Middle path: open weights on a commodity host', c: 'var(--accent-cyan)', d: 'Captures marginal-cost pricing without you operating GPUs — and the portability doubles as negotiating leverage.' }
+          : { t: 'Stay on APIs', c: 'var(--accent-pink)', d: `${apiScore} of 4 factors favour APIs. Spend the effort on routing and caching instead — most of the saving, none of the operational risk.` }
+
+  return (
+    <div className="panel">
+      <Hint>Answer for <strong>one workload at a time</strong>, not the whole company — the right answer differs per use case.</Hint>
+      <div className="grid grid-2" style={{ gap: 30 }}>
+        <div>
+          <Slider label="Monthly spend on this workload" value={spend} min={1} max={80} step={1} display={`$${spend}K/mo`} onChange={setSpend} />
+          {QUESTIONS.map((q) => (
+            <div key={q.key} style={{ marginBottom: 12 }}>
+              <div style={{ fontSize: 12.5, color: 'var(--text-dim)', marginBottom: 5 }}>{q.q}</div>
+              <div className="seg" style={{ display: 'inline-flex' }}>
+                <button className={ans[q.key] === true ? 'active' : ''} onClick={() => setAns((a) => ({ ...a, [q.key]: true }))}>Yes</button>
+                <button className={ans[q.key] === false ? 'active' : ''} onClick={() => setAns((a) => ({ ...a, [q.key]: false }))}>No</button>
+              </div>
+              {ans[q.key] !== undefined && (
+                <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 4 }}>{q.why}</div>
+              )}
+            </div>
+          ))}
+          <button className="btn" onClick={() => setAns({})}>↺ Reset answers</button>
+        </div>
+        <div>
+          <div className="popcard" style={{ minHeight: 150, borderColor: verdict ? verdict.c + '77' : undefined }}>
+            {verdict ? (
+              <>
+                <div style={{ fontSize: 11.5, color: 'var(--text-faint)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>Recommendation</div>
+                <div style={{ fontSize: 19, fontWeight: 700, color: verdict.c, margin: '6px 0 8px' }}>{verdict.t}</div>
+                <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>{verdict.d}</div>
+              </>
+            ) : (
+              <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>
+                Answer all four questions ({answered}/4 done) and a recommendation appears here.
+              </div>
+            )}
+          </div>
+          <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 10 }}>
+            Rule of thumb from the research: self-hosting turns rational at roughly{' '}
+            <strong style={{ color: 'var(--text)' }}>$15–20K/month</strong> of steady spend on
+            workloads an open model can handle.
+          </div>
+        </div>
+      </div>
+    </div>
   )
 }
