@@ -10,19 +10,23 @@ import SupplySide from './components/SupplySide.jsx'
 import WhyBillsExplode from './components/WhyBillsExplode.jsx'
 import Optimization from './components/Optimization.jsx'
 import FinOpsFuture from './components/FinOpsFuture.jsx'
+import PriceVariables from './components/PriceVariables.jsx'
+import GlossaryModule from './components/GlossaryModule.jsx'
 
 const NAV = [
   { id: 'hero', num: '00', label: 'The paradox', comp: Hero },
   { id: 'llm', num: '01', label: 'How an LLM works', comp: InsideLLM },
   { id: 'prefill', num: '02', label: 'Prefill vs decode', comp: PrefillDecode },
-  { id: 'pricing', num: '03', label: 'The pricing landscape', comp: PricingLandscape },
-  { id: 'supply', num: '04', label: 'What a token costs', comp: SupplySide },
-  { id: 'open', num: '05', label: 'Open vs proprietary', comp: OpenVsProprietary },
-  { id: 'bills', num: '06', label: 'Why bills explode', comp: WhyBillsExplode },
-  { id: 'optimize', num: '07', label: 'Optimization playground', comp: Optimization },
-  { id: 'finops', num: '08', label: 'Token FinOps', comp: FinOpsFuture },
-  { id: 'forces', num: '09', label: 'The 2030 force model', comp: ForceModel },
-  { id: 'choice', num: '10', label: 'Your bill is a choice', comp: BillIsAChoice },
+  { id: 'variables', num: '03', label: 'Five hidden dials', comp: PriceVariables },
+  { id: 'pricing', num: '04', label: 'The pricing landscape', comp: PricingLandscape },
+  { id: 'supply', num: '05', label: 'What a token costs', comp: SupplySide },
+  { id: 'open', num: '06', label: 'Open vs proprietary', comp: OpenVsProprietary },
+  { id: 'bills', num: '07', label: 'Why bills explode', comp: WhyBillsExplode },
+  { id: 'optimize', num: '08', label: 'Optimization playground', comp: Optimization },
+  { id: 'finops', num: '09', label: 'Token FinOps', comp: FinOpsFuture },
+  { id: 'forces', num: '10', label: 'The 2030 force model', comp: ForceModel },
+  { id: 'choice', num: '11', label: 'Your bill is a choice', comp: BillIsAChoice },
+  { id: 'glossary', num: '12', label: 'Glossary', comp: GlossaryModule },
 ]
 
 const fromHash = () => {

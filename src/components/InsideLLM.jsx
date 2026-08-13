@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout, More } from './ui.jsx'
-import { fmtUSD, LANG_TOKENS } from '../data.js'
+import { Section, Block, Slider, ResultStrip, Callout, More, Hint } from './ui.jsx'
+import { fmtUSD } from '../data.js'
 import { EXAMPLES, noise, applyTemp } from '../examples.js'
 
 const Transformer3D = React.lazy(() => import('./Transformer3D.jsx'))
@@ -88,7 +88,7 @@ function StageContext({ text, nTok }) {
       </div>
       <div style={{ fontSize: 12, color: 'var(--text-faint)', marginTop: 8 }}>
         ~6,600 tokens — and the actual message is the thin pink sliver. Trimming the scaffolding is
-        the Module 07 lever called context engineering.
+        the Module 08 lever called context engineering.
       </div>
     </div>
   )
@@ -323,10 +323,17 @@ function StageLayers({ tokens }) {
           </span>
         </div>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 14, marginTop: 16 }}>
-        <LayerAnatomyCard />
-        <FinalLayerCard />
-        <ParamMathCard />
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 10, marginTop: 14 }}>
+        {[
+          { label: '🔍 Inside one layer', el: <LayerAnatomyCard /> },
+          { label: '🎯 How the token is born', el: <FinalLayerCard /> },
+          { label: '🧮 Where “70B” comes from', el: <ParamMathCard /> },
+        ].map((d) => (
+          <details key={d.label} className="expand" style={{ margin: 0 }}>
+            <summary style={{ padding: '10px 14px', fontSize: 12.5 }}>{d.label}</summary>
+            <div style={{ padding: '0 10px 10px' }}>{d.el}</div>
+          </details>
+        ))}
       </div>
     </div>
   )
@@ -446,7 +453,7 @@ function StagePredict({ example }) {
       <More>
         One probability per vocabulary entry, recomputed for every token. Reasoning models make this
         step deliberate — thousands of hidden “thinking” tokens before the visible answer, all
-        billed at the output rate (Module 06 prices that habit). Probabilities curated for this
+        billed at the output rate (Module 07 prices that habit). Probabilities curated for this
         sentence.
       </More>
     </div>
@@ -547,152 +554,6 @@ function StageLoop({ example }) {
           </More>
         </div>
       </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* Anatomy extras — three silent pricing variables                     */
-/* ------------------------------------------------------------------ */
-function VocabularyMini() {
-  const [sel, setSel] = useState('Hindi')
-  const base = LANG_TOKENS[0].tokens
-  const max = Math.max(...LANG_TOKENS.map((l) => l.tokens))
-  const cur = LANG_TOKENS.find((l) => l.lang === sel)
-  return (
-    <div className="card" style={{ padding: 16 }}>
-      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-yellow)', fontWeight: 700, marginBottom: 4 }}>
-        🌐 The vocabulary tax
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 12 }}>
-        The same sentence, real token counts. Click a language.
-      </div>
-      {LANG_TOKENS.map((l) => (
-        <div className="bar-row" key={l.lang} onClick={() => setSel(l.lang)} style={{ cursor: 'pointer' }}>
-          <div className="bar-label" style={{ width: 90, color: sel === l.lang ? 'var(--text)' : undefined }}>{l.lang}</div>
-          <div className="bar-track" style={{ height: 18 }}>
-            <div className="bar-fill" style={{
-              width: `${(l.tokens / max) * 100}%`,
-              background: l.lang === sel ? 'var(--accent-yellow)' : 'var(--accent-violet)',
-              opacity: l.lang === sel ? 1 : 0.55,
-            }}>
-              <span className="bar-value">{l.tokens}{l.tokens !== base ? ` · ${(l.tokens / base).toFixed(1)}×` : ' tokens'}</span>
-            </div>
-          </div>
-        </div>
-      ))}
-      <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 10, minHeight: 52 }}>
-        <span style={{ fontFamily: 'var(--mono)', fontSize: 11.5, color: 'var(--text)' }}>“{cur.text}”</span>
-      </div>
-      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 6 }}>
-        Same meaning, {cur.lang === 'English' ? 'the baseline bill' : <strong style={{ color: 'var(--accent-yellow)' }}>{(cur.tokens / base).toFixed(1)}× the bill</strong>}.
-      </div>
-      <More>
-        Vocabularies are trained mostly on English text, so other languages split into more, smaller
-        pieces — the same document costs more to process in Hindi than in English. Multilingual
-        workloads cost more than their word count suggests; budget by tokens, not words.
-      </More>
-    </div>
-  )
-}
-
-function MoEMini() {
-  const [mode, setMode] = useState('moe')
-  const EXPERTS = 16
-  const ACTIVE = 2
-  const dense = mode === 'dense'
-  // dense 70B reads 70B/token; 1T MoE with 2/16 experts active reads ~37B/token
-  return (
-    <div className="card" style={{ padding: 16 }}>
-      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-violet)', fontWeight: 700, marginBottom: 4 }}>
-        🧩 Dense vs Mixture-of-Experts
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 12 }}>
-        Which parameters actually work on each token?
-      </div>
-      <Seg
-        options={[{ value: 'dense', label: 'Dense · 70B' }, { value: 'moe', label: 'MoE · 1T total' }]}
-        value={mode}
-        onChange={setMode}
-      />
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(8, 1fr)', gap: 5, margin: '14px 0 10px' }}>
-        {Array.from({ length: EXPERTS }).map((_, i) => {
-          const lit = dense || i === 3 || i === 9
-          return (
-            <div key={i} style={{
-              height: 26, borderRadius: 6, transition: 'all 0.3s',
-              background: lit ? 'var(--accent-violet)' : 'var(--card-hover)',
-              boxShadow: lit ? '0 0 8px rgba(139,124,247,0.6)' : 'none',
-              border: '1px solid ' + (lit ? 'var(--accent-violet)' : 'var(--border)'),
-              opacity: lit ? 0.95 : 0.6,
-            }} />
-          )
-        })}
-      </div>
-      <ResultStrip items={[
-        { label: dense ? 'Parameters read / token' : 'Active / total', value: dense ? '70B of 70B' : '~37B of 1T', color: 'var(--accent-violet)' },
-        { label: 'Experts working', value: dense ? 'all' : `${ACTIVE} of ${EXPERTS}` },
-      ]} />
-      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
-        {dense
-          ? 'Every weight read for every token — headline size = serving cost.'
-          : <>Cost tracks <em>active</em> parameters, not the headline size.</>}
-      </div>
-      <More>
-        An MoE model routes each token through a few specialist “experts”, so a trillion-parameter
-        model can be cheaper to serve than a dense 70B. This is one of the main reasons 2025–26
-        models got cheaper without getting worse.
-      </More>
-    </div>
-  )
-}
-
-const PRECISIONS_MINI = [
-  { value: 2, label: 'FP16' },
-  { value: 1, label: 'FP8' },
-  { value: 0.5, label: 'FP4' },
-]
-
-function PrecisionMini() {
-  const [bytes, setBytes] = useState(2)
-  const gb = 70 * bytes
-  return (
-    <div className="card" style={{ padding: 16 }}>
-      <div style={{ fontSize: 12, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--accent-cyan)', fontWeight: 700, marginBottom: 4 }}>
-        🎚 Precision — the closest thing to a free lunch
-      </div>
-      <div style={{ fontSize: 12, color: 'var(--text-dim)', marginBottom: 12 }}>
-        How many bytes must move through memory per weight?
-      </div>
-      <Seg options={PRECISIONS_MINI} value={bytes} onChange={setBytes} />
-      <div style={{ margin: '14px 0 4px' }}>
-        {PRECISIONS_MINI.map((p) => (
-          <div className="bar-row" key={p.value}>
-            <div className="bar-label" style={{ width: 90 }}>{p.label}</div>
-            <div className="bar-track" style={{ height: 18 }}>
-              <div className="bar-fill" style={{
-                width: `${(p.value / 2) * 100}%`,
-                background: p.value === bytes ? 'var(--accent-cyan)' : 'var(--accent-violet)',
-                opacity: p.value === bytes ? 1 : 0.45,
-              }}>
-                <span className="bar-value">{70 * p.value} GB / token</span>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <ResultStrip items={[
-        { label: 'Weights to read, 70B model', value: `${gb} GB`, note: 'per generated token' },
-        { label: 'Relative decode cost', value: `${Math.round((bytes / 2) * 100)}%`, color: 'var(--accent-cyan)', note: 'vs 16-bit' },
-      ]} />
-      <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 8 }}>
-        Halve the bytes ≈ halve the marginal cost of decoding.
-      </div>
-      <More>
-        Every generated token re-reads all the weights from memory, so fewer bytes per weight means
-        proportionally cheaper tokens — usually with little quality loss. Module 04 builds the full
-        cost floor on this arithmetic.
-      </More>
     </div>
   )
 }
@@ -816,17 +677,6 @@ export default function InsideLLM() {
         <Walkthrough example={example} />
       </Block>
 
-      <Block
-        title="Three silent pricing variables"
-        sub="Hidden in the machine's anatomy are three design choices that quietly change every bill."
-      >
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 14 }}>
-          <VocabularyMini />
-          <MoEMini />
-          <PrecisionMini />
-        </div>
-      </Block>
-
       <Callout tone="pink" title="Why this machine shapes every price in this guide">
         Three facts fall straight out of the architecture: <strong>generation is sequential</strong>,{' '}
         <strong>attention keeps every token’s state in GPU memory</strong>, and{' '}
@@ -836,7 +686,7 @@ export default function InsideLLM() {
           output costs 3–8× input (Module 02). Attention state lives in GPU memory as the KV cache,
           which is why long context is surcharged and cached prefixes get ~90% off. And weight
           re-reads mean model size × precision sets a hard physical floor under every price —
-          Module 04 builds the full cost model on exactly this.
+          Module 05 builds the full cost model on exactly this.
         </More>
       </Callout>
     </Section>

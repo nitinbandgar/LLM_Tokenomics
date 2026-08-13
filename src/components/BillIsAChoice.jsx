@@ -264,7 +264,7 @@ export default function BillIsAChoice() {
   return (
     <Section
       id="choice"
-      kicker="Module 10 · The strategic conclusion"
+      kicker="Module 11 · The strategic conclusion"
       title="Your bill is a choice, not a forecast"
       lede={
         <>

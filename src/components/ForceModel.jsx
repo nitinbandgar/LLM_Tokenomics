@@ -222,7 +222,7 @@ export default function ForceModel() {
   return (
     <Section
       id="forces"
-      kicker="Module 09 · The 2030 force model"
+      kicker="Module 10 · The 2030 force model"
       title="Why tokens get 35× cheaper — and volume 24× bigger"
       lede={
         <>

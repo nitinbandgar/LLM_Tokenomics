@@ -261,7 +261,7 @@ function RatioChart() {
         Output ÷ input list price, per model — virtually the whole market sits at 2–6×.
       </div>
       <More>
-        The physics of decode shows through every vendor’s tariff (prices from Module 03). Where
+        The physics of decode shows through every vendor’s tariff (prices from Module 04). Where
         the ratio is 1× — tiny open models — tokens are so cheap the meter barely matters.
       </More>
     </div>
@@ -335,34 +335,12 @@ export default function PrefillDecode() {
           Prefill’s job is to build the KV cache — the attention state for every context token. If
           your prefix is stable (system prompt, tool schemas, documents), that cache is kept warm in
           GPU memory and reused. And because decode cost is dominated by weight-reads that can be
-          shared across customers, batching monetises idle capacity. Module 04 builds the full cost
+          shared across customers, batching monetises idle capacity. Module 05 builds the full cost
           model on these foundations.
         </More>
       </Callout>
 
-      <details className="expand">
-        <summary>Go deeper: the three physical quantities behind every token price</summary>
-        <div className="expand-body">
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--text)' }}>Context window.</strong> Everything the model
-            attends to in a call — system prompt, history, retrieved documents, tool outputs. The
-            full context is re-sent (and re-billed) on every turn; long context also shrinks
-            provider batch sizes, so it is priced steeply.
-          </p>
-          <p style={{ marginBottom: 12 }}>
-            <strong style={{ color: 'var(--text)' }}>KV cache.</strong> GPU memory holding attention
-            state for every token of every active sequence. It grows linearly with context length ×
-            concurrency and competes with model weights for scarce HBM — the physical reason long
-            context costs more. (Module 04 lets you play with this.)
-          </p>
-          <p>
-            <strong style={{ color: 'var(--text)' }}>Parameters &amp; precision.</strong> The weights
-            read on every decoded token; precision (FP16 → FP8 → FP4) sets bytes per weight. Weight
-            bytes ÷ memory bandwidth bounds tokens/second — quantisation directly cuts the
-            serving-cost floor.
-          </p>
-        </div>
-      </details>
+
     </Section>
   )
 }

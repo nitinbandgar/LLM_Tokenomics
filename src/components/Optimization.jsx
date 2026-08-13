@@ -260,7 +260,7 @@ export default function Optimization() {
   return (
     <Section
       id="optimize"
-      kicker="Module 07 · The playbook"
+      kicker="Module 08 · The playbook"
       title="The optimization playground"
       lede={
         <>

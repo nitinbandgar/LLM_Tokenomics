@@ -101,6 +101,16 @@ export function DataTable({ headers, rows }) {
   )
 }
 
+// Compact "how to use this" line, placed directly above an interactive.
+export function Hint({ children, icon = '👆' }) {
+  return (
+    <div className="hint">
+      <span className="hint-icon">{icon}</span>
+      <span>{children}</span>
+    </div>
+  )
+}
+
 // Collapsed-by-default detail text: one click opens the deep dive.
 export function More({ label = 'Understand why', children }) {
   return (
