@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Section, Block, Callout, Hint, More } from './ui.jsx'
+import { Section, Fold, Callout, Hint, More } from './ui.jsx'
 import { FINOPS_METRICS, TOOL_STACK, OPERATING_MODEL } from '../data.js'
 
 const MOVES = [
@@ -217,11 +217,11 @@ export default function FinOpsFuture() {
         </>
       }
     >
-      <Block title="The operating loop">
+      <Fold open title="The operating loop" sub="Four phases, refreshed quarterly.">
         <OperatingLoop />
-      </Block>
+      </Fold>
 
-      <Block title="The four moves that matter" sub="Click any card for the reasoning.">
+      <Fold title="The four governance moves that matter" sub="Click any card for the reasoning.">
         <div className="grid grid-2">
           {MOVES.map((m) => (
             <div className="card" key={m.n}>
@@ -235,19 +235,19 @@ export default function FinOpsFuture() {
             </div>
           ))}
         </div>
-      </Block>
+      </Fold>
 
-      <Block title="Your dashboard" sub="The seven numbers worth putting on a screen.">
+      <Fold title="Your dashboard" sub="The seven numbers worth putting on a screen." badge="interactive" sub="The seven numbers worth putting on a screen.">
         <Dashboard />
-      </Block>
+      </Fold>
 
-      <Block title="The tool stack">
+      <Fold title="The tool stack" sub="Four layers. Only one is non-negotiable.">
         <ToolStackViz />
-      </Block>
+      </Fold>
 
-      <Block title="Who owns what">
+      <Fold title="Who owns what" sub="Four owners, four clock speeds.">
         <WhoOwnsWhat />
-      </Block>
+      </Fold>
 
       <Callout tone="green" title="Why the cadence is the whole game">
         At ~10× annual deflation, an annual review cadence guarantees systematic overpayment — this

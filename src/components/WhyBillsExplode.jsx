@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout, Hint, More } from './ui.jsx'
+import { Section, Fold, Slider, Seg, ResultStrip, Callout, Hint, More } from './ui.jsx'
 import { FAILURE_MODES, fmtUSD, fmtNum } from '../data.js'
 
 const TIERS = [
@@ -299,21 +299,21 @@ export default function WhyBillsExplode() {
         </>
       }
     >
-      <Block title="Start here: the six ways money leaks">
+      <Fold open title="Start here: the six ways money leaks" sub="Together these account for the 40–60% of spend that is removable.">
         <WasteOverview />
-      </Block>
+      </Fold>
 
-      <Block title="① The agentic multiplier" sub="A chat is one call. An agent runs a loop — and each step re-sends everything before it.">
+      <Fold title="① The agentic multiplier" badge="driver 1" sub="A chat is one call. An agent runs a loop — and each step re-sends everything before it.">
         <AgentLoopViz />
-      </Block>
+      </Fold>
 
-      <Block title="② Context &amp; RAG bloat" sub="Everything you retrieve becomes prompt tokens — on every single request.">
+      <Fold title="② Context &amp; RAG bloat" badge="driver 2" sub="Everything you retrieve becomes prompt tokens — on every single request.">
         <ContextBloatCalculator />
-      </Block>
+      </Fold>
 
-      <Block title="③ The reasoning tax" sub="Reasoning models think before they answer, and you pay for the thinking.">
+      <Fold title="③ The reasoning tax" badge="driver 3" sub="Reasoning models think before they answer, and you pay for the thinking.">
         <ReasoningTax />
-      </Block>
+      </Fold>
     </Section>
   )
 }

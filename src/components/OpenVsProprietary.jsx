@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Section, Block, Callout, Hint, More } from './ui.jsx'
+import { Section, Fold, Callout, Hint, More } from './ui.jsx'
 
 /* Table 8, compressed to essentials with an icon per dimension */
 const DIMENSIONS = [
@@ -47,14 +47,28 @@ function SideBySide() {
   )
 }
 
+// Real market anchors behind the illustrative curve
+const ANCHORS = [
+  { m: 0, price: 25, label: 'Frontier launch',
+    real: 'Claude Opus 4.6 lists at $25 per 1M output tokens — the frontier tier in this guide’s price table (Module 2.1).' },
+  { m: 9, price: 25, label: 'An open model matches the tier',
+    real: 'The trigger event. DeepSeek’s V3/R1 (2025) and V4 (2026) matched Western frontier models on many agentic benchmarks while pricing 90–97% below them.' },
+  { m: 12, price: 4.1, label: 'Collapse under way',
+    real: 'Frontier vendors historically respond not with headline price cuts but with cheaper mid-tiers and aggressive caching discounts — defending frontier margin while ceding the mid-market.' },
+  { m: 24, price: 0.6, label: 'Hosting economics',
+    real: 'Llama-class 70B hosted lists at $0.30–0.90 per 1M output — cost-plus pricing on the hardware arithmetic in Module 2.2, not value-based pricing.' },
+]
+
 function HalfLifeViz() {
   const [months, setMonths] = useState(0)
+  const [sel, setSel] = useState(null)
   const price = (m) => (m < 9 ? 25 : Math.max(0.6, 25 * Math.pow(0.55, m - 8)))
   const W = 640, H = 220, pad = 46
   const x = (m) => pad + (m / 24) * (W - 2 * pad)
   const y = (p) => H - pad - (p / 27) * (H - 2 * pad)
   const pts = Array.from({ length: 25 }, (_, m) => `${m === 0 ? 'M' : 'L'}${x(m)},${y(price(m))}`).join(' ')
   const cur = price(months)
+  const anchor = ANCHORS.find((a) => a.m === sel)
   const phase = months < 9
     ? 'Frontier premium intact — no open model matches this tier yet, so the vendor holds the price.'
     : months < 13
@@ -70,14 +84,26 @@ function HalfLifeViz() {
           frontier premium survives only by moving to the next tier.
         </div>
       </div>
-      <Hint>Drag the slider through 24 months. The green line marks the moment an open model catches up — watch what happens to the price right after it.</Hint>
+      <Hint>Drag the slider through 24 months, or <strong>click a ◆ marker</strong> to see which real model sits at that price point.</Hint>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
         <line x1={pad} y1={H - pad} x2={W - pad} y2={H - pad} stroke="var(--border-bright)" />
         <path d={pts} fill="none" stroke="var(--accent-pink)" strokeWidth="3" strokeLinecap="round" />
         <line x1={x(9)} y1={pad - 4} x2={x(9)} y2={H - pad} stroke="var(--accent-green)" strokeDasharray="4 4" />
         <text x={x(9) + 6} y={pad + 6} fill="var(--accent-green)" fontSize="11" fontFamily="var(--mono)">open weights match this tier</text>
+        {/* clickable real-world anchors */}
+        {ANCHORS.map((a) => {
+          const on = sel === a.m
+          return (
+            <g key={a.m} onClick={() => { setSel(on ? null : a.m); setMonths(a.m) }} style={{ cursor: 'pointer' }}>
+              <circle cx={x(a.m)} cy={y(a.price)} r="13" fill="transparent" />
+              <rect x={x(a.m) - 5} y={y(a.price) - 5} width={10} height={10}
+                transform={`rotate(45 ${x(a.m)} ${y(a.price)})`}
+                fill={on ? 'var(--accent-yellow)' : 'var(--bg)'} stroke="var(--accent-yellow)" strokeWidth="2" />
+            </g>
+          )
+        })}
         <circle cx={x(months)} cy={y(cur)} r="6" fill="var(--accent-cyan)" stroke="var(--bg)" strokeWidth="2" />
-        <text x={x(months)} y={y(cur) - 12} fill="var(--accent-cyan)" fontSize="12" fontFamily="var(--mono)" textAnchor="middle">
+        <text x={x(months)} y={y(cur) - 14} fill="var(--accent-cyan)" fontSize="12" fontFamily="var(--mono)" textAnchor="middle">
           ${cur.toFixed(cur < 2 ? 2 : 0)}/M
         </text>
         {[0, 6, 12, 18, 24].map((m) => (
@@ -89,9 +115,24 @@ function HalfLifeViz() {
           <span>Months since this tier launched</span>
           <span className="control-value">month {months} · ${cur.toFixed(cur < 2 ? 2 : 0)}/M output</span>
         </div>
-        <input type="range" min={0} max={24} value={months} onChange={(e) => setMonths(Number(e.target.value))} />
+        <input type="range" min={0} max={24} value={months} onChange={(e) => { setMonths(Number(e.target.value)); setSel(null) }} />
       </div>
-      <div style={{ fontSize: 13, color: 'var(--text-dim)', minHeight: 40 }}>{phase}</div>
+      <div className="popcard" style={{ minHeight: 70, borderColor: anchor ? 'var(--accent-yellow)77' : undefined }}>
+        {anchor ? (
+          <>
+            <div style={{ display: 'flex', gap: 10, alignItems: 'baseline', flexWrap: 'wrap', marginBottom: 5 }}>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 17, fontWeight: 700, color: 'var(--accent-yellow)' }}>
+                ${anchor.price}/M
+              </span>
+              <span style={{ fontWeight: 700, fontSize: 13 }}>{anchor.label}</span>
+              <span style={{ fontSize: 11, color: 'var(--text-faint)' }}>month {anchor.m}</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: 'var(--text-dim)' }}>{anchor.real}</div>
+          </>
+        ) : (
+          <div style={{ fontSize: 13, color: 'var(--text-dim)' }}>{phase}</div>
+        )}
+      </div>
     </div>
   )
 }
@@ -112,15 +153,15 @@ export default function OpenVsProprietary() {
         </>
       }
     >
-      <Block title="Side by side">
+      <Fold open title="Side by side" sub="Two business models, not two prices.">
         <SideBySide />
-      </Block>
+      </Fold>
 
-      <Block title="The repricing cascade — play it out">
+      <Fold title="The repricing cascade — play it out" sub="What happens to a capability tier once open weights catch up." badge="interactive">
         <HalfLifeViz />
-      </Block>
+      </Fold>
 
-      <Block title="The open-weight effect, in four numbers" sub="Three of these describe open weights in general; one is DeepSeek specifically. Click for the implication.">
+      <Fold title="The open-weight effect, in four numbers" sub="Three of these describe open weights in general; one is DeepSeek specifically. Click for the implication.">
         <div className="grid grid-2">
           {SHOCK_SIGNALS.map((s) => (
             <button
@@ -146,7 +187,7 @@ export default function OpenVsProprietary() {
             </button>
           ))}
         </div>
-      </Block>
+      </Fold>
 
       <Callout tone="green" title="Bottom line">
         Open weights became the <strong>default substrate</strong> for routine workloads in 2026 —

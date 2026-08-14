@@ -1,5 +1,5 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react'
-import { Section, Block, Slider, ResultStrip, Callout, More, Hint } from './ui.jsx'
+import { Section, Fold, Slider, ResultStrip, Callout, More, Hint } from './ui.jsx'
 import { fmtUSD } from '../data.js'
 import { EXAMPLES, noise, applyTemp } from '../examples.js'
 
@@ -646,7 +646,7 @@ export default function InsideLLM() {
         </>
       }
     >
-      <Block title="Start here: pick a sentence" sub="Every stage below — token IDs, attention scores, predictions, the streamed continuation — is precomputed for these sentences, so all the numbers line up and make sense.">
+      <Fold open title="Start here: pick a sentence" sub="Every stage below is precomputed for these sentences, so all the numbers line up." sub="Every stage below — token IDs, attention scores, predictions, the streamed continuation — is precomputed for these sentences, so all the numbers line up and make sense.">
         <div className="panel" style={{ paddingBottom: 16 }}>
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
             {EXAMPLES.map((e) => (
@@ -672,11 +672,11 @@ export default function InsideLLM() {
             ))}
           </div>
         </div>
-      </Block>
+      </Fold>
 
-      <Block title="The token factory — step through the machine" sub="Seven stages from text to a streaming answer. Use Next, or Auto-play all.">
+      <Fold open title="The token factory — step through the machine" sub="Seven stages from text to a streaming answer." sub="Seven stages from text to a streaming answer. Use Next, or Auto-play all.">
         <Walkthrough example={example} />
-      </Block>
+      </Fold>
 
       <Callout tone="pink" title="Why this machine shapes every price in this guide">
         Three facts fall straight out of the architecture: <strong>generation is sequential</strong>,{' '}

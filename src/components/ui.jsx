@@ -21,6 +21,25 @@ export function Block({ title, sub, children }) {
   )
 }
 
+// A section that stays shut until the reader asks for it. `open` sets the
+// initial state (use it for the one section that should greet the reader).
+export function Fold({ title, sub, badge, open = false, children }) {
+  const [isOpen, setIsOpen] = React.useState(open)
+  return (
+    <div className={'fold' + (isOpen ? ' open' : '')}>
+      <button className="fold-head" onClick={() => setIsOpen(!isOpen)} aria-expanded={isOpen}>
+        <span className="fold-caret">▸</span>
+        <span className="fold-titles">
+          <span className="fold-title">{title}</span>
+          {sub && <span className="fold-sub">{sub}</span>}
+        </span>
+        {badge && <span className="fold-badge">{badge}</span>}
+      </button>
+      {isOpen && <div className="fold-body">{children}</div>}
+    </div>
+  )
+}
+
 export function Slider({ label, value, display, min, max, step = 1, onChange }) {
   return (
     <div className="control-row">

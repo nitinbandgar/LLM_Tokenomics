@@ -2,45 +2,85 @@ import React, { useEffect, useState } from 'react'
 import Hero from './components/Hero.jsx'
 import InsideLLM from './components/InsideLLM.jsx'
 import PrefillDecode from './components/PrefillDecode.jsx'
+import PriceVariables from './components/PriceVariables.jsx'
 import PricingLandscape from './components/PricingLandscape.jsx'
-import ForceModel from './components/ForceModel.jsx'
-import BillIsAChoice from './components/BillIsAChoice.jsx'
-import OpenVsProprietary from './components/OpenVsProprietary.jsx'
 import SupplySide from './components/SupplySide.jsx'
+import OpenVsProprietary from './components/OpenVsProprietary.jsx'
 import WhyBillsExplode from './components/WhyBillsExplode.jsx'
 import Optimization from './components/Optimization.jsx'
 import FinOpsFuture from './components/FinOpsFuture.jsx'
-import PriceVariables from './components/PriceVariables.jsx'
+import SupplyForce from './components/SupplyForce.jsx'
+import DemandForce from './components/DemandForce.jsx'
+import BillIsAChoice from './components/BillIsAChoice.jsx'
+import WhatItMeans from './components/WhatItMeans.jsx'
 import GlossaryModule from './components/GlossaryModule.jsx'
 
+// Two-level navigation: five themed parts, each with its own chapters.
 const NAV = [
-  { id: 'hero', num: '00', label: 'The paradox', comp: Hero },
-  { id: 'llm', num: '01', label: 'How an LLM works', comp: InsideLLM },
-  { id: 'prefill', num: '02', label: 'Prefill vs decode', comp: PrefillDecode },
-  { id: 'variables', num: '03', label: 'Five hidden dials', comp: PriceVariables },
-  { id: 'pricing', num: '04', label: 'The pricing landscape', comp: PricingLandscape },
-  { id: 'supply', num: '05', label: 'What a token costs', comp: SupplySide },
-  { id: 'open', num: '06', label: 'Open vs proprietary', comp: OpenVsProprietary },
-  { id: 'bills', num: '07', label: 'Why bills explode', comp: WhyBillsExplode },
-  { id: 'optimize', num: '08', label: 'Optimization playground', comp: Optimization },
-  { id: 'finops', num: '09', label: 'Token FinOps', comp: FinOpsFuture },
-  { id: 'forces', num: '10', label: 'The 2030 force model', comp: ForceModel },
-  { id: 'choice', num: '11', label: 'Your bill is a choice', comp: BillIsAChoice },
-  { id: 'glossary', num: '12', label: 'Glossary', comp: GlossaryModule },
+  { num: '0', label: 'The paradox', sub: 'Why tokenomics', pages: [{ id: 'hero', num: '0', label: 'The paradox', comp: Hero }] },
+  {
+    num: '1', label: 'The anatomy of an LLM', sub: 'What you are actually buying',
+    pages: [
+      { id: 'llm', num: '1.1', label: 'How an LLM works', comp: InsideLLM },
+      { id: 'prefill', num: '1.2', label: 'Prefill vs decode', comp: PrefillDecode },
+      { id: 'variables', num: '1.3', label: 'Five hidden dials', comp: PriceVariables },
+    ],
+  },
+  {
+    num: '2', label: 'Supplier economics', sub: 'How the price is set',
+    pages: [
+      { id: 'pricing', num: '2.1', label: 'The pricing landscape', comp: PricingLandscape },
+      { id: 'supply', num: '2.2', label: 'What a token costs', comp: SupplySide },
+      { id: 'open', num: '2.3', label: 'Open vs proprietary', comp: OpenVsProprietary },
+    ],
+  },
+  {
+    num: '3', label: 'Buyer economics', sub: 'Where your money goes',
+    pages: [
+      { id: 'bills', num: '3.1', label: 'Why bills explode', comp: WhyBillsExplode },
+      { id: 'optimize', num: '3.2', label: 'Optimization playground', comp: Optimization },
+      { id: 'finops', num: '3.3', label: 'Token FinOps', comp: FinOpsFuture },
+    ],
+  },
+  {
+    num: '4', label: '2030 trend modelling', sub: 'The two forces, quantified',
+    pages: [
+      { id: 'force-supply', num: '4.1', label: 'Supply side', comp: SupplyForce },
+      { id: 'force-demand', num: '4.2', label: 'Demand side', comp: DemandForce },
+    ],
+  },
+  {
+    num: '5', label: 'Conclusion', sub: 'What to do about it',
+    pages: [
+      { id: 'choice', num: '5.1', label: 'Your bill is a choice', comp: BillIsAChoice },
+      { id: 'means', num: '5.2', label: 'What it means for you', comp: WhatItMeans },
+    ],
+  },
+  { num: '6', label: 'Glossary', sub: 'Every term, in plain language', pages: [{ id: 'glossary', num: '6', label: 'Glossary', comp: GlossaryModule }] },
 ]
+
+const FLAT = NAV.flatMap((g) => g.pages.map((p) => ({ ...p, group: g })))
+
+// old anchors from earlier structures keep working
+const LEGACY = { tokens: 'llm', future: 'force-supply', forces: 'force-supply' }
 
 const fromHash = () => {
   const h = window.location.hash.replace('#', '')
-  if (h === 'tokens') return 'llm' // legacy anchors from earlier module splits
-  if (h === 'future') return 'forces'
-  return NAV.some((n) => n.id === h) ? h : 'hero'
+  if (LEGACY[h]) return LEGACY[h]
+  return FLAT.some((n) => n.id === h) ? h : 'hero'
 }
 
 export default function App() {
   const [active, setActive] = useState(fromHash)
+  const [openGroups, setOpenGroups] = useState(() => {
+    const g = FLAT.find((n) => n.id === fromHash())
+    return new Set([g ? g.group.num : '0'])
+  })
 
   const select = (id) => {
     setActive(id)
+    const page = FLAT.find((n) => n.id === id)
+    if (page) setOpenGroups((s) => new Set([...s, page.group.num]))
     window.history.replaceState(null, '', '#' + id)
     window.scrollTo({ top: 0 })
   }
@@ -51,10 +91,17 @@ export default function App() {
     return () => window.removeEventListener('hashchange', onHash)
   }, [])
 
-  const idx = NAV.findIndex((n) => n.id === active)
-  const Active = NAV[idx].comp
-  const prev = NAV[idx - 1]
-  const next = NAV[idx + 1]
+  const idx = FLAT.findIndex((n) => n.id === active)
+  const Active = FLAT[idx].comp
+  const prev = FLAT[idx - 1]
+  const next = FLAT[idx + 1]
+
+  const toggleGroup = (num) =>
+    setOpenGroups((s) => {
+      const n = new Set(s)
+      n.has(num) ? n.delete(num) : n.add(num)
+      return n
+    })
 
   return (
     <div className="app">
@@ -63,18 +110,56 @@ export default function App() {
           LLM <span className="tok">Tokenomics</span>
         </div>
         <div className="sidebar-sub">An interactive guide to the economics of tokens</div>
-        {NAV.map((n) => (
-          <a
-            key={n.id}
-            href={'#' + n.id}
-            className={'nav-item' + (active === n.id ? ' active' : '')}
-            onClick={(e) => { e.preventDefault(); select(n.id) }}
-          >
-            <span className="nav-num">{n.num}</span>
-            <span>{n.label}</span>
-          </a>
-        ))}
+
+        {NAV.map((g) => {
+          const single = g.pages.length === 1
+          const isOpen = openGroups.has(g.num)
+          const hasActive = g.pages.some((p) => p.id === active)
+          if (single) {
+            const p = g.pages[0]
+            return (
+              <a
+                key={g.num}
+                href={'#' + p.id}
+                className={'nav-group' + (active === p.id ? ' active' : '')}
+                onClick={(e) => { e.preventDefault(); select(p.id) }}
+              >
+                <span className="nav-num">{g.num}</span>
+                <span className="nav-group-label">{g.label}</span>
+              </a>
+            )
+          }
+          return (
+            <div key={g.num} className="nav-section">
+              <button
+                className={'nav-group' + (hasActive ? ' has-active' : '')}
+                onClick={() => toggleGroup(g.num)}
+                aria-expanded={isOpen}
+              >
+                <span className="nav-num">{g.num}</span>
+                <span className="nav-group-label">{g.label}</span>
+                <span className={'nav-caret' + (isOpen ? ' open' : '')}>▸</span>
+              </button>
+              {isOpen && (
+                <div className="nav-children">
+                  {g.pages.map((p) => (
+                    <a
+                      key={p.id}
+                      href={'#' + p.id}
+                      className={'nav-item' + (active === p.id ? ' active' : '')}
+                      onClick={(e) => { e.preventDefault(); select(p.id) }}
+                    >
+                      <span className="nav-num">{p.num}</span>
+                      <span>{p.label}</span>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )
+        })}
       </nav>
+
       <main className="main">
         <Active key={active} />
         <div className="navfoot">

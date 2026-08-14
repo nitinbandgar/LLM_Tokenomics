@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { Section, Block, Slider, ResultStrip, Callout, Hint, More } from './ui.jsx'
+import { Section, Fold, Slider, ResultStrip, Callout, Hint, More } from './ui.jsx'
 import { MODEL_PRICES, fmtUSD } from '../data.js'
 
 /* ------------------------------------------------------------------ */
@@ -296,17 +296,17 @@ export default function PrefillDecode() {
         </>
       }
     >
-      <Block title="Follow one request" sub="Four stages — including the difference between the GPU making a token and you receiving it.">
+      <Fold open title="Follow one request" sub="Four stages — including the difference between the GPU making a token and you receiving it." sub="Four stages — including the difference between the GPU making a token and you receiving it.">
         <PipelineAnimation />
-      </Block>
+      </Fold>
 
-      <Block title="Time, GPU cost, and why there are two prices" sub="The same request measured three ways.">
+      <Fold title="Time, GPU cost, and why there are two prices" sub="The same request measured three ways." badge="calculator" sub="The same request measured three ways.">
         <PhaseEconomics />
-      </Block>
+      </Fold>
 
-      <Block title="What it means on the invoice" sub="Your meter on the left; the whole market on the right.">
+      <Fold title="What it means on the invoice" sub="Your meter on the left; the whole market on the right." badge="calculator" sub="Your meter on the left; the whole market on the right.">
         <MeterAndMarket />
-      </Block>
+      </Fold>
 
       <Callout tone="green" title="The same physics makes the discounts honest">
         Stable prompt prefixes let providers <strong>skip reading entirely</strong> (~90% off cached

@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Slider, ResultStrip, Hint, More } from './ui.jsx'
+import { Section, Fold, Slider, ResultStrip, Hint, More } from './ui.jsx'
 import { fmtUSD } from '../data.js'
 
 // Baseline workload: 500K requests/mo on a flagship API, no optimisation.
@@ -83,16 +83,33 @@ function Playground() {
 
       <div className="grid grid-2" style={{ gap: 32 }}>
         <div>
-          {LEVER_DEFS.map((d) => (
-            <div key={d.key} style={{ marginBottom: 4 }}>
+          {LEVER_DEFS.map((d, i) => (
+            <div key={d.key} style={{ marginBottom: 4 }} title={d.hint}>
               <Slider
-                label={<span><span style={{ color: d.color, fontWeight: 600 }}>{d.label}</span> · {d.unit}</span>}
+                label={
+                  <span>
+                    <span style={{ fontFamily: 'var(--mono)', color: 'var(--text-faint)', marginRight: 6 }}>{i + 1}.</span>
+                    <span style={{ color: d.color, fontWeight: 600, borderBottom: '1px dotted var(--border-bright)', cursor: 'help' }}>{d.label}</span>
+                    {' '}· {d.unit}
+                  </span>
+                }
                 value={levers[d.key]} min={0} max={d.max}
                 display={`${levers[d.key]}%`}
                 onChange={set(d.key)}
               />
             </div>
           ))}
+          <details className="more" style={{ marginBottom: 10 }}>
+            <summary>What each lever means</summary>
+            <div className="more-body">
+              {LEVER_DEFS.map((d, i) => (
+                <div key={d.key} style={{ marginBottom: 7 }}>
+                  <span style={{ fontFamily: 'var(--mono)', color: 'var(--text-faint)' }}>{i + 1}. </span>
+                  <strong style={{ color: d.color }}>{d.label}</strong> — {d.hint}
+                </div>
+              ))}
+            </div>
+          </details>
           <div style={{ fontSize: 12, color: 'var(--text-faint)' }}>
             Baseline: 500K requests/mo · 3,000 in + 600 out tokens · flagship API ($10/$30 per M) · no discounts.
           </div>
@@ -274,11 +291,11 @@ export default function Optimization() {
         </>
       }
     >
-      <Block title="Pull the levers" sub="A simulated 500K-request/month flagship workload. Every lever mirrors a discount or technique from the report.">
+      <Fold open title="Pull the six everyday levers" sub="A simulated 500K-request/month flagship workload." sub="A simulated 500K-request/month flagship workload. Every lever mirrors a discount or technique from the report.">
         <Playground />
-      </Block>
+      </Fold>
 
-      <Block title="The big three, in practice">
+      <Fold title="The big three, in practice" sub="Which levers actually earn their keep.">
         <div className="grid grid-3" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
           <div className="card">
             <div className="big-num" style={{ color: 'var(--accent-cyan)' }}>~90% off</div>
@@ -296,25 +313,27 @@ export default function Optimization() {
             <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>Free money for anything that can wait — batch + caching together reach ~25% of list price.</div>
           </div>
         </div>
-      </Block>
+      </Fold>
 
-      <Block
-        title="Distillation: the 80%+ tier"
+      <Fold
+        title="Advanced lever ① — Distillation"
+        badge="calculator"
         sub="Compress a frontier model's behaviour on one narrow task into a small open model. When does the project pay for itself?"
       >
         <DistillationCalc />
-      </Block>
+      </Fold>
 
-      <Block
-        title="The self-hosting break-even"
-        sub="Above the first five levers sits the 80%+ tier: distillation and self-hosting. When does running your own GPUs beat the API?"
+      <Fold
+        title="Advanced lever ② — Self-hosting"
+        badge="calculator"
+        sub="Above the everyday levers sits the 80%+ tier. When does running your own GPUs beat the API?"
       >
         <BreakEven />
-      </Block>
+      </Fold>
 
-      <Block title="So which should you do?" sub="Answer four questions about one workload and get a straight recommendation.">
+      <Fold title="So which should you do?" badge="decision tool" sub="Answer four questions about one workload and get a straight recommendation.">
         <SelfHostDecider />
-      </Block>
+      </Fold>
     </Section>
   )
 }

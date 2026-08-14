@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react'
-import { HEADLINE_NUMBERS } from '../data.js'
 
 // Animated diverging chart: unit price falls, enterprise spend rises.
 function ParadoxChart() {
@@ -30,16 +29,18 @@ function ParadoxChart() {
   const W = 640, H = 250, pad = 46
   const years = ['2022', '2023', '2024', '2025', '2026']
   const x = (i) => pad + (i / (years.length - 1)) * (W - 2 * pad)
-  // price (log-ish decline) and spend (exponential rise), normalized to plot
   const price = [1, 0.72, 0.45, 0.22, 0.05]
   const spend = [0.04, 0.1, 0.24, 0.52, 1]
   const y = (v) => H - pad - v * (H - 2 * pad)
-
   const toPath = (arr) => arr.map((v, i) => `${i === 0 ? 'M' : 'L'}${x(i)},${y(v)}`).join(' ')
   const len = 900
 
   return (
-    <div ref={ref} className="panel" style={{ marginTop: 42 }}>
+    <div ref={ref} className="panel" style={{ marginTop: 34 }}>
+      <div className="chart-title">The Jevons paradox of AI</div>
+      <div className="chart-sub">
+        Cheaper tokens invite far heavier use — and consumption growth outruns the price fall.
+      </div>
       <svg viewBox={`0 0 ${W} ${H}`} style={{ width: '100%', height: 'auto' }}>
         {years.map((yr, i) => (
           <g key={yr}>
@@ -54,16 +55,12 @@ function ParadoxChart() {
         <path d={toPath(spend)} fill="none" stroke="var(--accent-pink)" strokeWidth="3" strokeLinecap="round"
           strokeDasharray={len} strokeDashoffset={len * (1 - t)} />
         <text x={x(4) - 6} y={y(price[4]) - 12} fill="var(--accent-cyan)" fontSize="12" textAnchor="end" fontWeight="600">
-          Price per unit of intelligence ÷10 / year
+          Price per unit of intelligence ↓
         </text>
         <text x={x(4) - 6} y={y(spend[4]) + 20} fill="var(--accent-pink)" fontSize="12" textAnchor="end" fontWeight="600">
-          Enterprise LLM spend ×2 / year
+          Enterprise LLM spend ↑
         </text>
       </svg>
-      <div style={{ fontSize: 12.5, color: 'var(--text-faint)', marginTop: 6 }}>
-        The Jevons paradox of AI: cheaper tokens → agentic workloads that consume 5–50× more of them —
-        and consumption growth outruns unit-price deflation.
-      </div>
     </div>
   )
 }
@@ -75,25 +72,20 @@ export default function Hero() {
       <div className="hero-glow2" />
       <div className="section-kicker">An interactive guide</div>
       <h1>
-        Tokens are getting <span className="grad">10× cheaper</span> every year. So why is your AI
+        The price of intelligence keeps <span className="grad">collapsing</span>. So why is your AI
         bill <span className="grad">doubling</span>?
       </h1>
       <p className="hero-lede">
-        Two things are simultaneously true about LLM economics in 2026: the price of a unit of
-        intelligence is <strong>collapsing ~10× per year</strong>, and enterprise LLM bills are{' '}
-        <strong>exploding</strong> — global API spend passed $8.4B in 2025 and is doubling in 2026.
-        This is not a contradiction. Step through the eleven interactive modules — from the sidebar or
-        the Next button below — to understand why, and what to do about it.
+        Two things are simultaneously true about LLM economics: a unit of intelligence has become{' '}
+        <strong>~50× cheaper since 2022</strong>, and enterprise LLM bills are{' '}
+        <strong>exploding</strong> — global API spend passed $8.4B in 2025 and is doubling again.
+        This is not a contradiction. Work through the guide from the sidebar to understand why, and
+        what to do about it.
       </p>
       <ParadoxChart />
-      <div className="stat-grid">
-        {HEADLINE_NUMBERS.map((s) => (
-          <div className="stat-card" key={s.text}>
-            <div className="stat-value">{s.value}</div>
-            <div className="stat-text">{s.text}</div>
-            <div className="stat-source">{s.source}</div>
-          </div>
-        ))}
+      <div className="hero-next">
+        Start with <strong>1 · The anatomy of an LLM</strong> to see what you are actually buying —
+        or jump straight to <strong>3 · Buyer economics</strong> if you already know the machine.
       </div>
     </header>
   )

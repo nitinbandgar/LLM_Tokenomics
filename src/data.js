@@ -38,13 +38,41 @@ export const TIER_LABELS = {
   open: 'Open weights',
 }
 
-// Table 3 — the five commercial meters
+// Table 3 — the five commercial meters, with the real reference points behind each range
 export const PRICING_MODELS = [
-  { name: 'Subscription', unit: 'per seat / month', price: '$20–100+', icon: '👤', desc: 'ChatGPT Business, Claude Team. Bundles UI, caps, admin, support — not a pure model price.' },
-  { name: 'Per-token API', unit: 'per 1M tokens in/out', price: '$0.06–$60', icon: '🔤', desc: 'The dominant developer tariff: every hosted API meters input and output tokens separately.' },
-  { name: 'Per-request', unit: 'per tool call / query', price: '$2.50–$35 / 1,000', icon: '🔧', desc: 'Tool & retrieval surcharges: web search ~$10/1k calls, file search ~$2.50/1k, grounding ~$35/1k.' },
-  { name: 'Compute-hour', unit: 'per GPU-hour', price: '$2.50–$80 / hr', icon: '🖥️', desc: 'Dedicated endpoints & provisioned throughput: ~$10/hr for one H100, ~$80/hr for an 8× H100 node.' },
-  { name: 'Fine-tuning', unit: 'per hour or per token', price: '~$100/hr or ~$8/1M', icon: '🎛️', desc: 'Managed customisation, plus storage and hosting for the tuned artifact.' },
+  { name: 'Subscription', unit: 'per seat / month', price: '$20–100+', icon: '👤',
+    desc: 'Bundles the UI, usage caps, admin and support — not a pure model price.',
+    refs: [
+      ['ChatGPT Business', '~$20 / user / month, annual billing'],
+      ['Claude Team', '$20 standard seat · $100 premium seat'],
+    ] },
+  { name: 'Per-token API', unit: 'per 1M tokens in/out', price: '$0.06–$60', icon: '🔤',
+    desc: 'The dominant developer tariff: input and output metered separately.',
+    refs: [
+      ['Top of range', 'o-series reasoning — $60 / 1M output tokens'],
+      ['Bottom of range', 'Small open 7–8B models — from $0.06 / 1M'],
+      ['Who charges this way', 'OpenAI, Anthropic, Google, AWS Bedrock, open-weight hosts'],
+    ] },
+  { name: 'Per-request', unit: 'per tool call / query', price: '$2.50–$35 / 1,000', icon: '🔧',
+    desc: 'Surcharges for tools and retrieval, on top of the tokens they generate.',
+    refs: [
+      ['Web search', '~$10 per 1,000 calls'],
+      ['File search', '~$2.50 per 1,000 calls'],
+      ['Search grounding', '~$35 per 1,000 prompts'],
+    ] },
+  { name: 'Compute-hour', unit: 'per GPU-hour', price: '$2.50–$80 / hr', icon: '🖥️',
+    desc: 'Dedicated endpoints and provisioned throughput — you rent the silicon, not the tokens.',
+    refs: [
+      ['1× A100', '~$2.50 / hour'],
+      ['1× H100', '~$10 / hour'],
+      ['8× H100 node', '~$80 / hour — the unit used in this guide’s cost calculators'],
+    ] },
+  { name: 'Fine-tuning', unit: 'per hour or per token', price: '~$100/hr or ~$8/1M', icon: '🎛️',
+    desc: 'Managed customisation, plus storage and hosting for the tuned model afterwards.',
+    refs: [
+      ['o4-mini-class training', '~$100 / hour'],
+      ['Bedrock Llama-class', '~$8 per 1M training tokens, + storage + hosting'],
+    ] },
 ]
 
 // Table 5 — discount lanes
@@ -55,13 +83,24 @@ export const DISCOUNT_LANES = [
   { name: 'Committed / provisioned use', saving: '10–50%', how: 'Reserved capacity or committed spend in exchange for lower unit rates', catch: 'Lower flexibility; committed budget' },
 ]
 
-// LLMflation — GPT-4-class capability, $/M tokens (log scale story)
+// LLMflation — what GPT-4-class capability has cost per 1M tokens over time.
+// `detail` is what the reader sees when they hover or tap a point.
 export const LLMFLATION = [
-  { year: '2022', price: 20, label: '$20+' },
-  { year: '2023', price: 8, label: '~$8' },
-  { year: '2024', price: 2, label: '~$2' },
-  { year: '2025', price: 0.9, label: '~$0.90' },
-  { year: '2026', price: 0.4, label: '$0.40–0.80' },
+  { year: '2022', price: 20, label: '$20+',
+    what: 'GPT-4-class launch pricing',
+    detail: 'Late 2022: reaching GPT-4-level quality cost $20+ per million tokens. At the time this was the only way to get that capability at all.' },
+  { year: '2023', price: 8, label: '~$8',
+    what: 'Competition arrives',
+    detail: 'Rival frontier models and the first efficient serving stacks (continuous batching) cut the going rate to roughly $8 per million.' },
+  { year: '2024', price: 2, label: '~$2',
+    what: 'Mid-tiers match the old frontier',
+    detail: 'Workhorse tiers now delivered 2022-frontier quality at ~$2 per million — a 10× fall in about two years.' },
+  { year: '2025', price: 0.9, label: '~$0.90',
+    what: 'Open weights set the ceiling',
+    detail: 'Open-weight releases matching each capability tier pushed hosted pricing toward marginal serving cost — under $1 per million.' },
+  { year: '2026', price: 0.4, label: '$0.40–0.80',
+    what: 'Commodity pricing',
+    detail: 'GPT-4-level quality now costs $0.40–0.80 per million, with economy tiers delivering near-GPT-4 quality at ~$0.10. That is ~50× cheaper than 2022.' },
 ]
 
 // Table 9 — supplier cost stack (illustrative shares of serving cost)

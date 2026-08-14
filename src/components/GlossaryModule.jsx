@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from 'react'
-import { Section, Block, Hint } from './ui.jsx'
+import { Section, Fold, Hint } from './ui.jsx'
 import { GLOSSARY } from '../data.js'
 
 // Light grouping so an executive can find a term by where it bites them.
@@ -35,7 +35,7 @@ export default function GlossaryModule() {
       title="Glossary"
       lede="Every term used in this guide, in plain language — and why it shows up on your bill."
     >
-      <Block title="Find a term">
+      <Fold open title="Find a term" sub="Search, or filter by category.">
         <Hint icon="🔎">Type to search, or pick a category. Each card says what it means <strong>and</strong> why it costs you money.</Hint>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 16 }}>
           <input
@@ -81,7 +81,7 @@ export default function GlossaryModule() {
             No terms match “{q}”. Try a shorter search.
           </div>
         )}
-      </Block>
+      </Fold>
     </Section>
   )
 }

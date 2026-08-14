@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Section, Block, Slider, Seg, ResultStrip, Callout, DataTable, Hint, More } from './ui.jsx'
+import { Section, Fold, Slider, Seg, ResultStrip, Callout, DataTable, Hint, More } from './ui.jsx'
 import { COST_STACK, fmtUSD } from '../data.js'
 
 // 8× H100 node reference specs
@@ -30,7 +30,7 @@ function CostStack({ onDrill }) {
               fontSize: 12, fontWeight: 700, color: '#0b0e17', font: 'inherit', fontWeight: 700,
             }}
           >
-            {c.share >= 10 ? `${c.share}%` : ''}
+            {c.share >= 7 ? `${c.share}%` : ''}
           </button>
         ))}
       </div>
@@ -304,21 +304,21 @@ export default function SupplySide() {
         </>
       }
     >
-      <Block title="Start here: what a provider is actually paying for" sub="Shares of the cost of serving one token.">
+      <Fold title="Start here: what a provider is actually paying for" sub="Shares of the cost of serving one token. Click a band to drill in." open>
         <CostStack onDrill={setDrill} />
-      </Block>
+      </Fold>
 
-      <Block title="① The hardware floor — the biggest single item" sub="Derive the physical floor under every token price.">
+      <Fold title="① The hardware floor" sub="55% of serving cost. Derive the physical floor under every token price." badge="calculator">
         <CostFloorCalculator key={drill === 'floor' ? 'drilled' : 'normal'} />
-      </Block>
+      </Fold>
 
-      <Block title="② Energy — big in absolute terms, small per token" sub="Every token is, at bottom, converted electricity.">
+      <Fold title="② Energy and data centres" sub="15% of serving cost. Every token is, at bottom, converted electricity." badge="calculator">
         <EnergyCalculator key={drill === 'energy' ? 'drilled' : 'normal'} />
-      </Block>
+      </Fold>
 
-      <Block title="③ The context squeeze — the hidden multiplier on both" sub="Model weights and live conversations compete for the same GPU memory.">
+      <Fold title="③ The context squeeze — why batching decides the price" sub="Long contexts crowd out other customers, shrinking the batch that makes tokens cheap." badge="calculator">
         <KVCacheViz />
-      </Block>
+      </Fold>
 
       <Callout tone="green" title="The one number that decides everything">
         Serve 32 requests together and per-token cost drops <strong>~85%</strong> for ~20% added

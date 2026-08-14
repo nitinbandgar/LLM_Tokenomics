@@ -1,9 +1,7 @@
 import React, { useState } from 'react'
-import { Section, Block, Callout, Hint } from './ui.jsx'
-import { TIMELINE_2030 } from '../data.js'
+import { Section, Fold, Callout, Hint } from './ui.jsx'
 import {
   TRAJECTORY, CAPABILITY_STRATEGIES, DEMAND_SCENARIOS, spendMultiple,
-  IMPLICATIONS_SUPPLIER, IMPLICATIONS_BUYER,
 } from '../forceModel.js'
 
 const CONF_COLOR = {
@@ -220,18 +218,13 @@ function Trajectory() {
 }
 
 /* ------------------------------------------------------------------ */
-const BUYER_ICONS = ['🧾', '⚙️', '🔄', '🔓', '⚠️']
-const SELLER_ICONS = ['📉', '🏭', '🎯', '💳', '🔗']
 
 export default function BillIsAChoice() {
-  const [side, setSide] = useState('buyer')
-  const items = side === 'buyer' ? IMPLICATIONS_BUYER : IMPLICATIONS_SUPPLIER
-  const icons = side === 'buyer' ? BUYER_ICONS : SELLER_ICONS
 
   return (
     <Section
       id="choice"
-      kicker="Module 11 · The strategic conclusion"
+      kicker="Module 5.1 · The strategic conclusion"
       title="Your bill is a choice, not a forecast"
       lede={
         <>
@@ -241,9 +234,9 @@ export default function BillIsAChoice() {
         </>
       }
     >
-      <Block title="Pick a strategy, see the bill">
+      <Fold title="Pick a strategy, see the bill" sub="Rows are your decision; columns are the market." open>
         <MatrixAndReadout />
-      </Block>
+      </Fold>
 
       <Callout tone="pink" title="The strategic reading">
         This is not an argument for freezing capability — better models finish tasks in fewer
@@ -252,49 +245,10 @@ export default function BillIsAChoice() {
         invoice</strong>.
       </Callout>
 
-      <Block title="The whole trajectory, 2026 → 2030">
+      <Fold title="The whole trajectory, 2026 → 2030" sub="Five lines. Click one to isolate it and read what it means.">
         <Trajectory />
-      </Block>
+      </Fold>
 
-      <Block title="What it means for you">
-        <div style={{ marginBottom: 14 }}>
-          <div className="seg">
-            <button className={side === 'buyer' ? 'active' : ''} onClick={() => setSide('buyer')}>🧾 If you buy tokens</button>
-            <button className={side === 'supplier' ? 'active' : ''} onClick={() => setSide('supplier')}>🏭 If you sell them</button>
-          </div>
-        </div>
-        <div className="grid grid-2" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))' }}>
-          {items.map((i, n) => (
-            <div className="card" key={i.t}>
-              <div style={{ display: 'flex', gap: 9, alignItems: 'baseline', justifyContent: 'space-between' }}>
-                <span style={{ fontSize: 17 }}>{icons[n]}</span>
-                <span className="chip" style={{ color: CONF_COLOR[i.c], borderColor: CONF_COLOR[i.c] + '66', fontSize: 9.5, flexShrink: 0 }}>{i.c}</span>
-              </div>
-              <div style={{ fontWeight: 700, fontSize: 13, margin: '5px 0 4px' }}>{i.t}</div>
-              <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>{i.d}</div>
-            </div>
-          ))}
-        </div>
-      </Block>
-
-      <details className="expand">
-        <summary>The four horizons to 2030, with confidence levels</summary>
-        <div className="expand-body">
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {TIMELINE_2030.map((t) => (
-              <div key={t.horizon} style={{ display: 'flex', gap: 16, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                <div style={{ fontFamily: 'var(--mono)', fontSize: 14, fontWeight: 600, color: 'var(--accent-cyan)', width: 80, flexShrink: 0 }}>
-                  {t.horizon}
-                </div>
-                <div style={{ flex: 1, fontSize: 12.5, minWidth: 220 }}>{t.dev}</div>
-                <span className="chip" style={{ color: CONF_COLOR[t.confidence], borderColor: CONF_COLOR[t.confidence] + '66', fontSize: 10 }}>
-                  {t.confidence}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </details>
 
       <Callout title="The closing thought">
         Treat tokens as a managed resource: <strong>meter, route, cache and batch — then reinvest
