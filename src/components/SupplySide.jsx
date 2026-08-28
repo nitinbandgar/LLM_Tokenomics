@@ -27,7 +27,7 @@ function CostStack({ onDrill }) {
               width: `${c.share}%`, background: c.color, cursor: 'pointer', border: 'none',
               opacity: sel && sel !== c.name ? 0.32 : 0.95, transition: 'opacity 0.15s',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              fontSize: 12, fontWeight: 700, color: '#0b0e17', font: 'inherit', fontWeight: 700,
+              fontSize: 12, fontWeight: 700, color: 'var(--on-accent)', font: 'inherit', fontWeight: 700,
             }}
           >
             {c.share >= 7 ? `${c.share}%` : ''}
@@ -265,10 +265,10 @@ function KVCacheViz() {
         </div>
         <div>
           <div style={{ display: 'flex', height: 38, borderRadius: 9, overflow: 'hidden', border: '1px solid var(--border-bright)' }}>
-            <div style={{ width: `${weightsPct}%`, background: 'var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#0b0e17', transition: 'width 0.3s' }}>
+            <div style={{ width: `${weightsPct}%`, background: 'var(--accent-violet)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: 'var(--on-accent)', transition: 'width 0.3s' }}>
               {weightsPct > 14 ? 'weights' : ''}
             </div>
-            <div style={{ width: `${kvPct}%`, background: 'var(--accent-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#0b0e17', transition: 'width 0.3s' }}>
+            <div style={{ width: `${kvPct}%`, background: 'var(--accent-orange)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: 'var(--on-accent)', transition: 'width 0.3s' }}>
               {kvPct > 12 ? 'live conversations' : ''}
             </div>
             <div style={{ flex: 1, background: 'var(--bg)' }} />

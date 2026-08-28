@@ -389,7 +389,7 @@ function StageAttention({ example }) {
         {view.map((t, i) => (
           <g key={i} onClick={() => setSel(i)} style={{ cursor: 'pointer' }}>
             <rect x={xs[i] - boxW / 2} y={H - 64} width={boxW} height={26} rx={6}
-              fill={i === q ? 'rgba(244,114,182,0.3)' : i < q && w[i] > 0.15 ? 'rgba(139,124,247,0.25)' : 'rgba(21,26,40,1)'}
+              fill={i === q ? 'rgba(244,114,182,0.3)' : i < q && w[i] > 0.15 ? 'rgba(139,124,247,0.25)' : 'var(--card)'}
               stroke={i === q ? 'var(--accent-pink)' : i < q && w[i] > 0.15 ? 'var(--accent-violet)' : 'var(--border)'}
               style={{ transition: 'all 0.3s' }} />
             <text x={xs[i]} y={H - 46} textAnchor="middle" fill={i > q ? 'var(--text-faint)' : 'var(--text)'} fontSize="11.5" fontFamily="var(--mono)">

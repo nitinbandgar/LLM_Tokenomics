@@ -147,10 +147,10 @@ function PhaseEconomics() {
             Where the time goes
           </div>
           <div style={{ display: 'flex', height: 34, borderRadius: 8, overflow: 'hidden', border: '1px solid var(--border-bright)' }}>
-            <div style={{ width: `${Math.max(1.5, (ttft / total) * 100)}%`, background: 'var(--accent-cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#0b0e17', transition: 'width 0.25s', minWidth: 3 }}>
+            <div style={{ width: `${Math.max(1.5, (ttft / total) * 100)}%`, background: 'var(--accent-cyan)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: 'var(--on-accent)', transition: 'width 0.25s', minWidth: 3 }}>
               {(ttft / total) > 0.14 ? 'prefill' : ''}
             </div>
-            <div style={{ width: `${outShareTime}%`, background: 'var(--accent-pink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: '#0b0e17', transition: 'width 0.25s' }}>
+            <div style={{ width: `${outShareTime}%`, background: 'var(--accent-pink)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 11, fontWeight: 700, color: 'var(--on-accent)', transition: 'width 0.25s' }}>
               {outShareTime > 14 ? 'decode' : ''}
             </div>
           </div>

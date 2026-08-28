@@ -70,12 +70,36 @@ const fromHash = () => {
   return FLAT.some((n) => n.id === h) ? h : 'hero'
 }
 
+const getInitialTheme = () => {
+  try {
+    const saved = localStorage.getItem('tokenomics-theme')
+    if (saved === 'light' || saved === 'dark') return saved
+  } catch (e) { /* storage blocked — fall through to system preference */ }
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark'
+}
+
 export default function App() {
   const [active, setActive] = useState(fromHash)
+  const [theme, setTheme] = useState(getInitialTheme)
+  const [navOpen, setNavOpen] = useState(() => window.innerWidth > 900)
   const [openGroups, setOpenGroups] = useState(() => {
     const g = FLAT.find((n) => n.id === fromHash())
     return new Set([g ? g.group.num : '0'])
   })
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+    try { localStorage.setItem('tokenomics-theme', theme) } catch (e) { /* non-fatal */ }
+  }, [theme])
+
+  // "[" toggles the sidebar — handy on a laptop while presenting
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === '[' && !/^(INPUT|TEXTAREA)$/.test(e.target.tagName)) setNavOpen((v) => !v)
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
   const select = (id) => {
     setActive(id)
@@ -104,12 +128,47 @@ export default function App() {
     })
 
   return (
-    <div className="app">
+    <div className={'app' + (navOpen ? '' : ' nav-closed')}>
+      {!navOpen && (
+        <button
+          className="icon-btn sidebar-opener"
+          onClick={() => setNavOpen(true)}
+          title="Show contents  ( [ )"
+          aria-label="Show contents"
+        >
+          <span className="icon">☰</span> Contents
+        </button>
+      )}
+
+      <div className="topbar">
+        <button
+          className="icon-btn"
+          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+          title={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
+          aria-label="Toggle colour theme"
+        >
+          <span className="icon">{theme === 'dark' ? '☀' : '☾'}</span>
+          {theme === 'dark' ? 'Light' : 'Dark'}
+        </button>
+      </div>
+
       <nav className="sidebar">
-        <div className="sidebar-brand">
-          LLM <span className="tok">Tokenomics</span>
+        <div className="sidebar-head">
+          <div>
+            <div className="sidebar-brand">
+              LLM <span className="tok">Tokenomics</span>
+            </div>
+            <div className="sidebar-sub">An interactive guide to the economics of tokens</div>
+          </div>
+          <button
+            className="icon-btn nav-collapse"
+            onClick={() => setNavOpen(false)}
+            title="Hide contents  ( [ )"
+            aria-label="Hide contents"
+          >
+            <span className="icon">⟨</span>
+          </button>
         </div>
-        <div className="sidebar-sub">An interactive guide to the economics of tokens</div>
 
         {NAV.map((g) => {
           const single = g.pages.length === 1
@@ -168,6 +227,7 @@ export default function App() {
               ← {prev.num} · {prev.label}
             </button>
           ) : <span />}
+          <span className="navfoot-pos">{idx + 1} of {FLAT.length}</span>
           {next ? (
             <button className="btn primary" onClick={() => select(next.id)}>
               Next: {next.num} · {next.label} →

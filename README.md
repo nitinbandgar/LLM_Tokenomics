@@ -35,6 +35,15 @@ All figures are indicative list prices as of mid-2026 — orders of magnitude, n
 The calculators use simplified first-principles models described inline; assumptions are
 stated next to each interactive.
 
+## Reading experience
+
+- **Collapsible contents.** Hide the sidebar with the ⟨ button (or the  key) and the content
+  reclaims the full width; a floating "☰ Contents" button brings it back.
+- **Light and dark themes.** Toggle top-right. The choice persists, and the first visit follows
+  the operating-system preference. Both palettes meet WCAG AA for body and UI text.
+- **Keyboard and motion.** Visible focus rings throughout, and animations respect
+  .
+
 ## Stack
 
 React 18 + Vite 5. Three.js (via @react-three/fiber) renders the 3D transformer in
