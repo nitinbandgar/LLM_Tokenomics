@@ -117,7 +117,7 @@ function PrecisionMini() {
 /* 4 — batching (set by whoever serves the model) */
 function BatchingMini() {
   const [batch, setBatch] = useState(32)
-  const NODE_BW = 26.8e12, WEIGHTS = 140e9, HOURLY = 20
+  const NODE_BW = 26.8e12 * 0.82, WEIGHTS = 140e9, HOURLY = 36 // 82% achieved bandwidth
   const single = NODE_BW / WEIGHTS
   const tps = Math.min(single * batch, 3.2e15 / (2 * 70e9))
   const cost = (HOURLY / (tps * 3600)) * 1e6

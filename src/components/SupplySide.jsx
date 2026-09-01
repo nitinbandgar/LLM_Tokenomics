@@ -4,7 +4,8 @@ import { COST_STACK, fmtUSD } from '../data.js'
 
 // 8× H100 node reference specs
 const NODE_HBM_GB = 640 // 8 × 80 GB
-const NODE_BW_TBS = 26.8 // 8 × 3.35 TB/s aggregate
+const NODE_BW_TBS = 26.8 // 8 × 3.35 TB/s peak
+const BW_EFFICIENCY = 0.82 // achieved vs peak memory bandwidth in practice
 const NODE_FLOPS = 8e15 * 0.4 // ~8 PFLOP/s FP16 dense × 40% MFU
 
 /* ------------------------------------------------------------------ */
@@ -88,18 +89,18 @@ function CostFloorCalculator() {
   const [params, setParams] = useState(70)
   const [bytes, setBytes] = useState(2)
   const [batch, setBatch] = useState(32)
-  const [hourly, setHourly] = useState(20)
+  const [hourly, setHourly] = useState(36)
 
   const weightGB = params * bytes
   const fits = weightGB < NODE_HBM_GB * 0.85
-  const singleStream = (NODE_BW_TBS * 1e12) / (weightGB * 1e9)
+  const singleStream = (NODE_BW_TBS * 1e12 * BW_EFFICIENCY) / (weightGB * 1e9)
   const memBound = singleStream * batch
   const computeBound = NODE_FLOPS / (2 * params * 1e9)
   const tokensPerSec = Math.min(memBound, computeBound)
   const regime = memBound < computeBound ? 'memory-bandwidth-bound' : 'compute-bound (GPU saturated)'
   const costPerM = (hourly / (tokensPerSec * 3600)) * 1e6
   const unbatchedCost = (hourly / (singleStream * 3600)) * 1e6
-  const atBase = params === 70 && bytes === 2 && batch === 32 && hourly === 20
+  const atBase = params === 70 && bytes === 2 && batch === 32 && hourly === 36
 
   return (
     <div className="panel">
@@ -112,8 +113,8 @@ function CostFloorCalculator() {
         </div>
       </div>
       <Hint>
-        Starts on the report’s worked example — <strong>70B model, FP16, batch 32, $20/hr → ≈$1 per
-        million tokens</strong>. Now try it: drag <strong>batch size</strong> down to 1 to see why
+        Starts on the report’s worked example — <strong>70B model, FP16, batch 32, $36/hr → ≈$2 per
+        million output tokens</strong>. Now try it: drag <strong>batch size</strong> down to 1 to see why
         batching matters, or switch precision to FP4 to halve the memory traffic.
       </Hint>
 
@@ -148,14 +149,14 @@ function CostFloorCalculator() {
               <div style={{ marginTop: 16 }}>
                 {[
                   { name: 'Your hardware floor', v: costPerM, c: 'var(--accent-green)' },
-                  { name: 'Open-weight host (70B)', v: 0.6, c: 'var(--accent-cyan)' },
-                  { name: 'Mid-tier API output', v: 15, c: 'var(--accent-violet)' },
-                  { name: 'Frontier API output', v: 25, c: 'var(--accent-pink)' },
+                  { name: 'Open-weight host', v: 0.87, c: 'var(--accent-cyan)' },
+                  { name: 'Mid-tier API output', v: 10, c: 'var(--accent-violet)' },
+                  { name: 'Frontier API output', v: 50, c: 'var(--accent-pink)' },
                 ].map((r) => (
                   <div className="bar-row" key={r.name}>
                     <div className="bar-label">{r.name}</div>
                     <div className="bar-track" style={{ height: 19 }}>
-                      <div className="bar-fill" style={{ width: `${Math.max(2, (r.v / Math.max(costPerM, 25)) * 100)}%`, background: r.c }}>
+                      <div className="bar-fill" style={{ width: `${Math.max(2, (r.v / Math.max(costPerM, 50)) * 100)}%`, background: r.c }}>
                         <span className="bar-value">{fmtUSD(r.v, 2)}</span>
                       </div>
                     </div>
@@ -246,8 +247,8 @@ function KVCacheViz() {
   const freeGB = Math.max(0, NODE_HBM_GB * 0.9 - weightGB)
   const perSeqGB = (ctx * 1000 * kvPerTokMB) / 1000
   const maxBatch = Math.max(0, Math.floor(freeGB / Math.max(0.001, perSeqGB)))
-  const singleStream = (NODE_BW_TBS * 1e12) / (weightGB * 1e9)
-  const cost = maxBatch > 0 ? (20 / (Math.min(singleStream * maxBatch, NODE_FLOPS / (2 * params * 1e9)) * 3600)) * 1e6 : Infinity
+  const singleStream = (NODE_BW_TBS * 1e12 * BW_EFFICIENCY) / (weightGB * 1e9)
+  const cost = maxBatch > 0 ? (36 / (Math.min(singleStream * maxBatch, NODE_FLOPS / (2 * params * 1e9)) * 3600)) * 1e6 : Infinity
   const weightsPct = (weightGB / NODE_HBM_GB) * 100
   const kvPct = Math.min(100 - weightsPct, ((perSeqGB * Math.min(maxBatch, 64)) / NODE_HBM_GB) * 100)
 

@@ -50,13 +50,13 @@ function SideBySide() {
 // Real market anchors behind the illustrative curve
 const ANCHORS = [
   { m: 0, price: 25, label: 'Frontier launch',
-    real: 'Claude Opus 4.6 lists at $25 per 1M output tokens — the frontier tier in this guide’s price table (Module 2.1).' },
+    real: 'Claude Opus 5 lists at $25 per 1M output tokens — the frontier tier in this guide’s price table (Module 2.1).' },
   { m: 9, price: 25, label: 'An open model matches the tier',
     real: 'The trigger event. DeepSeek’s V3/R1 (2025) and V4 (2026) matched Western frontier models on many agentic benchmarks while pricing 90–97% below them.' },
   { m: 12, price: 4.1, label: 'Collapse under way',
     real: 'Frontier vendors historically respond not with headline price cuts but with cheaper mid-tiers and aggressive caching discounts — defending frontier margin while ceding the mid-market.' },
   { m: 24, price: 0.6, label: 'Hosting economics',
-    real: 'Llama-class 70B hosted lists at $0.30–0.90 per 1M output — cost-plus pricing on the hardware arithmetic in Module 2.2, not value-based pricing.' },
+    real: 'Open-weight tiers list at $0.16–0.87 per 1M output (Gemma 3 27B to DeepSeek V4 Pro) — cost-plus pricing on the hardware arithmetic in Module 2.2, not value-based pricing.' },
 ]
 
 function HalfLifeViz() {

@@ -119,7 +119,7 @@ function PipelineAnimation() {
 /* ------------------------------------------------------------------ */
 const PREFILL_RATE = 20000 // tok/s ingested
 const DECODE_RATE = 60 // tok/s generated
-const NODE_HOURLY = 20 // $/hr for an 8× H100 node
+const NODE_HOURLY = 36 // $/hr for an 8× H100 node
 
 function PhaseEconomics() {
   const [inTok, setInTok] = useState(10000)
@@ -271,8 +271,8 @@ function MeterAndMarket() {
             </div>
           ))}
           <div style={{ fontSize: 12, color: 'var(--text-dim)', marginTop: 8 }}>
-            Virtually the whole market sits at <strong>2–6×</strong>. Where it is 1×, tokens are so
-            cheap the meter barely matters.
+            Virtually the whole market sits at <strong>2–6×</strong> — frontier and open tiers alike.
+            The physics is the same for everyone; only the absolute price differs.
           </div>
         </div>
       </div>

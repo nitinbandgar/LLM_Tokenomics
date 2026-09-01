@@ -3,25 +3,26 @@
 
 export const HEADLINE_NUMBERS = [
   { value: '~10×', label: 'per year', text: 'Annual price decline for constant capability ("LLMflation")', source: 'a16z; Epoch AI' },
-  { value: '$8.4B', label: '2025 spend', text: 'Global enterprise LLM API spend — doubling again in 2026', source: 'Market analyses' },
+  { value: '$8.4B', label: 'H1 2025 spend', text: 'Enterprise LLM API spend at mid-2025, up from $3.5B six months earlier', source: 'Menlo Ventures' },
   { value: '5–30×', label: 'multiplier', text: 'Token consumption of agentic workloads vs a chat exchange', source: 'Gartner; production data' },
-  { value: '40–60%', label: 'waste', text: 'Share of enterprise token spend that is removable waste', source: 'FinOps Foundation' },
+  { value: '~26%', label: 'wasted', text: 'Share of AI spend enterprises estimate is wasted', source: 'FinOps Foundation, 2026' },
   { value: '100–500×', label: 'spread', text: 'Quality-adjusted price spread, frontier vs commodity tiers', source: 'Public list prices' },
   { value: '60–80%', label: 'savings', text: 'Bill reduction reported by teams applying the full lever stack', source: 'Production case reports' },
 ]
 
 // Table 4 — indicative list prices per 1M tokens, mid-2026
 export const MODEL_PRICES = [
-  { name: 'o-series reasoning', tier: 'frontier', input: 15, output: 60, notes: 'Reasoning tier — hidden chain-of-thought tokens are billed too' },
-  { name: 'GPT-5 class', tier: 'frontier', input: 10, output: 30, notes: 'Premium reasoning tier' },
-  { name: 'Claude Opus 4.6', tier: 'frontier', input: 5, output: 25, notes: 'Frontier; flat-rate long context' },
-  { name: 'Claude Sonnet 4.6', tier: 'mid', input: 3, output: 15, notes: 'Workhorse tier; 1M context without surcharge' },
+  { name: 'Claude Fable 5', tier: 'frontier', input: 10, output: 50, notes: 'Frontier reasoning for difficult knowledge work' },
+  { name: 'GPT-5.6 Sol', tier: 'frontier', input: 5, output: 30, notes: 'Flagship reasoning; promotional $4/$20 short-context rate since 22 Aug 2026' },
+  { name: 'Claude Opus 5', tier: 'frontier', input: 5, output: 25, notes: 'Frontier; flat-rate long context' },
   { name: 'Gemini 3.1 Pro', tier: 'mid', input: 2, output: 12, notes: 'Cheapest frontier-class (≤200K prompts)' },
-  { name: 'GPT mini tier', tier: 'value', input: 0.4, output: 1.6, notes: 'Ultra-budget proprietary; ~10–30% of flagship' },
-  { name: 'Gemini 2.5 Flash', tier: 'value', input: 0.15, output: 0.6, notes: 'Value tier, 1M context' },
-  { name: 'Llama-class 70B (hosted)', tier: 'open', input: 0.3, output: 0.6, notes: 'Cost-plus commodity hosting' },
-  { name: 'DeepSeek V4', tier: 'open', input: 0.05, output: 0.15, notes: '~97% below frontier — the "DeepSeek shock"' },
-  { name: 'Small open 7–8B', tier: 'open', input: 0.06, output: 0.06, notes: 'Effectively free at enterprise scale' },
+  { name: 'GPT-5.6 Terra', tier: 'mid', input: 2, output: 12, notes: 'Balanced default workhorse' },
+  { name: 'Claude Sonnet 5', tier: 'mid', input: 2, output: 10, notes: 'Enterprise workhorse; $2/$10 made permanent 10 Aug 2026' },
+  { name: 'Gemini 3.5 Flash', tier: 'value', input: 1.5, output: 9, notes: 'Fast value tier' },
+  { name: 'GPT-5.6 Luna', tier: 'value', input: 0.2, output: 1.2, notes: 'Ultra-budget proprietary tier' },
+  { name: 'DeepSeek V4 Pro', tier: 'open', input: 0.44, output: 0.87, notes: 'High-end open — the "DeepSeek shock" tier' },
+  { name: 'DeepSeek V4 Flash', tier: 'open', input: 0.14, output: 0.28, notes: 'Cheaper open tier' },
+  { name: 'Gemma 3 27B', tier: 'open', input: 0.08, output: 0.16, notes: 'Low-cost open; price varies by host' },
 ]
 
 export const TIER_COLORS = {
@@ -64,8 +65,8 @@ export const PRICING_MODELS = [
     desc: 'Dedicated endpoints and provisioned throughput — you rent the silicon, not the tokens.',
     refs: [
       ['1× A100', '~$2.50 / hour'],
-      ['1× H100', '~$10 / hour'],
-      ['8× H100 node', '~$80 / hour — the unit used in this guide’s cost calculators'],
+      ['1× H100', '~$4.50 / hour'],
+      ['8× H100 node', '$36–80 / hour by provider and commitment — $36/hr is the unit used in this guide’s cost calculators'],
     ] },
   { name: 'Fine-tuning', unit: 'per hour or per token', price: '~$100/hr or ~$8/1M', icon: '🎛️',
     desc: 'Managed customisation, plus storage and hosting for the tuned model afterwards.',
@@ -206,13 +207,13 @@ export const OPERATING_MODEL = [
 // §8.1 / 8.2 — the forces repricing the market to 2030
 export const FUTURE_SUPPLY = [
   { name: 'Next-gen silicon', fact: 'Rubin-class GPUs claim ~10× lower cost per generated token; $0.02/M already demonstrated on open 120B models', so: 'The hardware floor under every price keeps falling' },
-  { name: 'Inference ASICs', fact: 'Purpose-built inference chips: ~15% of the market in 2024 → ~40% by 2026; wafer-scale and LPU designs prove the latency frontier', so: 'Cheap-and-slow vs expensive-and-instant become separately priced lanes' },
+  { name: 'Inference ASICs', fact: 'Purpose-built inference chips: ~28% of AI server shipments in 2026, heading toward ~40% by 2030; wafer-scale and LPU designs prove the latency frontier', so: 'Cheap-and-slow vs expensive-and-instant become separately priced lanes' },
   { name: 'The memory wall', fact: 'Decode is memory-bound, so HBM is the real roadmap. HBM4: >2.8 TB/s per stack — but two vendors control ~90% of supply and prices rose ~20%', so: 'Token-price declines gated as much by memory supply as by GPU launches' },
   { name: 'Energy as a moat', fact: 'Nuclear PPAs (Three Mile Island 835 MW, Susquehanna 1.92 GW) and SMR orders anchor supplier cost structures into the 2030s', so: 'Power contracts become strategic assets — and a floor under long-run prices' },
   { name: 'Small, specialised models', fact: 'Task-specific small models expected at 3× the adoption rate of general LLMs by 2027; a 7B model serves routine agent steps 10–30× cheaper', so: 'Token volume shifts to small and cheap; frontier reserved for the hard tail' },
 ]
 export const FUTURE_DEMAND = [
-  { name: 'Machine-dominated consumption', fact: 'The 120× token-growth projection to 2030 is agents calling agents — no human reads most intermediate output', so: 'Cost per task replaces cost per token; latency-tolerant volume shifts to batch lanes' },
+  { name: 'Machine-dominated consumption', fact: 'Token consumption is forecast to grow 24× by 2030, to ~120 quadrillion tokens/month (Goldman Sachs Research, May 2026) — agents calling agents, with no human reading most intermediate output', so: 'Cost per task replaces cost per token; latency-tolerant volume shifts to batch lanes' },
   { name: 'Sovereignty becomes procurement', fact: 'EU AI Act high-risk obligations fully applicable Aug 2026 (fines to 7% of turnover); European sovereign-cloud spend $7B → $12B+', so: 'Sovereign deployment costs a premium — and open weights are its natural substrate' },
   { name: 'Buyers professionalise', fact: 'Committed-use discounts, multi-vendor portfolios behind routing layers, open-weight price anchors in every negotiation', so: 'The buy side organises exactly as the sell side commoditises' },
   { name: 'Geopolitics stays priced in', fact: 'Export controls partition silicon; Chinese open-weight labs keep a global price anchor under every tier', so: 'Regionally divergent prices — an arbitrage portfolios capture and single-vendor stacks cannot' },
