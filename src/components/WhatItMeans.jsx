@@ -1,6 +1,6 @@
 import React from 'react'
 import { Section, Fold, Callout } from './ui.jsx'
-import { TIMELINE_2030 } from '../data.js'
+import { TIMELINE_2030, HEADLINE_NUMBERS } from '../data.js'
 import { IMPLICATIONS_SUPPLIER, IMPLICATIONS_BUYER } from '../forceModel.js'
 
 const CONF_COLOR = {
@@ -68,6 +68,23 @@ export default function WhatItMeans() {
               </span>
             </div>
           ))}
+        </div>
+      </Fold>
+
+      <Fold title="📋 The six numbers, on one card" sub="Everything this guide argues, in figures you can quote — with sources." badge="takeaway">
+        <div className="takeaway">
+          {HEADLINE_NUMBERS.map((n) => (
+            <div className="takeaway-card" key={n.text}>
+              <div className="takeaway-value">{n.value}</div>
+              <div className="takeaway-label">{n.label}</div>
+              <div className="takeaway-text">{n.text}</div>
+              <div className="takeaway-src">{n.source}</div>
+            </div>
+          ))}
+        </div>
+        <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 12 }}>
+          Indicative as of September 2026. This market reprices monthly — treat these as orders of
+          magnitude, not quotes.
         </div>
       </Fold>
 

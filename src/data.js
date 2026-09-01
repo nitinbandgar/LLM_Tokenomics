@@ -5,7 +5,7 @@ export const HEADLINE_NUMBERS = [
   { value: '~50×', label: 'since 2022', text: 'Price decline for constant capability — about 2.7× a year, decelerating ("LLMflation")', source: 'a16z; Epoch AI' },
   { value: '$8.4B', label: 'H1 2025 spend', text: 'Enterprise LLM API spend at mid-2025, up from $3.5B six months earlier', source: 'Menlo Ventures' },
   { value: '5–30×', label: 'multiplier', text: 'Token consumption of agentic workloads vs a chat exchange', source: 'Gartner; production data' },
-  { value: '~26%', label: 'wasted', text: 'Share of AI spend enterprises estimate is wasted', source: 'FinOps Foundation, 2026' },
+  { value: '~26%', label: 'estimated waste', text: 'Share of AI spend enterprises estimate is wasted — audits of live deployments find 40–60% of token spend is removable', source: 'FinOps Foundation, 2026; deployment studies' },
   { value: '100–500×', label: 'spread', text: 'Quality-adjusted price spread, frontier vs commodity tiers', source: 'Public list prices' },
   { value: '60–80%', label: 'savings', text: 'Bill reduction reported by teams applying the full lever stack', source: 'Production case reports' },
 ]

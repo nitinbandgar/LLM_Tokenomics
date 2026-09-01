@@ -25,7 +25,25 @@ function WasteOverview() {
   const cur = FAILURE_MODES.find((f) => f.name === sel)
   return (
     <div className="panel">
-      <Hint>Click any of the six to see what goes wrong and how to stop it. Together they account for the 40–60% of spend that is removable.</Hint>
+      <div className="gapstat">
+        <div className="gapstat-side">
+          <div className="gapstat-num" style={{ color: 'var(--accent-yellow)' }}>~26%</div>
+          <div className="gapstat-label">what enterprises <strong>estimate</strong> is wasted</div>
+          <div className="gapstat-src">FinOps Foundation survey, 2026</div>
+        </div>
+        <div className="gapstat-vs">vs</div>
+        <div className="gapstat-side">
+          <div className="gapstat-num" style={{ color: 'var(--accent-pink)' }}>40–60%</div>
+          <div className="gapstat-label">what audits find is <strong>removable</strong></div>
+          <div className="gapstat-src">Deployment studies</div>
+        </div>
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--text-dim)', margin: '12px 0 14px' }}>
+        Companies think a quarter of their AI spend is wasted. Teams that actually meter their
+        traffic find closer to half is removable. <strong style={{ color: 'var(--text)' }}>The gap is
+        what you cannot see until you measure</strong> — and it is exactly these six leaks.
+      </div>
+      <Hint>Click any of the six to see what goes wrong and how to stop it.</Hint>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', gap: 10 }}>
         {FAILURE_MODES.map((f) => (
           <button
@@ -54,15 +72,15 @@ function WasteOverview() {
           </>
         ) : (
           <div style={{ fontSize: 12.5, color: 'var(--text-dim)' }}>
-            <strong style={{ color: 'var(--accent-pink)', fontSize: 20, fontFamily: 'var(--mono)' }}>40–60%</strong>{' '}
-            of enterprise token budgets is removable waste. Pick one above to see how it happens.
+            Pick one above to see how it happens — and what stops it.
           </div>
         )}
       </div>
       <More label="Why there is no percentage on each one">
-        The research quantifies the total (40–60% of spend) but does not publish a split across the
-        six modes — the mix is highly specific to each deployment. Rather than invent numbers, meter
-        your own: the dashboard in Module 09 lists exactly which indicators expose each mode.
+        Deployment studies quantify the total (40–60% of token spend is removable) but do not
+        publish a split across the six modes — the mix is highly specific to each deployment.
+        Rather than invent numbers, meter your own: the dashboard in Module 3.3 lists exactly which
+        indicators expose each mode.
       </More>
     </div>
   )
@@ -299,7 +317,7 @@ export default function WhyBillsExplode() {
         </>
       }
     >
-      <Fold open title="Start here: the six ways money leaks" sub="Together these account for the 40–60% of spend that is removable.">
+      <Fold open title="Start here: the six ways money leaks" sub="The gap between what companies think they waste and what audits actually find.">
         <WasteOverview />
       </Fold>
 
