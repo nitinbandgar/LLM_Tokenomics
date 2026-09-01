@@ -1,8 +1,8 @@
 // All figures sourced from the "LLM Tokenomics — Detailed Report".
-// Prices are indicative list prices, mid-2026 — orders of magnitude, not quotes.
+// Prices are indicative list prices, September 2026 — orders of magnitude, not quotes.
 
 export const HEADLINE_NUMBERS = [
-  { value: '~10×', label: 'per year', text: 'Annual price decline for constant capability ("LLMflation")', source: 'a16z; Epoch AI' },
+  { value: '~50×', label: 'since 2022', text: 'Price decline for constant capability — about 2.7× a year, decelerating ("LLMflation")', source: 'a16z; Epoch AI' },
   { value: '$8.4B', label: 'H1 2025 spend', text: 'Enterprise LLM API spend at mid-2025, up from $3.5B six months earlier', source: 'Menlo Ventures' },
   { value: '5–30×', label: 'multiplier', text: 'Token consumption of agentic workloads vs a chat exchange', source: 'Gartner; production data' },
   { value: '~26%', label: 'wasted', text: 'Share of AI spend enterprises estimate is wasted', source: 'FinOps Foundation, 2026' },
@@ -10,7 +10,7 @@ export const HEADLINE_NUMBERS = [
   { value: '60–80%', label: 'savings', text: 'Bill reduction reported by teams applying the full lever stack', source: 'Production case reports' },
 ]
 
-// Table 4 — indicative list prices per 1M tokens, mid-2026
+// Table 4 — indicative list prices per 1M tokens, September 2026
 export const MODEL_PRICES = [
   { name: 'Claude Fable 5', tier: 'frontier', input: 10, output: 50, notes: 'Frontier reasoning for difficult knowledge work' },
   { name: 'GPT-5.6 Sol', tier: 'frontier', input: 5, output: 30, notes: 'Flagship reasoning; promotional $4/$20 short-context rate since 22 Aug 2026' },
@@ -47,11 +47,11 @@ export const PRICING_MODELS = [
       ['ChatGPT Business', '~$20 / user / month, annual billing'],
       ['Claude Team', '$20 standard seat · $100 premium seat'],
     ] },
-  { name: 'Per-token API', unit: 'per 1M tokens in/out', price: '$0.06–$60', icon: '🔤',
+  { name: 'Per-token API', unit: 'per 1M tokens in/out', price: '$0.08–$50', icon: '🔤',
     desc: 'The dominant developer tariff: input and output metered separately.',
     refs: [
-      ['Top of range', 'o-series reasoning — $60 / 1M output tokens'],
-      ['Bottom of range', 'Small open 7–8B models — from $0.06 / 1M'],
+      ['Top of range', 'Claude Fable 5 — $50 / 1M output tokens'],
+      ['Bottom of range', 'Gemma 3 27B — from $0.08 / 1M'],
       ['Who charges this way', 'OpenAI, Anthropic, Google, AWS Bedrock, open-weight hosts'],
     ] },
   { name: 'Per-request', unit: 'per tool call / query', price: '$2.50–$35 / 1,000', icon: '🔧',
@@ -61,17 +61,17 @@ export const PRICING_MODELS = [
       ['File search', '~$2.50 per 1,000 calls'],
       ['Search grounding', '~$35 per 1,000 prompts'],
     ] },
-  { name: 'Compute-hour', unit: 'per GPU-hour', price: '$2.50–$80 / hr', icon: '🖥️',
+  { name: 'Compute-hour', unit: 'per GPU-hour', price: '$0.50–$80 / hr', icon: '🖥️',
     desc: 'Dedicated endpoints and provisioned throughput — you rent the silicon, not the tokens.',
     refs: [
-      ['1× A100', '~$2.50 / hour'],
+      ['1× T4', '~$0.50 / hour'],
       ['1× H100', '~$4.50 / hour'],
       ['8× H100 node', '$36–80 / hour by provider and commitment — $36/hr is the unit used in this guide’s cost calculators'],
     ] },
   { name: 'Fine-tuning', unit: 'per hour or per token', price: '~$100/hr or ~$8/1M', icon: '🎛️',
     desc: 'Managed customisation, plus storage and hosting for the tuned model afterwards.',
     refs: [
-      ['o4-mini-class training', '~$100 / hour'],
+      ['OpenAI RFT', '~$100 / hour; grader tokens billed separately'],
       ['Bedrock Llama-class', '~$8 per 1M training tokens, + storage + hosting'],
     ] },
 ]
@@ -101,7 +101,7 @@ export const LLMFLATION = [
     detail: 'Open-weight releases matching each capability tier pushed hosted pricing toward marginal serving cost — under $1 per million.' },
   { year: '2026', price: 0.4, label: '$0.40–0.80',
     what: 'Commodity pricing',
-    detail: 'GPT-4-level quality now costs $0.40–0.80 per million, with economy tiers delivering near-GPT-4 quality at ~$0.10. That is ~50× cheaper than 2022.' },
+    detail: 'GPT-4-level quality now costs $0.40–0.80 per million, with economy tiers delivering near-GPT-4 quality at ~$0.10. That is ~50× cheaper than 2022 — about 2.7× a year compounded, and the rate is decelerating.' },
 ]
 
 // Table 9 — supplier cost stack (illustrative shares of serving cost)
@@ -155,14 +155,14 @@ export const GLOSSARY = [
   { term: "Distillation", meaning: "Compressing a large model's behaviour into a small one", why: "Up to 10× cheaper serving on narrow tasks" },
   { term: "Prompt caching", meaning: "Provider-side reuse of a stable prompt prefix's KV cache", why: "~90% discount on repeat input" },
   { term: "Batch API", meaning: "Asynchronous, delay-tolerant processing lane", why: "~50% discount; monetises provider idle capacity" },
-  { term: "LLMflation", meaning: "~10×/year price decline for constant capability", why: "Why model choices must be revisited quarterly" },
+  { term: "LLMflation", meaning: "~2.7×/year price decline for constant capability (~50× since 2022); the widely quoted ~10×/year applied to GPT-3-class capability over 2021–24", why: "Why model choices must be revisited quarterly" },
   { term: "Transformer", meaning: "The neural architecture behind all current LLMs: stacked layers of attention + feed-forward networks", why: "Its serving profile (memory-bound decode) shapes all token pricing" },
   { term: "Attention", meaning: "Mechanism by which each token reads all previous tokens", why: "Work grows with the square of context length" },
   { term: "Embedding", meaning: "Numeric vector representing a token (or document, for retrieval)", why: "Embedding APIs are metered; vectors feed RAG" },
   { term: "Parameters / weights", meaning: "The learned numbers inside a model (7B–1T+)", why: "Read from memory on every decoded token" },
   { term: "FLOPs", meaning: "Floating-point operations; training needs ≈ 6 × parameters × tokens", why: "The physics of training cost" },
   { term: "HBM", meaning: "High-bandwidth memory stacked next to the GPU die", why: "Its bandwidth caps decode speed; its supply gates price declines" },
-  { term: "ASIC / LPU", meaning: "Chips purpose-built for inference rather than general compute", why: "Projected ~40% of inference by 2026; new price floors" },
+  { term: "ASIC / LPU", meaning: "Chips purpose-built for inference rather than general compute", why: "~28% of AI server shipments in 2026, ~40% by 2030; new price floors" },
   { term: "Reasoning tokens", meaning: "Hidden chain-of-thought output billed but not shown", why: "Inflate effective output cost 3–10× on reasoning tiers" },
   { term: "Model routing", meaning: "Classifying requests and sending each to the cheapest capable model", why: "The single highest-leverage optimisation decision" },
   { term: "Semantic caching", meaning: "Serving repeat queries from a similarity-matched answer cache", why: "40–70% savings on FAQ-like traffic" },
@@ -208,7 +208,7 @@ export const OPERATING_MODEL = [
 export const FUTURE_SUPPLY = [
   { name: 'Next-gen silicon', fact: 'Rubin-class GPUs claim ~10× lower cost per generated token; $0.02/M already demonstrated on open 120B models', so: 'The hardware floor under every price keeps falling' },
   { name: 'Inference ASICs', fact: 'Purpose-built inference chips: ~28% of AI server shipments in 2026, heading toward ~40% by 2030; wafer-scale and LPU designs prove the latency frontier', so: 'Cheap-and-slow vs expensive-and-instant become separately priced lanes' },
-  { name: 'The memory wall', fact: 'Decode is memory-bound, so HBM is the real roadmap. HBM4: >2.8 TB/s per stack — but two vendors control ~90% of supply and prices rose ~20%', so: 'Token-price declines gated as much by memory supply as by GPU launches' },
+  { name: 'The memory wall', fact: 'Decode is memory-bound, so HBM is the real roadmap. HBM4: >2.8 TB/s per stack — but three vendors control supply and prices rose ~20%', so: 'Token-price declines gated as much by memory supply as by GPU launches' },
   { name: 'Energy as a moat', fact: 'Nuclear PPAs (Three Mile Island 835 MW, Susquehanna 1.92 GW) and SMR orders anchor supplier cost structures into the 2030s', so: 'Power contracts become strategic assets — and a floor under long-run prices' },
   { name: 'Small, specialised models', fact: 'Task-specific small models expected at 3× the adoption rate of general LLMs by 2027; a 7B model serves routine agent steps 10–30× cheaper', so: 'Token volume shifts to small and cheap; frontier reserved for the hard tail' },
 ]
