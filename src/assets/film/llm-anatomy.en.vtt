@@ -1,0 +1,157 @@
+WEBVTT
+
+1
+00:00:01.200 --> 00:00:05.805
+The anatomy of an LLM. What you are actually buying, in under three minutes.
+
+2
+00:00:07.205 --> 00:00:10.536
+When you send a message, the model never sees just your question.
+
+3
+00:00:10.986 --> 00:00:17.983
+The system prompt, the whole conversation, retrieved documents and tool outputs are stitched into one long context.
+
+4
+00:00:17.983 --> 00:00:19.443
+And all of it is billed.
+
+5
+00:00:22.443 --> 00:00:28.267
+A tokenizer chops that text into sub-word pieces called tokens, and each one becomes a number.
+
+6
+00:00:28.717 --> 00:00:30.966
+"The cat sat on the" is five tokens.
+
+7
+00:00:30.966 --> 00:00:33.215
+Tokens are the unit on your invoice.
+
+8
+00:00:35.415 --> 00:00:39.094
+Each number then looks up a vector of thousands of values.
+
+9
+00:00:39.094 --> 00:00:40.933
+Meaning, encoded as geometry.
+
+10
+00:00:43.333 --> 00:00:47.766
+Those vectors flow through a stack of about eighty identical transformer layers.
+
+11
+00:00:48.817 --> 00:00:53.590
+Inside every layer, attention lets each token look back at the ones before it.
+
+12
+00:00:53.590 --> 00:00:56.528
+The last "the" pulls hardest on "sat" and "cat".
+
+13
+00:00:58.927 --> 00:01:04.790
+At the top of the stack, the model scores every one of a hundred thousand possible next tokens.
+
+14
+00:01:04.790 --> 00:01:06.950
+"Mat" wins, and a sampler picks it.
+
+15
+00:01:07.800 --> 00:01:12.004
+Then that token is fed straight back in, and the whole stack runs again.
+
+16
+00:01:12.004 --> 00:01:15.799
+One full pass, for every word you see streaming onto your screen.
+
+17
+00:01:18.399 --> 00:01:21.025
+That loop splits every request into two phases.
+
+18
+00:01:21.474 --> 00:01:25.954
+Prefill reads your entire prompt in one parallel pass. Fast, and cheap.
+
+19
+00:01:26.404 --> 00:01:32.683
+Decode writes the answer one token at a time, and every token re-reads all of the model's weights from memory.
+
+20
+00:01:33.533 --> 00:01:37.059
+That is why output tokens cost three to eight times more than input.
+
+21
+00:01:38.309 --> 00:01:41.011
+The same physics makes the discounts honest.
+
+22
+00:01:41.011 --> 00:01:44.757
+Cached prompts skip re-reading, for about ninety percent off.
+
+23
+00:01:44.757 --> 00:01:46.599
+Batch lanes run at half price.
+
+24
+00:01:48.999 --> 00:01:52.239
+Finally, five hidden dials quietly change your bill.
+
+25
+00:01:52.239 --> 00:01:57.347
+Two are set by the model maker, two by whoever serves the model, and one is yours.
+
+26
+00:01:58.197 --> 00:01:59.464
+One. The tokenizer.
+
+27
+00:01:59.464 --> 00:02:04.798
+The same sentence costs almost seven times more tokens in Hindi than in English.
+
+28
+00:02:06.247 --> 00:02:07.376
+Two. Architecture.
+
+29
+00:02:07.376 --> 00:02:16.655
+A trillion-parameter mixture of experts wakes up only about thirty-seven billion per token, so it can be cheaper than a dense seventy-billion model.
+
+30
+00:02:18.105 --> 00:02:19.124
+Three. Precision.
+
+31
+00:02:19.124 --> 00:02:24.339
+Going from sixteen bits to eight, to four, halves the memory read per token, each step.
+
+32
+00:02:25.989 --> 00:02:26.931
+Four. Batching.
+
+33
+00:02:26.931 --> 00:02:33.025
+Thirty-two requests share one read of the weights, cutting cost per token by over ninety percent.
+
+34
+00:02:33.025 --> 00:02:34.596
+The biggest lever of all.
+
+35
+00:02:36.046 --> 00:02:38.036
+And five. The context you send.
+
+36
+00:02:38.036 --> 00:02:42.337
+Your system prompt is re-sent, and re-billed, on every single turn.
+
+37
+00:02:44.937 --> 00:02:47.772
+Sequential generation. Memory. Weight reads.
+
+38
+00:02:47.772 --> 00:02:51.186
+That is the machine behind every price in this guide.
+
+39
+00:02:52.436 --> 00:02:55.440
+Now open each chapter, and try the dials yourself.

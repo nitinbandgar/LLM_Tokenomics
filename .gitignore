@@ -13,3 +13,14 @@ Thumbs.db
 # source report — internal document, excluded from the public repo by default.
 # Remove this line if you want the report versioned alongside the app.
 LLM Tokenomics - Detailed Report.docx
+
+# film build intermediates (see film/README.md) — only src/assets/film/* is shipped
+film/*.onnx
+film/*.bin
+film/vo/
+film/stills/
+film/*.wav
+film/seg_*.mp4
+film/segs.txt
+film/events.json
+film/timings.js

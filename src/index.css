@@ -935,3 +935,39 @@ h3.block-title { margin: 34px 0 6px; }
 
 /* tables breathe a little more in light mode where borders are lighter */
 table.data th { letter-spacing: 0.04em; }
+
+/* ---------- 1.0 · the film ---------- */
+.film-frame {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: #0b0e17; /* the film is dark in both themes */
+  box-shadow: var(--shadow);
+}
+.film-frame video { display: block; width: 100%; height: 100%; }
+.film-chapters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 8px;
+  margin: 14px 0 4px;
+}
+.film-chapter {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font: 600 13px var(--sans);
+  text-align: left;
+  padding: 9px 12px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+}
+.film-chapter:hover { border-color: var(--accent-cyan); color: var(--text); }
+.film-chapter.active { border-color: var(--accent-cyan); color: var(--accent-cyan); background: var(--hint-bg); }
+.film-chapter-num { font-family: var(--mono); font-size: 12px; }
+.film-chapter-time { margin-left: auto; font-family: var(--mono); font-size: 11px; color: var(--text-faint); }

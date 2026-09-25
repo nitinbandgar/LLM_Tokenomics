@@ -1,0 +1,11 @@
+{
+  "name": "llm-anatomy-film",
+  "private": true,
+  "description": "Build tooling for the 1.0 film — not part of the web app bundle",
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@fontsource/noto-sans-devanagari": "^5.3.0",
+    "playwright": "1.56.1"
+  }
+}

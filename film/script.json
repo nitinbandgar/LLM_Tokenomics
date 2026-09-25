@@ -1,0 +1,165 @@
+[
+ {
+  "scene": "title",
+  "cues": [
+   {
+    "id": "t1",
+    "text": "The anatomy of an L L M. What you are actually buying, in under three minutes.",
+    "hold": 0.4
+   }
+  ]
+ },
+ {
+  "scene": "context",
+  "chapter": "1.1",
+  "cues": [
+   {
+    "id": "c1",
+    "text": "When you send a message, the model never sees just your question."
+   },
+   {
+    "id": "c2",
+    "text": "The system prompt, the whole conversation, retrieved documents and tool outputs are stitched into one long context. And all of it is billed.",
+    "hold": 2.0
+   }
+  ]
+ },
+ {
+  "scene": "tokenize",
+  "chapter": "1.1",
+  "cues": [
+   {
+    "id": "k1",
+    "text": "A tokenizer chops that text into sub-word pieces called tokens, and each one becomes a number."
+   },
+   {
+    "id": "k2",
+    "text": "\"The cat sat on the\" is five tokens. Tokens are the unit on your invoice.",
+    "hold": 1.2
+   }
+  ]
+ },
+ {
+  "scene": "embed",
+  "chapter": "1.1",
+  "cues": [
+   {
+    "id": "e1",
+    "text": "Each number then looks up a vector of thousands of values. Meaning, encoded as geometry.",
+    "hold": 1.4
+   }
+  ]
+ },
+ {
+  "scene": "layers",
+  "chapter": "1.1",
+  "cues": [
+   {
+    "id": "l1",
+    "text": "Those vectors flow through a stack of about eighty identical transformer layers.",
+    "hold": 0.6
+   },
+   {
+    "id": "l2",
+    "text": "Inside every layer, attention lets each token look back at the ones before it. The last \"the\" pulls hardest on \"sat\" and \"cat\".",
+    "hold": 1.4
+   }
+  ]
+ },
+ {
+  "scene": "predict",
+  "chapter": "1.1",
+  "cues": [
+   {
+    "id": "p1",
+    "text": "At the top of the stack, the model scores every one of a hundred thousand possible next tokens. \"Mat\" wins, and a sampler picks it.",
+    "hold": 0.4
+   },
+   {
+    "id": "p2",
+    "text": "Then that token is fed straight back in, and the whole stack runs again. One full pass, for every word you see streaming onto your screen.",
+    "hold": 1.6
+   }
+  ]
+ },
+ {
+  "scene": "prefill",
+  "chapter": "1.2",
+  "cues": [
+   {
+    "id": "f1",
+    "text": "That loop splits every request into two phases."
+   },
+   {
+    "id": "f2",
+    "text": "Prefill reads your entire prompt in one parallel pass. Fast, and cheap."
+   },
+   {
+    "id": "f3",
+    "text": "Decode writes the answer one token at a time, and every token re-reads all of the model's weights from memory.",
+    "hold": 0.4
+   },
+   {
+    "id": "f4",
+    "text": "That is why output tokens cost three to eight times more than input.",
+    "hold": 0.8
+   },
+   {
+    "id": "f5",
+    "text": "The same physics makes the discounts honest. Cached prompts skip re-reading, for about ninety percent off. Batch lanes run at half price.",
+    "hold": 1.4
+   }
+  ]
+ },
+ {
+  "scene": "dials",
+  "chapter": "1.3",
+  "cues": [
+   {
+    "id": "d0",
+    "text": "Finally, five hidden dials quietly change your bill. Two are set by the model maker, two by whoever serves the model, and one is yours.",
+    "hold": 0.4
+   },
+   {
+    "id": "d1",
+    "text": "One. The tokenizer. The same sentence costs almost seven times more tokens in Hindi than in English.",
+    "hold": 1.0
+   },
+   {
+    "id": "d2",
+    "text": "Two. Architecture. A trillion-parameter mixture of experts wakes up only about thirty-seven billion per token, so it can be cheaper than a dense seventy-billion model.",
+    "hold": 1.0
+   },
+   {
+    "id": "d3",
+    "text": "Three. Precision. Going from sixteen bits to eight, to four, halves the memory read per token, each step.",
+    "hold": 1.2
+   },
+   {
+    "id": "d4",
+    "text": "Four. Batching. Thirty-two requests share one read of the weights, cutting cost per token by over ninety percent. The biggest lever of all.",
+    "hold": 1.0
+   },
+   {
+    "id": "d5",
+    "text": "And five. The context you send. Your system prompt is re-sent, and re-billed, on every single turn.",
+    "hold": 1.6
+   }
+  ]
+ },
+ {
+  "scene": "outro",
+  "cues": [
+   {
+    "id": "o1",
+    "text": "Sequential generation. Memory. Weight reads. That is the machine behind every price in this guide.",
+    "hold": 0.8
+   },
+   {
+    "id": "o2",
+    "text": "Now open each chapter, and try the dials yourself.",
+    "hold": 0.6
+   }
+  ]
+ }
+]

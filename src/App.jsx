@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import Hero from './components/Hero.jsx'
+import LLMFilm from './components/LLMFilm.jsx'
 import InsideLLM from './components/InsideLLM.jsx'
 import PrefillDecode from './components/PrefillDecode.jsx'
 import PriceVariables from './components/PriceVariables.jsx'
@@ -21,6 +22,7 @@ const NAV = [
   {
     num: '1', label: 'The anatomy of an LLM', sub: 'What you are actually buying',
     pages: [
+      { id: 'film', num: '1.0', label: 'The film · in 3 minutes', comp: LLMFilm },
       { id: 'llm', num: '1.1', label: 'How an LLM works', comp: InsideLLM },
       { id: 'prefill', num: '1.2', label: 'Prefill vs decode', comp: PrefillDecode },
       { id: 'variables', num: '1.3', label: 'Five hidden dials', comp: PriceVariables },
