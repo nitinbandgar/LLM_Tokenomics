@@ -1,0 +1,172 @@
+/* Deck-styled widgets for embedding inside the PowerPoint presentation.
+   Palette and type follow the October 2026 deck (Manrope; Tata blues). */
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.deck-embed {
+  --ink: #1a1a1a;
+  --body: #404040;
+  --muted: #6b6b6b;
+  --faint: #8c8c8c;
+  --blue: #1268b3;
+  --navy: #002060;
+  --teal: #009999;
+  --cyan: #00b0f0;
+  --green: #0b8457;
+  --amber: #e9990b;
+  --card: #f4f6f8;
+  --line: #e2e5e9;
+  --line-strong: #d9d9d9;
+  font-family: 'Manrope', Arial, sans-serif;
+  color: var(--body);
+  -webkit-font-smoothing: antialiased;
+}
+.deck-embed *, .deck-embed *::before, .deck-embed *::after { box-sizing: border-box; }
+
+/* fixed design canvas, scaled to whatever frame the slide gives it */
+.de-stage-outer { position: fixed; inset: 0; overflow: hidden; }
+.de-stage {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform-origin: center center;
+}
+
+.de-eyebrow {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+.de-btn {
+  font: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--blue);
+  background: #fff;
+  border: 1.5px solid var(--blue);
+  border-radius: 999px;
+  padding: 5px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.de-btn:hover { background: var(--blue); color: #fff; }
+.de-btn.on { background: var(--blue); color: #fff; }
+
+/* range input with a filled track (fill % set via --p) */
+.de-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background: linear-gradient(to right, var(--blue) 0, var(--blue) var(--p, 50%), var(--line) var(--p, 50%), var(--line) 100%);
+  outline: none;
+  cursor: pointer;
+  margin: 0;
+}
+.de-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--blue);
+  box-shadow: 0 1px 4px rgba(0, 32, 96, 0.25);
+  cursor: grab;
+}
+.de-range::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 3px solid var(--blue);
+  cursor: grab;
+}
+
+.de-seg { display: flex; gap: 6px; }
+.de-seg button {
+  flex: 1;
+  font: inherit;
+  text-align: left;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: #fff;
+  color: var(--body);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.de-seg button .de-seg-label { display: block; font-size: 12.5px; font-weight: 700; }
+.de-seg button .de-seg-sub { display: block; font-size: 10.5px; color: var(--muted); margin-top: 1px; }
+.de-seg button.active { background: var(--blue); border-color: var(--blue); color: #fff; }
+.de-seg button.active .de-seg-sub { color: rgba(255, 255, 255, 0.82); }
+
+.de-toggle {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--body);
+  padding: 6px 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+.de-toggle .de-box {
+  width: 15px;
+  height: 15px;
+  border-radius: 4px;
+  border: 1.5px solid var(--line-strong);
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  line-height: 1;
+  color: #fff;
+}
+.de-toggle.on { border-color: var(--teal); background: rgba(0, 153, 153, 0.06); }
+.de-toggle.on .de-box { background: var(--teal); border-color: var(--teal); }
+
+.de-kpi {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 0;
+}
+.de-kpi-label {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.de-kpi-value {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  line-height: 1.15;
+  margin-top: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.de-kpi-sub { font-size: 11px; color: var(--muted); margin-top: 1px; }
+
+.de-note { font-size: 10.5px; color: var(--faint); line-height: 1.45; }
+
+/* index page listing every widget */
+.de-index { padding: 32px 40px; overflow: auto; height: 100%; }
+.de-index h1 { font-size: 22px; color: var(--navy); margin: 0 0 4px; }
+.de-index a { color: var(--blue); }
