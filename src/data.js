@@ -1,5 +1,5 @@
 // All figures sourced from the "LLM Tokenomics — Detailed Report".
-// Prices are indicative list prices, September 2026 — orders of magnitude, not quotes.
+// Prices are indicative list prices, checked 28 October 2026 — orders of magnitude, not quotes.
 
 export const HEADLINE_NUMBERS = [
   { value: '~50×', label: 'since 2022', text: 'Price decline for constant capability — about 2.7× a year, decelerating ("LLMflation")', source: 'a16z; Epoch AI' },
@@ -10,19 +10,21 @@ export const HEADLINE_NUMBERS = [
   { value: '60–80%', label: 'savings', text: 'Bill reduction reported by teams applying the full lever stack', source: 'Production case reports' },
 ]
 
-// Table 4 — indicative list prices per 1M tokens, September 2026
+// Table 4 — indicative list prices per 1M tokens, checked 28 October 2026
 export const MODEL_PRICES = [
-  { name: 'Claude Fable 5', tier: 'frontier', input: 10, output: 50, notes: 'Frontier reasoning for difficult knowledge work' },
-  { name: 'GPT-5.6 Sol', tier: 'frontier', input: 5, output: 30, notes: 'Flagship reasoning; promotional $4/$20 short-context rate since 22 Aug 2026' },
-  { name: 'Claude Opus 5', tier: 'frontier', input: 5, output: 25, notes: 'Frontier; flat-rate long context' },
-  { name: 'Gemini 3.1 Pro', tier: 'mid', input: 2, output: 12, notes: 'Cheapest frontier-class (≤200K prompts)' },
-  { name: 'GPT-5.6 Terra', tier: 'mid', input: 2, output: 12, notes: 'Balanced default workhorse' },
-  { name: 'Claude Sonnet 5', tier: 'mid', input: 2, output: 10, notes: 'Enterprise workhorse; $2/$10 made permanent 10 Aug 2026' },
-  { name: 'Gemini 3.5 Flash', tier: 'value', input: 1.5, output: 9, notes: 'Fast value tier' },
-  { name: 'GPT-5.6 Luna', tier: 'value', input: 0.2, output: 1.2, notes: 'Ultra-budget proprietary tier' },
-  { name: 'DeepSeek V4 Pro', tier: 'open', input: 0.44, output: 0.87, notes: 'High-end open — the "DeepSeek shock" tier' },
-  { name: 'DeepSeek V4 Flash', tier: 'open', input: 0.14, output: 0.28, notes: 'Cheaper open tier' },
-  { name: 'Gemma 3 27B', tier: 'open', input: 0.08, output: 0.16, notes: 'Low-cost open; price varies by host' },
+  { name: 'GPT-6 Astra', tier: 'frontier', input: 10, output: 50, notes: 'OpenAI flagship' },
+  { name: 'Claude Fable 5.1', tier: 'frontier', input: 10, output: 50, notes: 'Long-running agents; cache reads $0.25' },
+  { name: 'Gemini 4 Argon', tier: 'frontier', input: 2, output: 10, notes: 'Introductory price to 30 Nov; $4/$20 from 1 Dec' },
+  { name: 'Claude Opus 5.5', tier: 'mid', input: 4, output: 20, notes: 'Agentic coding daily driver; cut from $5/$25 on 22 Sep' },
+  { name: 'GPT-6.1 Sol', tier: 'mid', input: 2, output: 10, notes: 'Halved on 22 Sep; fast mode costs 2×' },
+  { name: 'Claude Sonnet 5.5', tier: 'mid', input: 2, output: 10, notes: 'Enterprise workhorse' },
+  { name: 'GPT-6.1 Terra', tier: 'mid', input: 1, output: 5, notes: 'Balanced default workhorse' },
+  { name: 'Gemini 3.8 Flash', tier: 'mid', input: 0.75, output: 3.75, notes: 'Doubles to $1.50/$7.50 on 1 Jan' },
+  { name: 'GPT-6 Luna', tier: 'value', input: 0.1, output: 0.5, notes: 'Classification, extraction, routing' },
+  { name: 'Claude Haiku 5.5', tier: 'value', input: 0.1, output: 0.5, notes: '5× dearer when a prompt exceeds 100K tokens' },
+  { name: 'Kimi K3.1 Pro', tier: 'open', input: 2, output: 10, notes: 'Open weights released 4 Nov' },
+  { name: 'DeepSeek V4-Pro', tier: 'open', input: 1.32, output: 3.96, notes: 'Peak rate; 50% off off-peak ($0.66/$1.98)' },
+  { name: 'DeepSeek V4.1 Flash', tier: 'open', input: 0.15, output: 0.6, notes: 'Off-peak rate; $0.30/$1.20 at peak' },
 ]
 
 export const TIER_COLORS = {
@@ -34,44 +36,46 @@ export const TIER_COLORS = {
 
 export const TIER_LABELS = {
   frontier: 'Frontier',
-  mid: 'Mid tier',
+  mid: 'Workhorse',
   value: 'Value tier',
   open: 'Open weights',
 }
 
 // Table 3 — the five commercial meters, with the real reference points behind each range
 export const PRICING_MODELS = [
-  { name: 'Subscription', unit: 'per seat / month', price: '$20–100+', icon: '👤',
-    desc: 'Bundles the UI, usage caps, admin and support — not a pure model price.',
+  { name: 'Subscription', unit: 'per seat / month', price: '$20–200', icon: '👤',
+    desc: 'Seats are going hybrid: a seat fee plus usage billed at API rates — budget seats as a variable cost.',
     refs: [
-      ['ChatGPT Business', '~$20 / user / month, annual billing'],
-      ['Claude Team', '$20 standard seat · $100 premium seat'],
+      ['Claude Enterprise', '$20 / seat + usage at API rates'],
+      ['GitHub Copilot', 'moved to usage-based AI Credits on 1 June 2026'],
     ] },
-  { name: 'Per-token API', unit: 'per 1M tokens in/out', price: '$0.08–$50', icon: '🔤',
+  { name: 'Per-token API', unit: 'per 1M tokens in/out', price: '$0.10–$50', icon: '🔤',
     desc: 'The dominant developer tariff: input and output metered separately.',
     refs: [
-      ['Top of range', 'Claude Fable 5 — $50 / 1M output tokens'],
-      ['Bottom of range', 'Gemma 3 27B — from $0.08 / 1M'],
-      ['Who charges this way', 'OpenAI, Anthropic, Google, AWS Bedrock, open-weight hosts'],
+      ['Top of range', 'GPT-6 Astra, Claude Fable 5.1 — $10 in / $50 out'],
+      ['Bottom of range', 'GPT-6 Luna, Claude Haiku 5.5 — $0.10 in / $0.50 out'],
+      ['Open-weight hosted', 'DeepSeek V4.1 Flash $0.15/$0.60 off-peak · Kimi K3.1 Pro $2/$10'],
     ] },
-  { name: 'Per-request', unit: 'per tool call / query', price: '$2.50–$35 / 1,000', icon: '🔧',
-    desc: 'Surcharges for tools and retrieval, on top of the tokens they generate.',
+  { name: 'Per-request', unit: 'per tool call / query', price: '$2.50–$14 / 1,000', icon: '🔧',
+    desc: 'Surcharges for tools, retrieval and agent runtime, on top of the tokens they generate.',
     refs: [
-      ['Web search', '~$10 per 1,000 calls'],
-      ['File search', '~$2.50 per 1,000 calls'],
-      ['Search grounding', '~$35 per 1,000 prompts'],
+      ['Web search', '$10 per 1,000 calls (OpenAI, Anthropic)'],
+      ['Google grounding', '$14 per 1,000 after 5,000 free a month'],
+      ['File search', '$2.50 per 1,000 calls'],
+      ['Agent runtime', '$0.08 per session-hour (Claude Managed Agents)'],
     ] },
   { name: 'Compute-hour', unit: 'per GPU-hour', price: '$0.50–$80 / hr', icon: '🖥️',
     desc: 'Dedicated endpoints and provisioned throughput — you rent the silicon, not the tokens.',
     refs: [
       ['1× T4', '~$0.50 / hour'],
-      ['1× H100', '~$4.50 / hour'],
-      ['8× H100 node', '$36–80 / hour by provider and commitment — $36/hr is the unit used in this guide’s cost calculators'],
+      ['1× H100', '~$4.50–6 / hour'],
+      ['8× H100 node', '$32–50 / hour by provider and commitment — $36/hr is the unit used in this guide’s cost calculators'],
+      ['8× B200 node', '$52–80 / hour'],
     ] },
   { name: 'Fine-tuning', unit: 'per hour or per token', price: '~$100/hr or ~$8/1M', icon: '🎛️',
-    desc: 'Managed customisation, plus storage and hosting for the tuned model afterwards.',
+    desc: 'Training billed separately from serving, plus storage and hosting for the tuned model.',
     refs: [
-      ['OpenAI RFT', '~$100 / hour; grader tokens billed separately'],
+      ['OpenAI RFT', '~$100 / hour — self-serve fine-tuning is being wound down'],
       ['Bedrock Llama-class', '~$8 per 1M training tokens, + storage + hosting'],
     ] },
 ]

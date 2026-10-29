@@ -6,8 +6,9 @@ import { fmtUSD } from '../data.js'
 const REQ = 500_000
 const IN_TOK = 3000
 const OUT_TOK = 600
-const FLAG = { input: 10, output: 30 }
-const VALUE = { input: 0.15, output: 0.6 }
+// October 2026 list prices: frontier (GPT-6 Astra / Claude Fable 5.1) and value (GPT-6 Luna / Claude Haiku 5.5)
+const FLAG = { input: 10, output: 50 }
+const VALUE = { input: 0.1, output: 0.5 }
 
 function computeBill(levers) {
   const { semHit, ctxTrim, route, cacheHit, batchShare, outTrim } = levers
@@ -111,7 +112,7 @@ function Playground() {
             </div>
           </details>
           <div style={{ fontSize: 12, color: 'var(--text-faint)' }}>
-            Baseline: 500K requests/mo · 3,000 in + 600 out tokens · flagship API ($10/$30 per M) · no discounts.
+            Baseline: 500K requests/mo · 3,000 in + 600 out tokens · frontier API ($10/$50 per M) · no discounts.
           </div>
         </div>
 
@@ -305,7 +306,7 @@ export default function Optimization() {
           <div className="card">
             <div className="big-num" style={{ color: 'var(--accent-violet)' }}>½ the bill</div>
             <div style={{ fontWeight: 600, fontSize: 13.5, margin: '4px 0' }}>Model routing</div>
-            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>The highest-leverage single decision: 70% of a flagship workload on a capable mini tier roughly halves the bill.</div>
+            <div style={{ fontSize: 12, color: 'var(--text-dim)' }}>The highest-leverage single decision: moving 70% of a frontier workload to a capable value tier cuts the bill by about two-thirds.</div>
           </div>
           <div className="card">
             <div className="big-num" style={{ color: 'var(--accent-green)' }}>50% off</div>

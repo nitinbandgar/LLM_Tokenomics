@@ -9,12 +9,13 @@ import BillChoice, { SIZE as BILL_SIZE } from './BillChoice.jsx'
 
 // One entry per in-deck widget. URL: <site>/?embed=<id>
 export const WIDGETS = {
-  'cost-floor': { title: 'Slide 7 · The bottom-up floor', comp: CostFloor, size: FLOOR_SIZE },
-  'agent-loop': { title: 'Slide 14 · The agentic multiplier', comp: AgentLoop, size: AGENT_SIZE },
-  'routing-mix': { title: 'Slide 22 · Model routing in practice', comp: RoutingMix, size: ROUTING_SIZE },
-  'self-check': { title: 'Slide 31 · Self-check', comp: SelfCheck, size: CHECK_SIZE },
-  'case-a': { title: 'Slide 33 · Worked case A', comp: CaseA, size: CASE_SIZE },
-  'bill-choice': { title: 'Slide 36 · The bill is a choice', comp: BillChoice, size: BILL_SIZE },
+  // titles match the slide titles (slide numbers shift once hidden fallback slides are added)
+  'cost-floor': { title: 'The bottom-up floor', comp: CostFloor, size: FLOOR_SIZE },
+  'agent-loop': { title: 'The agentic multiplier', comp: AgentLoop, size: AGENT_SIZE },
+  'routing-mix': { title: 'Model routing in practice', comp: RoutingMix, size: ROUTING_SIZE },
+  'self-check': { title: 'Self-check · three minutes', comp: SelfCheck, size: CHECK_SIZE },
+  'case-a': { title: 'Worked case A · customer support', comp: CaseA, size: CASE_SIZE },
+  'bill-choice': { title: 'Price × volume = spend', comp: BillChoice, size: BILL_SIZE },
 }
 
 export const loadFont = () => {

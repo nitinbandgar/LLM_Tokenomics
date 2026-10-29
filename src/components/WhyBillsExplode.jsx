@@ -2,10 +2,11 @@ import React, { useMemo, useState } from 'react'
 import { Section, Fold, Slider, Seg, ResultStrip, Callout, Hint, More } from './ui.jsx'
 import { FAILURE_MODES, fmtUSD, fmtNum } from '../data.js'
 
+// October 2026 list prices: GPT-6 Astra / Claude Fable 5.1, Sonnet 5.5 / GPT-6.1 Sol, Haiku 5.5 / GPT-6 Luna
 const TIERS = [
-  { value: 'flagship', label: 'Flagship', input: 10, output: 30 },
-  { value: 'mid', label: 'Mid tier', input: 3, output: 15 },
-  { value: 'value', label: 'Value tier', input: 0.15, output: 0.6 },
+  { value: 'flagship', label: 'Frontier', input: 10, output: 50 },
+  { value: 'mid', label: 'Workhorse', input: 2, output: 10 },
+  { value: 'value', label: 'Value tier', input: 0.1, output: 0.5 },
 ]
 
 const MODE_ICONS = {

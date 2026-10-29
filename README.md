@@ -31,7 +31,7 @@ can move through the whole guide without reading a wall of text.
 | **5 · Conclusion** | 5.1 Your bill is a choice · 5.2 What it means for you |
 | **6 · Glossary** | All 32 terms, searchable |
 
-All figures are indicative list prices as of mid-2026 — orders of magnitude, not quotes.
+All figures are indicative list prices, checked 28 October 2026 — orders of magnitude, not quotes.
 The calculators use simplified first-principles models described inline; assumptions are
 stated next to each interactive.
 
@@ -54,6 +54,26 @@ precomputed with js-tiktoken (dev dependency only — see `src/examples.js`).
 Chapters 4.1, 4.2 and 5.1 implement `LLM_Tokenomics_Force_Model_v5.xlsx` directly: totals,
 log-space contribution shares, the cumulative index walk and the published strategy
 matrix all reconcile to the workbook.
+
+## In-deck widgets and the PowerPoint add-in
+
+The October 2026 presentation shows six live widgets inside its slides, styled to the deck
+(Manrope, Tata palette) and using the deck's own figures:
+
+| Widget | Slide | URL |
+|---|---|---|
+| Hardware cost floor | 7 | `?embed=cost-floor` |
+| Agentic multiplier | 14 | `?embed=agent-loop` |
+| Four-tier routing mix | 22 | `?embed=routing-mix` |
+| Maturity self-check | 31 | `?embed=self-check` |
+| Worked case A levers | 33 | `?embed=case-a` |
+| The bill is a choice | 36 | `?embed=bill-choice` |
+
+`?embed=<id>` renders one widget on a fixed design canvas scaled to its frame (code in
+`src/embed/`). `addin.html` wraps the same widgets as a PowerPoint content add-in: each
+instance on a slide stores its widget in the document's add-in settings, so one add-in serves
+every live slide. The manifest ships at `/addin/manifest.xml`; on Windows it is registered
+per user (no admin rights) by `install-addin.cmd`, kept next to the deck.
 
 ## Deployment
 

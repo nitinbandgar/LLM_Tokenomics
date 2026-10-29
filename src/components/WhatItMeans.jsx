@@ -83,7 +83,7 @@ export default function WhatItMeans() {
           ))}
         </div>
         <div style={{ fontSize: 11.5, color: 'var(--text-faint)', marginTop: 12 }}>
-          Indicative as of September 2026. This market reprices monthly — treat these as orders of
+          Indicative list prices, checked 28 October 2026. This market reprices monthly — treat these as orders of
           magnitude, not quotes.
         </div>
       </Fold>
