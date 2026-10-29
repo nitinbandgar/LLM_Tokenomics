@@ -166,6 +166,30 @@ html, body {
 
 .de-note { font-size: 10.5px; color: var(--faint); line-height: 1.45; }
 
+.de-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.de-chip {
+  font: inherit;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--body);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.de-chip:hover { border-color: var(--blue); color: var(--blue); }
+.de-chip.on { background: var(--navy); border-color: var(--navy); color: #fff; }
+
+.de-big {
+  font-weight: 800;
+  color: var(--navy);
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+}
+
 /* index page listing every widget */
 .de-index { padding: 32px 40px; overflow: auto; height: 100%; }
 .de-index h1 { font-size: 22px; color: var(--navy); margin: 0 0 4px; }

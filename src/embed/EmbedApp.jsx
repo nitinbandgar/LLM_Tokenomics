@@ -1,13 +1,23 @@
 import React, { useLayoutEffect, useState } from 'react'
 import './embed.css'
 import AgentLoop, { SIZE as AGENT_SIZE } from './AgentLoop.jsx'
+import CostFloor, { SIZE as FLOOR_SIZE } from './CostFloor.jsx'
+import RoutingMix, { SIZE as ROUTING_SIZE } from './RoutingMix.jsx'
+import SelfCheck, { SIZE as CHECK_SIZE } from './SelfCheck.jsx'
+import CaseA, { SIZE as CASE_SIZE } from './CaseA.jsx'
+import BillChoice, { SIZE as BILL_SIZE } from './BillChoice.jsx'
 
 // One entry per in-deck widget. URL: <site>/?embed=<id>
-const WIDGETS = {
+export const WIDGETS = {
+  'cost-floor': { title: 'Slide 7 · The bottom-up floor', comp: CostFloor, size: FLOOR_SIZE },
   'agent-loop': { title: 'Slide 14 · The agentic multiplier', comp: AgentLoop, size: AGENT_SIZE },
+  'routing-mix': { title: 'Slide 22 · Model routing in practice', comp: RoutingMix, size: ROUTING_SIZE },
+  'self-check': { title: 'Slide 31 · Self-check', comp: SelfCheck, size: CHECK_SIZE },
+  'case-a': { title: 'Slide 33 · Worked case A', comp: CaseA, size: CASE_SIZE },
+  'bill-choice': { title: 'Slide 36 · The bill is a choice', comp: BillChoice, size: BILL_SIZE },
 }
 
-const loadFont = () => {
+export const loadFont = () => {
   if (document.getElementById('de-font')) return
   const link = document.createElement('link')
   link.id = 'de-font'
@@ -18,7 +28,7 @@ const loadFont = () => {
 
 // Render at a fixed design size and scale to fit the frame, so the widget
 // looks the same in PowerPoint's edit view, in slide show, and in a browser.
-function Stage({ w, h, children }) {
+export function Stage({ w, h, children }) {
   const [scale, setScale] = useState(1)
   useLayoutEffect(() => {
     const fit = () => setScale(Math.min(window.innerWidth / w, window.innerHeight / h))

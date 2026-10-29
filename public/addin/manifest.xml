@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- PowerPoint content add-in that shows the live widgets of the LLM Tokenomics deck.
+     Register it on a Windows laptop with install-addin.cmd (see addin/README.txt next to the deck). -->
+<OfficeApp xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:type="ContentApp">
+  <Id>1eb8b6e2-f2c8-43f7-bb7a-081ec1ff80fd</Id>
+  <Version>1.0.0.0</Version>
+  <ProviderName>Nitin Bandgar</ProviderName>
+  <DefaultLocale>en-US</DefaultLocale>
+  <DisplayName DefaultValue="LLM Tokenomics widgets"/>
+  <Description DefaultValue="Live, interactive widgets for the LLM Tokenomics presentation: cost floor, agent loop, routing mix, self-check, worked case and the bill-is-a-choice model."/>
+  <IconUrl DefaultValue="https://nitinbandgar.github.io/LLM_Tokenomics/addin/icon-32.png"/>
+  <HighResolutionIconUrl DefaultValue="https://nitinbandgar.github.io/LLM_Tokenomics/addin/icon-64.png"/>
+  <SupportUrl DefaultValue="https://nitinbandgar.github.io/LLM_Tokenomics/"/>
+  <AppDomains>
+    <AppDomain>https://nitinbandgar.github.io</AppDomain>
+  </AppDomains>
+  <Hosts>
+    <Host Name="Presentation"/>
+  </Hosts>
+  <DefaultSettings>
+    <SourceLocation DefaultValue="https://nitinbandgar.github.io/LLM_Tokenomics/addin.html"/>
+    <RequestedWidth>900</RequestedWidth>
+    <RequestedHeight>300</RequestedHeight>
+  </DefaultSettings>
+  <Permissions>ReadWriteDocument</Permissions>
+  <AllowSnapshot>true</AllowSnapshot>
+</OfficeApp>

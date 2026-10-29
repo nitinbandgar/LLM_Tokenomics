@@ -33,6 +33,19 @@ export function Seg({ options, value, onChange }) {
   )
 }
 
+// small preset buttons; `active` marks the preset matching the current state
+export function Chips({ options, active, onPick }) {
+  return (
+    <div className="de-chips">
+      {options.map((o) => (
+        <button key={o.label} className={'de-chip' + (active === o.label ? ' on' : '')} onClick={() => onPick(o)}>
+          {o.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function Toggle({ on, onChange, children }) {
   return (
     <div className={'de-toggle' + (on ? ' on' : '')} onClick={() => onChange(!on)} role="checkbox" aria-checked={on}>
