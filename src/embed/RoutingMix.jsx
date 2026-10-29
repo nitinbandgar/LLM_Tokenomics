@@ -17,11 +17,16 @@ const PRESETS = [
 
 const toBounds = (s) => [s[0], s[0] + s[1], s[0] + s[1] + s[2]]
 const toShares = (b) => [b[0], b[1] - b[0], b[2] - b[1], 100 - b[2]]
+// "60-28-10-2" -> [60, 28, 10, 2], or null unless four shares adding to 100
+const parseMix = (mix) => {
+  const s = String(mix || '').split('-').map(Number)
+  return s.length === 4 && s.every((v) => v >= 0) && s.reduce((a, b) => a + b, 0) === 100 ? s : null
+}
 
 export const SIZE = { w: 1200, h: 120 }
 
-export default function RoutingMix() {
-  const [bounds, setBounds] = useState(toBounds(PRESETS[0].shares))
+export default function RoutingMix({ init = {} }) {
+  const [bounds, setBounds] = useState(() => toBounds(parseMix(init.mix) || PRESETS[0].shares))
   const bar = useRef(null)
   const drag = useRef(null) // { candidates: [k…], k, startX }
 

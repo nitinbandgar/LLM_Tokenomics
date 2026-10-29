@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { OCT_TIERS, fmtPrice } from './deckData.js'
 import { fmtUSD, fmtNum } from '../data.js'
 import { Eyebrow, Range, Seg, Toggle, Kpi } from './primitives.jsx'
+import { num, flag } from './presets.js'
 
 // Slide 14 — "Agents pay for the same context again and again".
 const BASE = 3000 // system prompt + tool schemas + task: re-sent at every step
@@ -48,11 +49,11 @@ const toPath = (pts) => pts.map((p, k) => `${k === 0 ? 'M' : 'L'}${x(p.i).toFixe
 
 export const SIZE = { w: 1200, h: 310 }
 
-export default function AgentLoop() {
-  const [steps, setSteps] = useState(20)
-  const [tierId, setTierId] = useState('frontier')
-  const [compact, setCompact] = useState(false)
-  const [cache, setCache] = useState(false)
+export default function AgentLoop({ init = {} }) {
+  const [steps, setSteps] = useState(() => num(init.steps, 20, 1, MAX_STEPS))
+  const [tierId, setTierId] = useState(() => (OCT_TIERS.some((t) => t.id === init.tier) ? init.tier : 'frontier'))
+  const [compact, setCompact] = useState(() => flag(init.compact))
+  const [cache, setCache] = useState(() => flag(init.cache))
   const [playing, setPlaying] = useState(false)
   const timer = useRef(null)
   const tier = OCT_TIERS.find((t) => t.id === tierId)

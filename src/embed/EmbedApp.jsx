@@ -6,6 +6,7 @@ import RoutingMix, { SIZE as ROUTING_SIZE } from './RoutingMix.jsx'
 import SelfCheck, { SIZE as CHECK_SIZE } from './SelfCheck.jsx'
 import CaseA, { SIZE as CASE_SIZE } from './CaseA.jsx'
 import BillChoice, { SIZE as BILL_SIZE } from './BillChoice.jsx'
+import { PRESETS } from './presets.js'
 
 // One entry per in-deck widget. URL: <site>/?embed=<id>
 export const WIDGETS = {
@@ -54,7 +55,7 @@ export default function EmbedApp({ id }) {
     return (
       <div className="deck-embed de-index">
         <h1>In-deck widgets</h1>
-        <p className="de-note" style={{ fontSize: 13 }}>Paste one of these links into PowerPoint’s Web Viewer add-in.</p>
+        <p className="de-note" style={{ fontSize: 13 }}>Each link opens one live widget, scaled to the window.</p>
         <ul>
           {Object.entries(WIDGETS).map(([key, w]) => (
             <li key={key} style={{ margin: '8px 0', fontSize: 14 }}>
@@ -66,10 +67,24 @@ export default function EmbedApp({ id }) {
     )
   }
   const Comp = widget.comp
+  const params = Object.fromEntries(new URLSearchParams(window.location.search))
+  // ?stack=1 lays out every preset state top to bottom at design size, so the offline
+  // deck's images come from a single capture per widget
+  if (params.stack !== undefined) {
+    return (
+      <div className="deck-embed">
+        {(PRESETS[id] || []).map((p) => (
+          <div key={p.key} data-preset={p.key} style={{ width: widget.size.w, height: widget.size.h, overflow: 'hidden' }}>
+            <Comp init={p} />
+          </div>
+        ))}
+      </div>
+    )
+  }
   return (
     <div className="deck-embed">
       <Stage w={widget.size.w} h={widget.size.h}>
-        <Comp />
+        <Comp init={params} />
       </Stage>
     </div>
   )

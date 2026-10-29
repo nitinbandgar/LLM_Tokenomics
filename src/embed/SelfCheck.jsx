@@ -40,10 +40,12 @@ function Question({ n, text, yes, onToggle }) {
   )
 }
 
-export default function SelfCheck() {
+export default function SelfCheck({ init = {} }) {
+  // native: the offline deck draws its own ticks and level highlight, so no live score here
+  const native = init.mode === 'native'
   const [yes, setYes] = useState(() => QUESTIONS.map(() => false))
   const score = yes.filter(Boolean).length
-  const level = LEVELS.find((l) => score >= l.min && score <= l.max)
+  const level = native ? null : LEVELS.find((l) => score >= l.min && score <= l.max)
   const toggle = (i) => setYes((prev) => prev.map((v, j) => (j === i ? !v : v)))
 
   return (
@@ -58,16 +60,24 @@ export default function SelfCheck() {
       <div style={{ background: 'var(--navy)', borderRadius: 12, padding: '18px 20px', color: '#fff', display: 'flex', flexDirection: 'column' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span className="de-eyebrow" style={{ color: 'var(--cyan)' }}>Your score and level</span>
-          <button onClick={() => setYes(QUESTIONS.map(() => false))} style={{
+          {!native && <button onClick={() => setYes(QUESTIONS.map(() => false))} style={{
             font: 'inherit', fontSize: 11, fontWeight: 700, color: '#fff', background: 'transparent',
             border: '1px solid rgba(255,255,255,0.4)', borderRadius: 999, padding: '2px 10px', cursor: 'pointer',
-          }}>Reset</button>
+          }}>Reset</button>}
         </div>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '8px 0 2px' }}>
-          <span className="de-big" style={{ fontSize: 52, color: '#fff' }}>{score}</span>
-          <span style={{ fontSize: 18, opacity: 0.7, fontWeight: 700 }}>/ 10</span>
-        </div>
-        <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--cyan)', marginBottom: 12 }}>{level.name}</div>
+        {native ? (
+          <div style={{ margin: '10px 0 12px', fontSize: 17, fontWeight: 700, lineHeight: 1.4 }}>
+            Count your ticks,<br /><span style={{ color: 'var(--cyan)' }}>then click your level</span>
+          </div>
+        ) : (
+          <>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, margin: '8px 0 2px' }}>
+              <span className="de-big" style={{ fontSize: 52, color: '#fff' }}>{score}</span>
+              <span style={{ fontSize: 18, opacity: 0.7, fontWeight: 700 }}>/ 10</span>
+            </div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: 'var(--cyan)', marginBottom: 12 }}>{level.name}</div>
+          </>
+        )}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 4, marginTop: 'auto' }}>
           {LEVELS.map((l) => {
             const on = l === level

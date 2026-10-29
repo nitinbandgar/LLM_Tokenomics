@@ -33,9 +33,13 @@ const BASE = monthly(new Set())
 
 export const SIZE = { w: 1000, h: 483 }
 
-export default function CaseA() {
+export default function CaseA({ init = {} }) {
   // lever ids, in the order they were switched on; the static snapshot shows all four
-  const [order, setOrder] = useState(() => (new URLSearchParams(window.location.search).has('snapshot') ? LEVERS.map((l) => l.id) : []))
+  const [order, setOrder] = useState(() => {
+    if (init.snapshot !== undefined) return LEVERS.map((l) => l.id)
+    const ids = String(init.levers || '').split(',').filter((id) => LEVERS.some((l) => l.id === id))
+    return [...new Set(ids)]
+  })
   const toggle = (id) => setOrder((o) => (o.includes(id) ? o.filter((x) => x !== id) : [...o, id]))
 
   // cumulative cost after each lever, in the order the room chose

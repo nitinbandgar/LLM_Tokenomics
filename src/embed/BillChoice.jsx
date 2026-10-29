@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Eyebrow, Range, Chips } from './primitives.jsx'
+import { num } from './presets.js'
 
 // Slide 36 — spend index = price × volume (2026 = 100), from the deck's planning table.
 const YEARS = [2026, 2027, 2028, 2029, 2030]
@@ -22,9 +23,9 @@ const W = 1000, H = 372, PL = 56, PR = 150, PT = 14, PB = 30
 
 export const SIZE = { w: 1000, h: 550 }
 
-export default function BillChoice() {
-  const [share, setShare] = useState(50) // % of workloads that move up-tier each year
-  const [growth, setGrowth] = useState(24)
+export default function BillChoice({ init = {} }) {
+  const [share, setShare] = useState(() => num(init.share, 50, 0, 100)) // % of workloads that move up-tier each year
+  const [growth, setGrowth] = useState(() => num(init.growth, 24, 8, 40))
   const vol = volumeFor(growth)
   const fixed = spendPath(0, vol)
   const frontier = spendPath(1, vol)

@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import { Eyebrow, Range, Chips } from './primitives.jsx'
+import { num } from './presets.js'
 
 // Slide 7 — "The bottom-up floor": $/hr ÷ (tokens/s × 3,600 s) × 1M
 const TPS_MIN = 20, TPS_MAX = 6000
@@ -32,9 +33,9 @@ const money = (v) => (v >= 100 ? '$' + Math.round(v).toLocaleString() : '$' + v.
 
 export const SIZE = { w: 920, h: 420 }
 
-export default function CostFloor() {
-  const [hourly, setHourly] = useState(36)
-  const [tps, setTps] = useState(5000)
+export default function CostFloor({ init = {} }) {
+  const [hourly, setHourly] = useState(() => num(init.hourly, 36, 20, 80))
+  const [tps, setTps] = useState(() => num(init.tps, 5000, TPS_MIN, TPS_MAX))
   const cost = (hourly / (tps * 3600)) * 1e6
 
   let verdict
