@@ -72,8 +72,10 @@ The October 2026 presentation shows six live widgets inside its slides, styled t
 `?embed=<id>` renders one widget on a fixed design canvas scaled to its frame (code in
 `src/embed/`). `addin.html` wraps the same widgets as a PowerPoint content add-in: each
 instance on a slide stores its widget in the document's add-in settings, so one add-in serves
-every live slide. The manifest ships at `/addin/manifest.xml`; on Windows it is registered
-per user (no admin rights) by `install-addin.cmd`, kept next to the deck.
+every live slide. The manifest ships at `/addin/manifest.xml`. On Windows desktop Office 2024
+the add-in loads from a trusted shared-folder catalog (a shared folder holding the manifest,
+added under Trust Center → Trusted Add-in Catalogs); registry "developer" sideloading only
+works while debugging from Visual Studio.
 
 ## Deployment
 
